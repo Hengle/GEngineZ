@@ -1,0 +1,18 @@
+cmake_minimum_required(VERSION 3.0)
+
+
+# ========== COMPILE OPTIONS ==========
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+
+option(BUILD_SHARED_LIBS "Build shared libs" OFF)
+
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/binary)
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/binary)
+
+
+include_directories(engine)
+
+add_subdirectory(engine)
