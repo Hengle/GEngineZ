@@ -7,6 +7,7 @@ macro(add_source_dir name)
     source_group(${groupname} FILES ${SRC_FILE})
 endmacro()
 
+add_source_dir(core)
 add_source_dir(object)
 add_source_dir(scene)
 add_source_dir(startup)

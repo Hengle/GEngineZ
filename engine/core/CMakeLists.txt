@@ -7,12 +7,13 @@ macro(add_source_dir name)
     source_group(${groupname} FILES ${SRC_FILE})
 endmacro()
 
-add_source_dir(event)
-add_source_dir(frame)
+add_source_dir(common)
+add_source_dir(foundation)
+add_source_dir(input)
 add_source_dir(objet)
 add_source_dir(reflect)
-add_source_dir(util)
 add_source_dir(sched)
+add_source_dir(util)
 
 add_library(z_core STATIC ${ALL_SRC})
 

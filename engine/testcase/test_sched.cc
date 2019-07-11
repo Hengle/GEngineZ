@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 #include <core/common/common.h>
-#include <core/sched/sched.h>
+#include <core/sched/scheduler.h>
 
 #include <chrono>
 #include <memory>
