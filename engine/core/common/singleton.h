@@ -1,7 +1,7 @@
 #pragma once
 
 #include <atomic>
-#include "debug.h"
+#include "Debug.h"
 
 namespace z {
 

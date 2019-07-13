@@ -1,6 +1,6 @@
 #pragma once
 
-#include "logger.h"
-#include "debug.h"
-#include "singleton.h"
-#include "time.h"
+#include "Logger.h"
+#include "Debug.h"
+#include "Singleton.h"
+#include "Time.h"

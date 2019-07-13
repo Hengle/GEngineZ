@@ -44,22 +44,22 @@ public:
 
 	template<typename... Args>
 	Log(Args... args){
-		stream_ << GetLogString<LEVEL>() << " ";
+		mStream << GetLogString<LEVEL>() << " ";
 		if constexpr(sizeof...(args) > 0)
 			Print(args...);
 	}
 
 	template<typename T, typename... Args>
 	void Print(T first, Args... args) {
-		stream_ << first << " ";
+		mStream << first << " ";
 		if constexpr (sizeof...(args) > 0) {
 			Print(args...);
 		}
 	}
 
 	~Log() {
-		stream_ << std::endl;
-		std::wcout << stream_.str();
+		mStream << std::endl;
+		std::wcout << mStream.str();
 		if constexpr (LEVEL == LFATAL) {
 			exit(-1);
 		}
@@ -67,12 +67,12 @@ public:
 
 	template<typename T>
 	Log& const operator << (T&& t) {
-		stream_ << t;
+		mStream << t;
 		return *this;
 	}
 
 private:
-	std::wstringstream stream_;
+	std::wstringstream mStream;
 };
 
 

@@ -2,8 +2,9 @@
 
 namespace z {
 
-class RenderView {
+class RenderScene {
 
 };
+
 
 }

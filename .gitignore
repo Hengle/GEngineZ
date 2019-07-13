@@ -1,4 +1,6 @@
 .vs
 out
+Build
 *.pdb
 *.ilk
+*.pyc
