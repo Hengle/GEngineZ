@@ -6,12 +6,15 @@ import re
 STATIC_LIB = 0
 DYNAMIC_LIB = 1
 EXECUTABLE = 2
+CUSTOM = 3
 
 CUR_FILE_DIR = os.path.dirname(os.path.realpath(__file__))
 ROOT_DIR = os.getcwd()
 
 class Module(object):
-    pass
+    def __init__(self, name, tp):
+        self.NAME = name
+        self.TYPE = tp
 
 
 class CMakeBuilder(object):
@@ -19,27 +22,29 @@ class CMakeBuilder(object):
         super(CMakeBuilder, self).__init__()
         self.output = [""]
 
-        self.template_predefine = file(os.path.join(CUR_FILE_DIR, "Templates", "PreDefine.cmake.txt")).read()
-        self.template_staticlib = file(os.path.join(CUR_FILE_DIR, "Templates", "StaticLib.cmake.txt")).read()
+        self.template_header = file(os.path.join(CUR_FILE_DIR, "Templates", "Header.cmake.txt")).read()
+        self.template_libaray = file(os.path.join(CUR_FILE_DIR, "Templates", "Libaray.cmake.txt")).read()
         self.template_executable = file(os.path.join(CUR_FILE_DIR, "Templates", "Executable.cmake.txt")).read()
+        self.template_custom = file(os.path.join(CUR_FILE_DIR, "Templates", "Custom.cmake.txt")).read()
 
         self.targets = {}
 
     def GenerateTargets(self, targets):
         self.targets = targets
-        self.PreDefine()
+        self.GenerateHeader()
 
         for target_name, info in targets.iteritems():
-            if info.TYPE == STATIC_LIB:
-                self.GenerateStaticLib(target_name)
+            if info.TYPE == STATIC_LIB or info.TYPE == DYNAMIC_LIB:
+                self.GenerateLibaray(target_name)
             elif info.TYPE == EXECUTABLE:
                 self.GenerateExecutable(target_name)
+            elif info.TYPE == CUSTOM:
+                self.GenerateCustom(target_name)
         self.Output()
 
-
-    def GenerateStaticLib(self, target_name):
+    def GenerateLibaray(self, target_name):
         target = self.targets[target_name]
-        output = self.template_staticlib
+        output = self.template_libaray
         output = output.replace("%LIB_NAME%", target.NAME)
 
         # include lib directory
@@ -68,13 +73,25 @@ class CMakeBuilder(object):
        
         output = output.replace("%EXE_GROUPS%", '\n'.join(groups))
         output = output.replace("%EXE_SRCS%", ' '.join(srcs))
-
         output = output.replace("%DEP_LIBS%", ' '.join(target.DEPS))
 
         self.AppendOutput([output])
 
-    def PreDefine(self):
-        self.AppendOutput([self.template_predefine])
+    def GenerateCustom(self, target_name):
+        target = self.targets[target_name]
+        output = self.template_custom
+        output = output.replace("%CUSTOM_NAME%", target.NAME)
+        # groups && src
+        include_dirs = [os.path.dirname(name + '/') for name in target.SOURCE if os.path.isdir(name)]
+        groups, srcs = self.GetGroupAndSources(include_dirs)
+       
+        output = output.replace("%CUSTOM_GROUPS%", '\n'.join(groups))
+        output = output.replace("%CUSTOM_SRCS%", ' '.join(srcs))
+
+        self.AppendOutput([output])
+
+    def GenerateHeader(self):
+        self.AppendOutput([self.template_header])
 
     def AppendOutput(self, output):
         self.output.extend(output)
@@ -102,7 +119,6 @@ class CMakeBuilder(object):
             group_p, group_s = group
             src_list = ['%s%s/%s'%(group_p, group_s, src) for src in srcs]
             group_name = (group_p + group_s).replace('/', '_') + '_GROUP_FILES'
-            print '....', group_p, group_s
             if len(group_s) > 0:
                 groups_strs.append("set(%s %s)"%(group_name, ' '.join(src_list)))
                 groups_strs.append("source_group(%s FILES ${%s})"% (group_s.replace('/', '\\\\'), group_name))

@@ -1,0 +1,5 @@
+# ========== Custom Target %CUSTOM_NAME% ==========
+
+set(%CUSTOM_NAME%_SRC %CUSTOM_SRCS%)
+%CUSTOM_GROUPS%
+add_custom_target(%CUSTOM_NAME% SOURCES ${%CUSTOM_NAME%_SRC})

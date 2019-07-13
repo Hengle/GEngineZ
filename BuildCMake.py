@@ -7,21 +7,28 @@ import os
 sys.path.append(BT_PATH)
 import BuildTool as BT
 
+class Config(BT.Module):
+    def __init__(self):
+        super(Config, self).__init__("Config", BT.CUSTOM)
+        self.SOURCE = ["Config"]
+
+
 class Engine(BT.Module):
-    NAME = "Engine"
-    TYPE = BT.STATIC_LIB
-    SOURCE = ["Engine"]
+    def __init__(self):
+        super(Engine, self).__init__("Engine", BT.STATIC_LIB)
+        self.SOURCE = ["Engine"]
 
 
 class Game(BT.Module):
-    NAME = "Game"
-    TYPE = BT.EXECUTABLE
-    SOURCE = ["Program/Game/"]
-    DEPS = ["Engine"]
+    def __init__(self):
+        super(Game, self).__init__("Game", BT.EXECUTABLE)
+        self.SOURCE = ["Program/Game"]
+        self.DEPS = ["Engine"]
 
 
 
 Targets = [
+    Config(),
     Engine(),
     Game(),
 ]
