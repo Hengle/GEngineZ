@@ -2,6 +2,12 @@
 import os
 import re
 
+import CMakeTemplate as T
+# TODO
+# 1. [x] support os related directory, only add in specific os
+# 2. [o] feature cmake define
+# 3. [x] third part lib manage
+# 4. [x] sub BuildCMake.py include
 
 STATIC_LIB = 0
 DYNAMIC_LIB = 1
@@ -10,6 +16,11 @@ CUSTOM = 3
 
 CUR_FILE_DIR = os.path.dirname(os.path.realpath(__file__))
 ROOT_DIR = os.getcwd()
+
+class CMake(object):
+    def __init__(self, project_name):
+        self.define = {}
+        self.project_name = project_name
 
 class Module(object):
     def __init__(self, name, tp):
@@ -20,18 +31,13 @@ class Module(object):
 class CMakeBuilder(object):
     def __init__(self):
         super(CMakeBuilder, self).__init__()
-        self.output = [""]
-
-        self.template_header = file(os.path.join(CUR_FILE_DIR, "Templates", "Header.cmake.txt")).read()
-        self.template_libaray = file(os.path.join(CUR_FILE_DIR, "Templates", "Libaray.cmake.txt")).read()
-        self.template_executable = file(os.path.join(CUR_FILE_DIR, "Templates", "Executable.cmake.txt")).read()
-        self.template_custom = file(os.path.join(CUR_FILE_DIR, "Templates", "Custom.cmake.txt")).read()
+        self.output = []
 
         self.targets = {}
 
-    def GenerateTargets(self, targets):
+    def GenerateTargets(self, config, targets):
         self.targets = targets
-        self.GenerateHeader()
+        self.GenerateHeader(config)
 
         for target_name, info in targets.iteritems():
             if info.TYPE == STATIC_LIB or info.TYPE == DYNAMIC_LIB:
@@ -44,12 +50,12 @@ class CMakeBuilder(object):
 
     def GenerateLibaray(self, target_name):
         target = self.targets[target_name]
-        output = self.template_libaray
+        output = T.LIBRARY_TEMPLATE
         output = output.replace("%LIB_NAME%", target.NAME)
 
         # include lib directory
         include_dirs = [os.path.dirname(name + '/') for name in target.SOURCE if os.path.isdir(name)]
-        output = output.replace("%INCLUDE_LIB_DIR%", '.\n'.join(['include_directories(%s)'%s for s in include_dirs]))
+        output = output.replace("%INCLUDE_LIB_DIR%", '.\n'.join(["include_directories(%s)"%s for s in include_dirs]))
         
         # groups && src
         groups, srcs = self.GetGroupAndSources(include_dirs)
@@ -57,29 +63,31 @@ class CMakeBuilder(object):
         output = output.replace("%LIB_GROUPS%", '\n'.join(groups))
         output = output.replace("%LIB_SRCS%", ' '.join(srcs))
 
-        self.AppendOutput([output])
+        self.AppendOutput(output)
 
     def GenerateExecutable(self, target_name):
         target = self.targets[target_name]
-        output = self.template_executable
+        output = T.EXECUTABLE_TEMPLATE
         output = output.replace("%EXE_NAME%", target.NAME)
 
-        # include lib directory
+        # include directory
         include_dirs = [os.path.dirname(name + '/') for name in target.SOURCE if os.path.isdir(name)]
         output = output.replace("%INCLUDE_EXE_DIR%", '.\n'.join(['include_directories(%s)'%s for s in include_dirs]))
         
         # groups && src
         groups, srcs = self.GetGroupAndSources(include_dirs)
+        single_srcs = [name for name in target.SOURCE if not os.path.isdir(name)]
+        srcs.extend(single_srcs)
        
         output = output.replace("%EXE_GROUPS%", '\n'.join(groups))
         output = output.replace("%EXE_SRCS%", ' '.join(srcs))
         output = output.replace("%DEP_LIBS%", ' '.join(target.DEPS))
 
-        self.AppendOutput([output])
+        self.AppendOutput(output)
 
     def GenerateCustom(self, target_name):
         target = self.targets[target_name]
-        output = self.template_custom
+        output = T.CUSTOM_TEMPLATE
         output = output.replace("%CUSTOM_NAME%", target.NAME)
         # groups && src
         include_dirs = [os.path.dirname(name + '/') for name in target.SOURCE if os.path.isdir(name)]
@@ -88,13 +96,25 @@ class CMakeBuilder(object):
         output = output.replace("%CUSTOM_GROUPS%", '\n'.join(groups))
         output = output.replace("%CUSTOM_SRCS%", ' '.join(srcs))
 
-        self.AppendOutput([output])
+        self.AppendOutput(output)
 
-    def GenerateHeader(self):
-        self.AppendOutput([self.template_header])
+    def GenerateHeader(self, config):
+        output = T.HEADER_TEMPLATE
+        def_strs = []
+        for define, value in config.define.iteritems():
+            if value is False:
+                continue
+            if value is True:
+                def_strs.append(define)
+            else:
+                def_strs.append("%s=%s"%(define, str(value)))
+
+        output = output.replace("%DEFINES%", '\n'.join([T.DEFINE_TEMPLATE.replace("%DEF%", s) for s in def_strs]))
+        output = output.replace("%PROJECT_NAME%", config.project_name)
+        self.AppendOutput(output)
 
     def AppendOutput(self, output):
-        self.output.extend(output)
+        self.output.extend([output])
 
     def Output(self):
         output = "\n".join(self.output)
@@ -119,16 +139,15 @@ class CMakeBuilder(object):
             group_p, group_s = group
             src_list = ['%s%s/%s'%(group_p, group_s, src) for src in srcs]
             group_name = (group_p + group_s).replace('/', '_') + '_GROUP_FILES'
+
             if len(group_s) > 0:
-                groups_strs.append("set(%s %s)"%(group_name, ' '.join(src_list)))
-                groups_strs.append("source_group(%s FILES ${%s})"% (group_s.replace('/', '\\\\'), group_name))
+                s = T.SRC_GROUP_TEMPLATE.replace("%GRP_SRC_KEY%", group_name).replace("%GRP_SRC%", ' '.join(src_list)). \
+                    replace("%GRP_KEY%", group_s.replace('/', '\\\\'))
+                groups_strs.append(s)
             all_srcs.extend(src_list)
         return groups_strs, all_srcs
 
 
-
-
-
-def Build(targets):
+def Build(config, targets):
     targets = dict([(t.NAME, t) for t in targets])
-    CMakeBuilder().GenerateTargets(targets)
+    CMakeBuilder().GenerateTargets(config, targets)

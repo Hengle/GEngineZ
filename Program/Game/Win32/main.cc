@@ -1,10 +1,10 @@
-#include <Core/Common/Logger.h>
-#include <Core/Scheduler/test.h>
+#include <Platform/Win32/win32App.h>
+
+
+
 
 int main(int argc, char *argv) {
-    using namespace z;
-    Hello().World();
-    system("pause()");
-
+    z::Win32App app;
+    if (app.Init()) app.Run();
     return 0;
 }
