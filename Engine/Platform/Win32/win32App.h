@@ -2,10 +2,11 @@
 
 #include "Win32Window.h"
 #include <Core/Common/Common.h>
+#include <Client/Director/AppWindow.h>
 
 namespace z {
 
-class Win32App : public Win32Window {
+class Win32App : public AppWindow, public Win32Window {
 public:
 	bool Init();
 	void Run();

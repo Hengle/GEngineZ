@@ -20,7 +20,7 @@ protected:
 	bool UpdateWindow();
 
 
-	HWND mMainWnd;
+	HWND mMainWnd{ nullptr };
 	int mWidth{800};
 	int mHeight{600};
 };
