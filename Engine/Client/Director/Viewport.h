@@ -5,6 +5,7 @@
 namespace z {
 class Scene;
 class RenderScene;
+class DX12Viewport;
 
 class Viewport {
 public:
@@ -19,6 +20,8 @@ public:
 private:
 	Scene* mScene;
 	RenderScene* mRenderScene;
+
+	DX12Viewport* view;
 };
 
 

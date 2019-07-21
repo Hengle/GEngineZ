@@ -1,6 +1,6 @@
 #include "DX12Viewport.h"
 #include "DX12Device.h"
-#include "DX12CommandQueue.h"
+#include "DX12Command.h"
 #include "DX12Descriptor.h"
 
 namespace z {
@@ -102,10 +102,20 @@ void DX12Viewport::Resize(uint32_t width, uint32_t height) {
 
 		mBackBuffers[i] = tex;
 	}
-	
+	mCurBackBufferIndex = 0;
+}
 
+bool DX12Viewport::Present() {
+	// transition back buffer to state present
+	DX12Texture2D* backBuffer = GetCurBackBuffer();
 
+	// flush resource barriers
 
+	// release command list
+
+	// present and swap buffer
+	DX12_CHECK(mSwapChain->Present(1, 0));
+	mCurBackBufferIndex = (mCurBackBufferIndex + 1) % kBackBufferCount;
 }
 
 

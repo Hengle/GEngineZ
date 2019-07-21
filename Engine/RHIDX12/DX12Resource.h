@@ -6,12 +6,10 @@ namespace z {
 
 class DX12Resource : public ThreadSafeRefCounter {
 public:
-	DX12Resource(ID3D12Resource* res, D3D12_RESOURCE_STATES state, D3D12_RESOURCE_DESC const& desc) {
-		mResource = res;
-		mDesc = desc;
-	}
-
+	DX12Resource(ID3D12Resource* res, D3D12_RESOURCE_STATES state, D3D12_RESOURCE_DESC const& desc);
 	virtual ~DX12Resource() {}
+
+	void InitResourceState(D3D12_RESOURCE_STATES);
 
 	ID3D12Resource* GetIResource() {
 		return mResource.GetRef();

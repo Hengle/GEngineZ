@@ -10,9 +10,8 @@ namespace z {
 Viewport::Viewport(uint32_t width, uint32_t height) {
 	mRenderScene = new RenderScene();
 
-	auto view = new DX12Viewport(width, height);
+	view = new DX12Viewport(width, height);
 	view->Init();
-	view->Resize(800, 600);
 }
 
 Viewport::~Viewport() {
@@ -37,6 +36,8 @@ void Viewport::Render() {
 	// render
 
 	mRenderScene->Render();
+
+	view->Present();
 }
 
 }

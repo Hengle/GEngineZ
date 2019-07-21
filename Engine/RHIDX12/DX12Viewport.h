@@ -18,6 +18,11 @@ public:
 
 	void Init();
 	void Resize(uint32_t width, uint32_t height);
+	bool Present();
+
+	DX12Texture2D* GetCurBackBuffer() {
+		return mBackBuffers[mCurBackBufferIndex];
+	}
 
 private:
 	uint32_t mWidth;
@@ -25,6 +30,7 @@ private:
 
 	RefCountPtr<IDXGISwapChain1> mSwapChain;
 	std::array<RefCountPtr<DX12Texture2D>, kBackBufferCount> mBackBuffers;
+	int32_t mCurBackBufferIndex;
 };
 
 
