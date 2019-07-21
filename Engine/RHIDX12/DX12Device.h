@@ -2,46 +2,44 @@
 
 #include <RHI/RHIDevice.h>
 
-#include <wrl.h>
-#include <dxgi1_6.h>
-#include <d3d12.h>
-#include <D3Dcompiler.h>
-#include <DirectXMath.h>
-#include <DirectXPackedVector.h>
-#include <DirectXColors.h>
-#include <DirectXCollision.h>
-
-#pragma comment(lib,"d3dcompiler.lib")
-#pragma comment(lib, "D3D12.lib")
-#pragma comment(lib, "dxgi.lib")
-
+#include "DX12Header.h"
 namespace z {
 
-using Microsoft::WRL::ComPtr;
+class DX12DescriptorHeapAllocator;
+class DX12CommandQueue;
 
 class DX12Device: public RHIDevice {
 public:
-	DX12Device(HWND hwnd, int width, int height);
+	DX12Device(HWND hwnd);
 	~DX12Device();
 
-	void InitDevice(HWND hwnd, int width, int height);
+	void InitDevice(HWND hwnd);
+
+	IDXGIFactory6* GetIDXGIFactory() {
+		return mDxgiFactory.GetRef();
+	}
+
+	HWND GetHWND() {
+		return mHWND;
+	}
+
+	ID3D12Device5* GetIDevice() {
+		return mDevice.GetRef();
+	}
+
+	DX12CommandQueue* GetCommandQueue() {
+		return mCommandQueue;
+	}
+
+	
 
 private:
-	const static int kBackBufferCount = 2;
+	HWND mHWND;
+	RefCountPtr<IDXGIFactory6> mDxgiFactory{ nullptr };
+	RefCountPtr<ID3D12Device5> mDevice{ nullptr };
+	
+	DX12CommandQueue* mCommandQueue{ nullptr };
 
-	// dxgi
-	ComPtr<IDXGIFactory6> mDxgiFactory{ nullptr };
-	// device
-	ComPtr<ID3D12Device5> mDevice{ nullptr };
-	// commonad queue
-	ComPtr<ID3D12CommandQueue> mCommandQueue;
-	ComPtr<ID3D12CommandAllocator> mCommandAllocator;
-	ComPtr<ID3D12GraphicsCommandList> mCommandList;
-	// fence
-	ComPtr<ID3D12Fence> mFence;
-	UINT64 mFenceValue;
-	// swapchain
-	ComPtr<IDXGISwapChain1> mSwapChain;
 
 };
 

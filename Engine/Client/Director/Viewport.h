@@ -1,12 +1,14 @@
 #pragma once
 
+#include <Core/CoreHeader.h>
+
 namespace z {
 class Scene;
 class RenderScene;
 
 class Viewport {
 public:
-	Viewport();
+	Viewport(uint32_t width, uint32_t height);
 	virtual ~Viewport();
 
 	void Tick();

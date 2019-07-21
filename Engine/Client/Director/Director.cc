@@ -1,6 +1,6 @@
 #include "Director.h"
 
-#include <Core/Common/Common.h>
+#include <Core/CoreHeader.h>
 
 namespace z {
 Director* GDirector = nullptr;

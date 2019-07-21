@@ -1,9 +1,10 @@
 #include "ViewportMain.h"
 
+
 namespace z {
 
 ViewportMain::ViewportMain(AppWindow* win):
-	Viewport(),
+	Viewport(800, 600),
 	mWin(win) {
 
 

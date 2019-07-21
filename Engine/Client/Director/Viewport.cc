@@ -1,12 +1,18 @@
 #include "Viewport.h"
-#include <Core/Common/Common.h>
+#include <Core/CoreHeader.h>
 #include <Client/Scene/Scene.h>
 #include <Render/RenderScene.h>
 
+#include <RHIDX12/DX12Viewport.h>
+
 namespace z {
 
-Viewport::Viewport() {
+Viewport::Viewport(uint32_t width, uint32_t height) {
 	mRenderScene = new RenderScene();
+
+	auto view = new DX12Viewport(width, height);
+	view->Init();
+	view->Resize(800, 600);
 }
 
 Viewport::~Viewport() {

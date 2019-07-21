@@ -1,5 +1,5 @@
 #include "Win32Window.h"
-#include <Core/Common/Common.h>
+#include <Core/CoreHeader.h>
 
 namespace z {
 Win32Window* GWindow = nullptr;

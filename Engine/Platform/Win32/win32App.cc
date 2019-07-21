@@ -10,7 +10,7 @@ bool Win32App::Init() {
 	InitWindow();
 
 	// device
-	new DX12Device(mMainWnd, mWidth, mHeight);
+	new DX12Device(mMainWnd);
 
 	// director
 	new Director();
