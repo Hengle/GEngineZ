@@ -13,7 +13,16 @@
 #pragma comment(lib, "D3D12.lib")
 #pragma comment(lib, "dxgi.lib")
 
-#include <RHIDX12/Helper/debug.h>
-//#include <RHIDX12/Helper/d3dx12.h>
-
 #include <Core/CoreHeader.h>
+
+class COMException {
+public:
+	COMException(HRESULT hr) : error_(hr) {}
+	HRESULT Error() const {
+		return error_;
+	}
+private:
+	const HRESULT error_;
+};
+
+#define DX12_CHECK(hr) if (FAILED(hr)){ throw COMException(hr); }

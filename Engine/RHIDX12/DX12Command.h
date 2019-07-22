@@ -5,6 +5,7 @@
 namespace z {
 
 class DX12Resource;
+class DX12Viewport;
 
 class DX12CommandList : public NonCopyable {
 public:
@@ -59,6 +60,7 @@ public:
 	}
 	
 	void ResourceTransition(DX12Resource*, D3D12_RESOURCE_STATES toState);
+
 
 private:
 	DX12CommandList mList;

@@ -37,7 +37,8 @@ void Viewport::Render() {
 
 	mRenderScene->Render();
 
-	view->Present();
+	view->BeginDraw();
+	view->EndDraw();
 }
 
 }

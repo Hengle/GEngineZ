@@ -44,17 +44,16 @@ void DX12Device::InitDevice(HWND hwnd) {
 		if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) {
 			continue;
 		}
-		// just for test create, use nullptr as paramters
 		if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(mDevice.GetComRef())))) {
 			Log<LINFO>("Find Adapter: ", desc.Description);
 	
 			D3D12_FEATURE_DATA_ARCHITECTURE arch{};
 			mDevice->CheckFeatureSupport(D3D12_FEATURE_ARCHITECTURE, &arch, sizeof(D3D12_FEATURE_DATA_ARCHITECTURE));
-			/*if (arch.UMA) {
+			if (arch.UMA) {
 				Log<LINFO>("Skip this adapter.....");
 				mDevice.Reset();
 				continue;
-			}*/
+			}
 			break;
 		}
 	}

@@ -71,7 +71,7 @@ void DX12Viewport::Resize(uint32_t width, uint32_t height) {
 		desc.flags = 0;
 		desc.clearv = TexClearValue(0.5f, 0.3f, 0.2f, 1.0f);
 		DX12Texture2D* tex = new DX12Texture2D(desc);
-		
+
 		// get resource from swapchain and bind it to texture
 		RefCountPtr<ID3D12Resource> backBufferRes;
 		DX12_CHECK(mSwapChain->GetBuffer(i, IID_PPV_ARGS(backBufferRes.GetComRef())));
@@ -108,21 +108,55 @@ void DX12Viewport::Resize(uint32_t width, uint32_t height) {
 }
 
 void DX12Viewport::Present() {
-
-	GDX12Device->GetCommandContext()->Reset();
-
 	// transition back buffer to state present
 	DX12Texture2D* backBuffer = GetCurBackBuffer();
 	GDX12Device->GetCommandContext()->ResourceTransition(backBuffer->GetResourceOwner()->GetResource(), D3D12_RESOURCE_STATE_PRESENT);
 
 	// execute commandlist and flush
 	GDX12Device->GetCommandContext()->Execute(true);
-	
+
 	// present and swap buffer
 	DX12_CHECK(mSwapChain->Present(1, 0));
 	mCurBackBufferIndex = (mCurBackBufferIndex + 1) % kBackBufferCount;
 }
 
 
+void DX12Viewport::BeginDraw() {
+	// !! can with a depth stencil buffer
+
+	DX12CommandContext *cmdContext = GDX12Device->GetCommandContext();
+
+	// temp reset here
+	cmdContext->Reset();
+
+	// set viewport
+	D3D12_VIEWPORT screenViewport;
+	screenViewport.TopLeftX = 0;
+	screenViewport.TopLeftY = 0;
+	screenViewport.Width = (float)mWidth;
+	screenViewport.Height = (float)mHeight;
+	screenViewport.MinDepth = 0.0f;
+	screenViewport.MaxDepth = 1.0f;
+
+	D3D12_RECT scissorRect;
+	scissorRect = { 0, 0, (long)mWidth, (long)mHeight };
+	cmdContext->List()->RSSetViewports(1, &screenViewport);
+	cmdContext->List()->RSSetScissorRects(1, &scissorRect);
+
+	// transition state to render target
+	DX12Texture2D* backBuffer = GetCurBackBuffer();
+	DX12RenderTargetView* view = backBuffer->GetRenderTargetView(0);
+	cmdContext->ResourceTransition(view->GetResource(), D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+	// clear and set to render target
+	const D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = view->GetCPUHandle();
+	cmdContext->List()->ClearRenderTargetView(rtvHandle, backBuffer->GetDesc().clearv.value.color, 0, nullptr);
+	cmdContext->List()->OMSetRenderTargets(1, &rtvHandle, 0, nullptr);
+}
+
+void DX12Viewport::EndDraw() {
+
+	Present();
+}
 
 }

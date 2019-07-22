@@ -100,6 +100,13 @@ template<typename VIEW_DESC>
 class DX12DescriptorView : public RHIResource {
 public:
 
+	DX12Resource* GetResource() {
+		return mResouce;
+	}
+
+	const D3D12_CPU_DESCRIPTOR_HANDLE& GetCPUHandle() {
+		return mDescriptor.GetCPUHandle();
+	}
 protected:
 	void CreateView(const VIEW_DESC& desc, DX12Resource* res, DX12Resource* counter = nullptr) {
 		mResouce = res;

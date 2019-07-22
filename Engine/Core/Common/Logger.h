@@ -65,11 +65,13 @@ public:
 		}
 	}
 
+#pragma warning(disable: 4227)
 	template<typename T>
 	Log& const operator << (T&& t) {
 		mStream << t;
 		return *this;
 	}
+#pragma warning(default: 4227)
 
 private:
 	std::wstringstream mStream;
