@@ -1,19 +1,12 @@
 #include "DX12Resource.h"
-
 namespace z {
 
 // DX12Resource
 DX12Resource::DX12Resource(ID3D12Resource* res, D3D12_RESOURCE_STATES state, D3D12_RESOURCE_DESC const& desc) :
 	mResource(res),
-	mDesc(desc) {
-	InitResourceState(state);
+	mDesc(desc),
+	mState(state) {
 }
-
-void DX12Resource::InitResourceState(D3D12_RESOURCE_STATES state) {
-	// todo
-}
-
-
 
 
 // DX12ResourceOwner

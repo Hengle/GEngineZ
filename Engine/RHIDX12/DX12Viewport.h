@@ -18,7 +18,7 @@ public:
 
 	void Init();
 	void Resize(uint32_t width, uint32_t height);
-	bool Present();
+	void Present();
 
 	DX12Texture2D* GetCurBackBuffer() {
 		return mBackBuffers[mCurBackBufferIndex];

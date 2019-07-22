@@ -4,27 +4,65 @@
 
 namespace z {
 
-using Microsoft::WRL::ComPtr;
+class DX12Resource;
 
-class DX12CommandQueue {
+class DX12CommandList : public NonCopyable {
 public:
-	void Create();
-	void Destroy();
-	void Execute();
+	DX12CommandList();
+	~DX12CommandList();
+
+	void Execute(bool waitComplete=false);
 	void Flush();
 	void Reset();
 
-	ID3D12CommandQueue* GetICommandQueue() {
-		return mCommandQueue.Get();
+	void Close();
+
+	ID3D12GraphicsCommandList* operator->() const {
+		return mCommandList;
 	}
+
+	ID3D12CommandQueue* GetCommandQueue() {
+		return mCommandQueue.GetRef();
+	}
+
 private:
-	ComPtr<ID3D12CommandQueue> mCommandQueue;
-	ComPtr<ID3D12CommandAllocator> mCommandAllocator;
-	ComPtr<ID3D12GraphicsCommandList> mCommandList;
+	RefCountPtr<ID3D12CommandQueue> mCommandQueue;
+	RefCountPtr<ID3D12CommandAllocator> mCommandAllocator;
+	RefCountPtr<ID3D12GraphicsCommandList> mCommandList;
 
 	// fence
-	ComPtr<ID3D12Fence> mFence;
+	RefCountPtr<ID3D12Fence> mFence;
 	UINT64 mFenceValue;
+	bool mClosed;
+};
+
+
+class DX12CommandContext {
+public:
+	DX12CommandContext() {
+	}
+
+	void Execute(bool waitComplete = false) {
+		mList.Execute(waitComplete);
+	}
+
+	void Flush() {
+		mList.Flush();
+	}
+
+	void Reset() {
+		mList.Reset();
+	}
+
+	DX12CommandList& List() {
+		return mList;
+	}
+	
+	void ResourceTransition(DX12Resource*, D3D12_RESOURCE_STATES toState);
+
+private:
+	DX12CommandList mList;
+
 };
 
 }

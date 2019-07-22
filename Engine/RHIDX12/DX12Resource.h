@@ -9,7 +9,13 @@ public:
 	DX12Resource(ID3D12Resource* res, D3D12_RESOURCE_STATES state, D3D12_RESOURCE_DESC const& desc);
 	virtual ~DX12Resource() {}
 
-	void InitResourceState(D3D12_RESOURCE_STATES);
+	void SetState(D3D12_RESOURCE_STATES state) {
+		mState = state;
+	}
+
+	D3D12_RESOURCE_STATES GetState() {
+		return mState;
+	}
 
 	ID3D12Resource* GetIResource() {
 		return mResource.GetRef();
@@ -18,6 +24,7 @@ public:
 private:
 	RefCountPtr<ID3D12Resource> mResource;
 	D3D12_RESOURCE_DESC mDesc;
+	D3D12_RESOURCE_STATES mState;
 
 };
 

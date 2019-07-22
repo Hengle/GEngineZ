@@ -15,7 +15,7 @@ DX12Viewport::DX12Viewport(uint32_t width, uint32_t height) :
 void DX12Viewport::Init() {
 	auto hwnd = GDX12Device->GetHWND();
 	auto dxgiFactory = GDX12Device->GetIDXGIFactory();
-	auto commandQueue = GDX12Device->GetCommandQueue()->GetICommandQueue();
+	auto commandQueue = GDX12Device->GetCommandContext()->List().GetCommandQueue();
 
 	// create swap chain
 	DXGI_SWAP_CHAIN_DESC1 chainDesc{};
@@ -47,9 +47,8 @@ void DX12Viewport::Resize(uint32_t width, uint32_t height) {
 	mHeight = height;
 
 	// flush commands first
-	auto commandQueue = GDX12Device->GetCommandQueue();
-	commandQueue->Flush();
-	commandQueue->Reset();
+	GDX12Device->GetCommandContext()->Execute(true);
+	GDX12Device->GetCommandContext()->Reset();
 
 	// reset back buffer
 	for (uint32_t i = 0; i < kBackBufferCount; i++) {
@@ -70,7 +69,7 @@ void DX12Viewport::Resize(uint32_t width, uint32_t height) {
 		desc.numSamples = 1;
 		desc.pixelFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 		desc.flags = 0;
-		desc.clearv = TexClearValue();
+		desc.clearv = TexClearValue(0.5f, 0.3f, 0.2f, 1.0f);
 		DX12Texture2D* tex = new DX12Texture2D(desc);
 		
 		// get resource from swapchain and bind it to texture
@@ -103,16 +102,22 @@ void DX12Viewport::Resize(uint32_t width, uint32_t height) {
 		mBackBuffers[i] = tex;
 	}
 	mCurBackBufferIndex = 0;
+
+
+	GDX12Device->GetCommandContext()->Execute(true);
 }
 
-bool DX12Viewport::Present() {
+void DX12Viewport::Present() {
+
+	GDX12Device->GetCommandContext()->Reset();
+
 	// transition back buffer to state present
 	DX12Texture2D* backBuffer = GetCurBackBuffer();
+	GDX12Device->GetCommandContext()->ResourceTransition(backBuffer->GetResourceOwner()->GetResource(), D3D12_RESOURCE_STATE_PRESENT);
 
-	// flush resource barriers
-
-	// release command list
-
+	// execute commandlist and flush
+	GDX12Device->GetCommandContext()->Execute(true);
+	
 	// present and swap buffer
 	DX12_CHECK(mSwapChain->Present(1, 0));
 	mCurBackBufferIndex = (mCurBackBufferIndex + 1) % kBackBufferCount;

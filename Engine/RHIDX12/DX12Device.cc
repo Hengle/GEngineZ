@@ -15,8 +15,8 @@ DX12Device::DX12Device(HWND hwnd) :
 }
 
 DX12Device::~DX12Device() {
-	DX12DescriptorHeapAllocator::CreateHeapAllocators();
-	SAFE_DELETE(mCommandQueue);
+	DX12DescriptorHeapAllocator::DestroyHeapAllocators();
+	SAFE_DELETE(mCommandContext);
 
 	FinalizeSingleton<DX12Device>(GDX12Device, this);	
 }
@@ -50,17 +50,17 @@ void DX12Device::InitDevice(HWND hwnd) {
 	
 			D3D12_FEATURE_DATA_ARCHITECTURE arch{};
 			mDevice->CheckFeatureSupport(D3D12_FEATURE_ARCHITECTURE, &arch, sizeof(D3D12_FEATURE_DATA_ARCHITECTURE));
-			if (arch.UMA) {
+			/*if (arch.UMA) {
 				Log<LINFO>("Skip this adapter.....");
 				mDevice.Reset();
 				continue;
-			}
+			}*/
 			break;
 		}
 	}
+	CHECK(mDevice.GetRef() != nullptr, "Device not found!");
 
-	mCommandQueue = new DX12CommandQueue();
-	mCommandQueue->Create();
+	mCommandContext = new DX12CommandContext();
 
 	DX12DescriptorHeapAllocator::CreateHeapAllocators();
 

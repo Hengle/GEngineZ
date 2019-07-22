@@ -25,6 +25,18 @@ struct TexClearValue {
 		value.color[3] = 0.0f;
 	}
 
+	TexClearValue(float val0, float val1, float val2, float val3) {
+		value.color[0] = val0;
+		value.color[1] = val1;
+		value.color[2] = val2;
+		value.color[3] = val3;
+	}
+
+	TexClearValue(float depth, uint32_t stencil) {
+		value.ds.depth = depth;
+		value.ds.stencil = stencil;
+	}
+
 	union {
 		float color[4];
 		struct {

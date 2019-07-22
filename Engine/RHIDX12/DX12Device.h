@@ -6,7 +6,7 @@
 namespace z {
 
 class DX12DescriptorHeapAllocator;
-class DX12CommandQueue;
+class DX12CommandContext;
 
 class DX12Device: public RHIDevice {
 public:
@@ -15,7 +15,7 @@ public:
 
 	void InitDevice(HWND hwnd);
 
-	IDXGIFactory6* GetIDXGIFactory() {
+	IDXGIFactory5* GetIDXGIFactory() {
 		return mDxgiFactory.GetRef();
 	}
 
@@ -23,22 +23,22 @@ public:
 		return mHWND;
 	}
 
-	ID3D12Device5* GetIDevice() {
+	ID3D12Device3* GetIDevice() {
 		return mDevice.GetRef();
 	}
 
-	DX12CommandQueue* GetCommandQueue() {
-		return mCommandQueue;
+	DX12CommandContext* GetCommandContext() {
+		return mCommandContext;
 	}
 
 	
 
 private:
 	HWND mHWND;
-	RefCountPtr<IDXGIFactory6> mDxgiFactory{ nullptr };
-	RefCountPtr<ID3D12Device5> mDevice{ nullptr };
+	RefCountPtr<IDXGIFactory5> mDxgiFactory{ nullptr };
+	RefCountPtr<ID3D12Device3> mDevice{ nullptr };
 	
-	DX12CommandQueue* mCommandQueue{ nullptr };
+	DX12CommandContext* mCommandContext{ nullptr };
 
 
 };

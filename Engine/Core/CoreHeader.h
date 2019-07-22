@@ -16,6 +16,7 @@
 #include <Core/Common/Singleton.h>
 #include <Core/Common/Time.h>
 #include <Core/Common/Define.h>
+#include <Core/Common/Noncopyable.h>
 
 // platform
 #include <Core/Platform/OSHeader.h>
