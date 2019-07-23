@@ -31,6 +31,7 @@ class Engine(BT.Module):
     def __init__(self):
         super(Engine, self).__init__("Engine", BT.STATIC_LIB)
         self.SOURCE = ["Engine"]
+        self.excludes = [r".*\.hlsl"]
 
 
 class Game(BT.Module):

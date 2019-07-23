@@ -26,6 +26,7 @@ class Module(object):
     def __init__(self, name, tp):
         self.NAME = name
         self.TYPE = tp
+        self.excludes = None
 
 
 class CMakeBuilder(object):
@@ -58,7 +59,7 @@ class CMakeBuilder(object):
         output = output.replace("%INCLUDE_LIB_DIR%", '.\n'.join(["include_directories(%s)"%s for s in include_dirs]))
         
         # groups && src
-        groups, srcs = self.GetGroupAndSources(include_dirs)
+        groups, srcs = self.GetGroupAndSources(include_dirs, target.excludes)
        
         output = output.replace("%LIB_GROUPS%", '\n'.join(groups))
         output = output.replace("%LIB_SRCS%", ' '.join(srcs))
@@ -75,7 +76,7 @@ class CMakeBuilder(object):
         output = output.replace("%INCLUDE_EXE_DIR%", '.\n'.join(['include_directories(%s)'%s for s in include_dirs]))
         
         # groups && src
-        groups, srcs = self.GetGroupAndSources(include_dirs)
+        groups, srcs = self.GetGroupAndSources(include_dirs, target.excludes)
         single_srcs = [name for name in target.SOURCE if not os.path.isdir(name)]
         srcs.extend(single_srcs)
        
@@ -120,19 +121,22 @@ class CMakeBuilder(object):
         output = "\n".join(self.output)
         file("CMakeLists.txt", "w").write(output)
 
-    def WalkDirs(self, walk_dirs, exclude=None):
+    def WalkDirs(self, walk_dirs, excludes=None):
         group_src = {}
         for walk_dir in walk_dirs:
             walk_dir = walk_dir.replace('\\', '/')
             for root, dirs, files in os.walk(walk_dir):
                 if not files:
                     continue
+                if excludes:
+                    for ex in excludes:
+                        files = [f for f in files if not re.match(ex, f)]
                 root =  root.replace('\\', '/')
                 group_src[(root[:len(walk_dir) + 1], root[len(walk_dir) + 1:])] = files
         return group_src
 
-    def GetGroupAndSources(self, include_dirs):
-        group_srcs = self.WalkDirs(include_dirs)
+    def GetGroupAndSources(self, include_dirs, excludes=None):
+        group_srcs = self.WalkDirs(include_dirs, excludes)
         groups_strs = []
         all_srcs = []
         for group, srcs in group_srcs.iteritems():
