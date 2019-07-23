@@ -22,6 +22,10 @@ public:
 		return mCommandList;
 	}
 
+	ID3D12GraphicsCommandList* GetCommandList() {
+		return mCommandList.GetRef();
+	}
+
 	ID3D12CommandQueue* GetCommandQueue() {
 		return mCommandQueue.GetRef();
 	}
@@ -59,7 +63,6 @@ public:
 		return mList;
 	}
 	
-	void ResourceTransition(DX12Resource*, D3D12_RESOURCE_STATES toState);
 
 
 private:

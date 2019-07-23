@@ -44,7 +44,7 @@ public:
 	}
 
 	~RefCountPtr() {
-		Release();
+		Reset();
 	}
 
 	RefCountPtr(const RefCountPtr& other) : RefCountPtr(other.mPtr) {
@@ -100,19 +100,19 @@ public:
 	}
 
 	void Reset() {
-		Release();
+		if (mPtr) {
+			mPtr->Release();
+		}
+		mPtr = nullptr;
 	}
 
 
 private:
 
 	void AddRef() const {
-		if (mPtr) mPtr->AddRef();
-	}
-
-	void Release() {
-		if (mPtr) mPtr->Release();
-		mPtr = nullptr;
+		if (mPtr) {
+			mPtr->AddRef();
+		}
 	}
 
 	RefType*  mPtr;

@@ -6,8 +6,14 @@ namespace z {
 
 class DX12Resource : public ThreadSafeRefCounter {
 public:
+	// new from exsit resource
 	DX12Resource(ID3D12Resource* res, D3D12_RESOURCE_STATES state, D3D12_RESOURCE_DESC const& desc);
-	virtual ~DX12Resource() {}
+	// new from heap create
+	DX12Resource(D3D12_HEAP_TYPE heapType, D3D12_RESOURCE_STATES state, D3D12_RESOURCE_DESC const& desc);
+
+	virtual ~DX12Resource();
+
+	void Transition(D3D12_RESOURCE_STATES toState);
 
 	void SetState(D3D12_RESOURCE_STATES state) {
 		mState = state;
@@ -60,11 +66,11 @@ public:
 	}
 
 	DX12ResourceOwner* GetResourceOwner() {
-		return &owner;
+		return &mOwner;
 	}
 
 private:
-	DX12ResourceOwner owner;
+	DX12ResourceOwner mOwner;
 
 };
 

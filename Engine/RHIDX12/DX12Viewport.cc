@@ -2,6 +2,7 @@
 #include "DX12Device.h"
 #include "DX12Command.h"
 #include "DX12Descriptor.h"
+#include "DX12Buffer.h"
 
 namespace z {
 
@@ -103,14 +104,14 @@ void DX12Viewport::Resize(uint32_t width, uint32_t height) {
 	}
 	mCurBackBufferIndex = 0;
 
-
 	GDX12Device->GetCommandContext()->Execute(true);
 }
 
 void DX12Viewport::Present() {
 	// transition back buffer to state present
 	DX12Texture2D* backBuffer = GetCurBackBuffer();
-	GDX12Device->GetCommandContext()->ResourceTransition(backBuffer->GetResourceOwner()->GetResource(), D3D12_RESOURCE_STATE_PRESENT);
+	DX12RenderTargetView* view = backBuffer->GetRenderTargetView(0);
+	view->GetResource()->Transition(D3D12_RESOURCE_STATE_PRESENT);
 
 	// execute commandlist and flush
 	GDX12Device->GetCommandContext()->Execute(true);
@@ -146,7 +147,7 @@ void DX12Viewport::BeginDraw() {
 	// transition state to render target
 	DX12Texture2D* backBuffer = GetCurBackBuffer();
 	DX12RenderTargetView* view = backBuffer->GetRenderTargetView(0);
-	cmdContext->ResourceTransition(view->GetResource(), D3D12_RESOURCE_STATE_RENDER_TARGET);
+	view->GetResource()->Transition(D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 	// clear and set to render target
 	const D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = view->GetCPUHandle();

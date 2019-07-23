@@ -116,8 +116,8 @@ protected:
 	}
 
 	DX12DescriptorViewHandle<VIEW_DESC> mDescriptor;
-	DX12Resource* mResouce;
-	VIEW_DESC mDesc;
+	DX12Resource* mResouce{ nullptr };
+	VIEW_DESC mDesc{};
 };
 
 

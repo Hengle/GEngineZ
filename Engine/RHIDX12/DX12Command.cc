@@ -37,15 +37,12 @@ DX12CommandList::~DX12CommandList() {
 void DX12CommandList::Close() {
 	if (!mClosed) {
 		DX12_CHECK(mCommandList->Close());
-		Log<LDEBUG>("...close");
 		mClosed = true;
 	}
 }
 
 
 void DX12CommandList::Reset() {
-	Log<LDEBUG>("...reset");
-
 	mCommandAllocator->Reset();
 	mCommandList->Reset(mCommandAllocator.GetRef(), nullptr);
 	mClosed = false;
@@ -54,8 +51,6 @@ void DX12CommandList::Reset() {
 
 void DX12CommandList::Execute(bool waitComplete) {
 	Close();
-	Log<LDEBUG>("...execute");
-
 
 	ID3D12CommandList* cmdLists[] = { mCommandList.GetRef() };
 	mCommandQueue->ExecuteCommandLists(_countof(cmdLists), cmdLists);
@@ -81,24 +76,5 @@ void DX12CommandList::Flush() {
 
 
 
-
-// CommandContext
-
-void DX12CommandContext::ResourceTransition(DX12Resource* resource, D3D12_RESOURCE_STATES toState) {
-	if (toState == resource->GetState()) {
-		Log<LWARN>("resource transition with same state.");
-		return;
-	}
-	D3D12_RESOURCE_BARRIER barrier;
-	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	barrier.Transition.pResource = resource->GetIResource();
-	barrier.Transition.StateBefore = resource->GetState();
-	barrier.Transition.StateAfter = toState;
-	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-
-	resource->SetState(toState);
-	mList->ResourceBarrier(1, &barrier);
-}
 
 }
