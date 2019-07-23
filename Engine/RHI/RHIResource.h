@@ -55,9 +55,8 @@ class RHIRenderTarget : public RHITexture2D {
 
 };
 
-class RHIGPUFence : public RHIResource {
+class RHIPipeline : public RHIResource {
 
 };
-
 
 }

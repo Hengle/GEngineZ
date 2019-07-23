@@ -15,6 +15,8 @@
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "dxguid.lib")
 
+#include <RHI/RHIConst.h>
+#include <RHI/RHIResource.h>
 #include <Core/CoreHeader.h>
 
 class COMException {

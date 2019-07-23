@@ -11,6 +11,7 @@ enum DeviceFlag {
 	//EDEVICE_CF_
 };
 
+// Texture
 enum PixelFormat {
 	EPixelFormat_Invaild = 0,
 	EPixelFormat_R8G8B8A8 = 0,
@@ -57,5 +58,16 @@ struct RHITextureDesc {
 	uint32_t flags;
 	TexClearValue clearv;
 };
+
+
+// Shader
+enum ShaderType {
+	EShaderType_Unknown = 0,
+	EShaderType_Vertex = 1,
+	EShaderType_Pixel = 2,
+
+	EShaderType_MAX
+};
+
 
 }

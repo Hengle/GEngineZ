@@ -18,5 +18,8 @@
 #include <Core/Common/Define.h>
 #include <Core/Common/Noncopyable.h>
 
+// File
+#include <Core/FileSystem/File.h>
+
 // platform
 #include <Core/Platform/OSHeader.h>

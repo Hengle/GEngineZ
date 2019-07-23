@@ -31,11 +31,18 @@ public:
 	DX12IndexBuffer(uint32_t stride, uint32_t size) {
 	}
 
+	D3D12_VERTEX_BUFFER_VIEW GetView() {
+		return D3D12_VERTEX_BUFFER_VIEW{};
+	}
 };
 
 class DX12VertexBuffer : public DX12ShaderResource, public RHIVertexBuffer {
 public:
 	DX12VertexBuffer(uint32_t stride, uint32_t size) {
+	}
+
+	D3D12_INDEX_BUFFER_VIEW GetView() {
+		return D3D12_INDEX_BUFFER_VIEW{};
 	}
 };
 

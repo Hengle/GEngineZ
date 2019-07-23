@@ -4,6 +4,7 @@
 #include <Render/RenderScene.h>
 
 #include <RHIDX12/DX12Viewport.h>
+#include <RHIDX12/DX12Shader.h>
 
 namespace z {
 
@@ -12,6 +13,7 @@ Viewport::Viewport(uint32_t width, uint32_t height) {
 
 	view = new DX12Viewport(width, height);
 	view->Init();
+
 }
 
 Viewport::~Viewport() {
