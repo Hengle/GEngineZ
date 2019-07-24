@@ -1,7 +1,6 @@
 .vs
 out
 Build
-Binary
 *.pdb
 *.ilk
 *.pyc
