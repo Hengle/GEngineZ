@@ -3,18 +3,42 @@
 #include "DX12Header.h"
 #include "DX12Device.h"
 #include "DX12Shader.h"
+#include "DX12Texture.h"
 #include <Core/CoreHeader.h>
 
 namespace z {
 
-class DX12PipelineState {
+
+class DX12PipelineState : public RHIPipelineState {
 public:
-	// todo, cache
-	static DX12PipelineState* GetCache(DX12Shader*, DX12Shader*, DX12VertexLayout*);
+	void SetShaderVS(DX12Shader* shader) {
+		mShaderVS = shader;
+	}
 
-	void DoSetPipeline();
+	void SetShaderPS(DX12Shader *shader) {
+		mShaderPS = shader;
+	}
+
+	void SetVertexLayout(DX12VertexLayout *layout) {
+		mVertexDesc = layout;
+	}
+
+	void SetUniformLayout(DX12UniformLayout *layout) {
+		mUniformDesc = layout;
+	}
+
+	void Compile();
+
 private:
+	RefCountPtr<DX12Shader> mShaderVS;
+	RefCountPtr<DX12Shader> mShaderPS;
+	RefCountPtr<DX12VertexLayout> mVertexDesc;
+	RefCountPtr<DX12UniformLayout> mUniformDesc;
 
+	std::vector<RefCountPtr<DX12Texture2D>> mRenderTargets;
+	RefCountPtr<DX12Texture2D> mDepthStencil;
+
+	RefCountPtr<ID3D12PipelineState> mStateCache;
 };
 
 
@@ -35,7 +59,6 @@ private:
 	RefCountPtr<DX12Shader> mShaderPS;
 	RefCountPtr<DX12VertexLayout> mVertexLayout;
 
-	DX12RootSignature *mRootSignature;
 	int mRenderTargetNum;
 	bool mHasDepthStencil;
 };

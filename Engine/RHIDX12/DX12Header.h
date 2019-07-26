@@ -31,7 +31,10 @@ private:
 	const HRESULT error_;
 };
 
-#define DX12_CHECK(hr) do {	\
+#define DX12_CHECK(hr, ...) do {	\
 	HRESULT hr_ = (hr);	\
-	if (FAILED(hr_)) { throw COMException(hr_); }	\
+	if (FAILED(hr_)) {	\
+		z::Log<z::LFATAL>(__FILE__, __LINE__, ##__VA_ARGS__);	\
+		throw COMException(hr_); \
+	}	\
 } while (0);

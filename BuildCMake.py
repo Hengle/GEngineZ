@@ -60,6 +60,9 @@ build_targets = [
 
 # ================= Generate =================
 BT.Build(build_cfg, build_targets)
+
+if not os.path.exists('Build'):
+    os.mkdir('Build')
 os.system("cd Build && cmake ..")
 
 

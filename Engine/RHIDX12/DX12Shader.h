@@ -3,6 +3,7 @@
 #include "DX12Header.h"
 #include "DX12Resource.h"
 #include "DX12Buffer.h"
+#include <Core/CoreHeader.h>
 
 namespace z {
 
@@ -26,7 +27,7 @@ public:
 	//void GetViewVS();
 	//void GetViewPS();
 
-private:
+//private:
 	DX12Shader() :mType(SHADER_TYPE_UNKNOWN) {}
 	RefCountPtr<ID3D10Blob> mBlob{nullptr};
 	EShaderType mType;
@@ -38,9 +39,16 @@ public:
 	// todo, use common type
 	DX12VertexLayout() : mSize(0) {}
 
-	void PushLayout(std::string semanticName, uint32_t semanticIndex, EPixelFormat format, EVertexLaytoutFlag flag);
+	~DX12VertexLayout();
+
+	void PushLayout(const std::string& semanticName, uint32_t semanticIndex, EPixelFormat format, EVertexLaytoutFlag flag);
 	
+	D3D12_INPUT_LAYOUT_DESC GetDesc() {
+		return { mLayout.data(), (uint32_t)mLayout.size() };
+	}
+
 private:
+	std::vector<char*> mNames;
 	std::vector<D3D12_INPUT_ELEMENT_DESC> mLayout;
 	uint32_t mSize{ 0 };
 };
@@ -61,24 +69,11 @@ private:
 
 };
 
+class DX12RenderTargetDesc : public RHIRenderTargetDesc {
 
-class DX12ShaderHub {
-public:
-	DX12ShaderHub(DX12Shader* shaderVs, DX12Shader* shaderPS, DX12VertexLayout* vertexLayout, DX12UniformLayout* uniformLayout) {
-		mShaderVS = shaderVs;
-		mShaderPS = shaderPS;
-		mVertexLayout = vertexLayout;
-		mUniformLayout = uniformLayout;
-	}
-
-private:
-	RefCountPtr<DX12Shader> mShaderPS;
-	RefCountPtr<DX12Shader> mShaderVS;
-	RefCountPtr<DX12VertexLayout> mVertexLayout;
-	RefCountPtr<DX12UniformLayout> mUniformLayout;
 };
 
-class DX12RootSignature {
+class DX12DepthStencilDesc : public RHIDepthStencilDesc {
 
 };
 

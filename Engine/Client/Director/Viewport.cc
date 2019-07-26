@@ -6,6 +6,7 @@
 #include <RHIDX12/DX12Viewport.h>
 #include <RHIDX12/DX12Shader.h>
 #include <RHIDX12/DX12Buffer.h>
+#include <RHIDX12/DX12Pipeline.h>
 
 namespace z {
 
@@ -16,7 +17,7 @@ Viewport::Viewport(uint32_t width, uint32_t height) {
 	view->Init();
 
 	// compile shader
-	std::string s = FileReader("E:/Code/GameZ/Engine/Shader/test.hlsl").ReadAll();
+	std::string s = FileReader("G:/Code/GameZ/Engine/Shader/test.hlsl").ReadAll();
 	RefCountPtr<DX12Shader> vs = DX12Shader::FromCompile(s.c_str(), s.length(), SHADER_TYPE_VERTEX);
 	RefCountPtr<DX12Shader> ps = DX12Shader::FromCompile(s.c_str(), s.length(), SHADER_TYPE_PIXEL);
 
@@ -28,7 +29,7 @@ Viewport::Viewport(uint32_t width, uint32_t height) {
 	// uniform layout
 	RefCountPtr<DX12UniformLayout> uniformLayout = new DX12UniformLayout();
 	uniformLayout->PushLayout("globalcb", 0, UNIFORM_LAYOUT_CONSTANT_BUFFER);
-	uniformLayout->PushLayout("privatecb", 0, UNIFORM_LAYOUT_CONSTANT_BUFFER);
+	uniformLayout->PushLayout("privatecb", 1, UNIFORM_LAYOUT_CONSTANT_BUFFER);
 	uniformLayout->GetRootSignature();
 
 	struct CommonCBuffer { int x; };
@@ -36,8 +37,15 @@ Viewport::Viewport(uint32_t width, uint32_t height) {
 	DX12ConstantBuffer *cbCommon = new DX12ConstantBuffer(sizeof(CommonCBuffer));
 	DX12ConstantBuffer *cbPrivate= new DX12ConstantBuffer(sizeof(PrivateCBuffer));
 	
-	// ConstantBuffer1, ConstantBuffer2
-	// U
+	DX12PipelineState *state = new DX12PipelineState();
+	state->SetShaderVS(vs);
+	state->SetShaderPS(ps);
+	state->SetVertexLayout(vertexLayout);
+	state->SetUniformLayout(uniformLayout);
+
+	state->Compile();
+	
+	
 
 }
 

@@ -44,7 +44,7 @@ DX12ConstantBuffer::DX12ConstantBuffer(uint32_t size) :
 	mView = new DX12ConstantBufferView(cbvDesc);
 	
 	// mapped memory
-	resource->GetIResource()->Map(0, nullptr, (void**)& mMappedBuffer);
+	resource->GetIResource()->Map(0, nullptr, (void**)& mMappedBuffer); 
 }
 
 

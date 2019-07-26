@@ -57,7 +57,7 @@ public:
 private:
 	RefCountPtr<DX12ConstantBufferView> mView;
 	BYTE* mMappedBuffer;
-	int mSize;
+	uint32_t mSize;
 };
 
 

@@ -36,8 +36,6 @@ typedef RefCounterImpl<std::atomic<int32_t>> ThreadSafeRefCounter;
 
 template<typename RefType>
 class RefCountPtr {
-	typedef RefType* RefTypePtr;
-
 public:
 	RefCountPtr(RefType *ptr = nullptr) : mPtr(ptr) {
 		AddRef();
@@ -105,7 +103,6 @@ public:
 		}
 		mPtr = nullptr;
 	}
-
 
 private:
 

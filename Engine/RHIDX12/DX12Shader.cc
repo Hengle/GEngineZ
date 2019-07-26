@@ -27,21 +27,28 @@ RefCountPtr<DX12Shader> DX12Shader::FromCompile(const char* data, size_t dataLen
 }
 
 // DX12VertexLayout
-void DX12VertexLayout::PushLayout(std::string name, uint32_t index, EPixelFormat format, EVertexLaytoutFlag flag) {
-	if (mLayout.size() <= index) {
-		mLayout.resize(index + 1);
+
+DX12VertexLayout::~DX12VertexLayout() {
+	for (int i = 0; i < mNames.size(); i++) {
+		delete[] mNames[i];
 	}
+	mNames.clear();
+	mLayout.clear();
+}
+
+void DX12VertexLayout::PushLayout(const std::string& name, uint32_t index, EPixelFormat format, EVertexLaytoutFlag flag) {
 	static std::unordered_map<EVertexLaytoutFlag, D3D12_INPUT_CLASSIFICATION> classicationMapping = {
 		{VERTEX_LAYOUT_PER_INSTANCE, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA},
 		{VERTEX_LAYOUT_PER_VERTEX, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA}
 	};
-
-	D3D12_INPUT_ELEMENT_DESC desc{ name.c_str(), index, PixelFomat[format].format, 0, mSize, classicationMapping[flag], 0 };
+	char *s = new char[name.length() + 1];
+	memcpy(s, name.data(), name.length());
+	s[name.length()] = 0;
+	mNames.push_back(s);
+	D3D12_INPUT_ELEMENT_DESC desc{ s, index, PixelFomat[format].format, 0, mSize, classicationMapping[flag], 0 };
 	mLayout.push_back(desc);
 	mSize += PixelFomat[format].size;
 }
-
-
 
 
 // DX12UniformLayout
@@ -67,7 +74,8 @@ RefCountPtr<ID3D12RootSignature> DX12UniformLayout::GetRootSignature() {
 		D3D12_DESCRIPTOR_RANGE_TYPE_CBV, D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER
 	};
 	
-	int rangeIdx = 0, totalSize = 0;
+	int rangeIdx = 0;
+	uint32_t totalSize = 0;
 
 	for (int i = 0; i < 4; i++) {
 		const std::vector<std::string> &vec = *(rangeVecs[i]);

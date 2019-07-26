@@ -14,29 +14,20 @@ public:
 	virtual ~RHIResource() {
 		Log<LINFO>("destroy rhi resource");
 	}
-
-
 };
 
 class RHIViewport : public RHIResource {
 public:
-
-
-
 };
 
 class RHIShader : public RHIResource {
 public:
-
 };
 
-
 class RHIConstantBuffer : public RHIResource {
-
 };
 
 class RHIVertexBuffer : public RHIResource {
-
 };
 
 class RHIIndexBuffer : public RHIResource {
@@ -59,11 +50,23 @@ class RHIPipeline : public RHIResource {
 
 };
 
+class RHIPipelineState : public RHIResource {
+
+};
+
 class RHIVertexLayout : public RHIResource {
 
 };
 
 class RHIUniformLayout : public RHIResource {
+
+};
+
+class RHIRenderTargetDesc : public RHIResource {
+
+};
+
+class RHIDepthStencilDesc : public RHIResource {
 
 };
 
