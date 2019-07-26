@@ -72,7 +72,7 @@ public:
 		DX12DescriptorHeapAllocator::GetAllocator<VIEW_DESC>()->Free(mHeapPos);
 	}
 
-	void Create(const VIEW_DESC& desc, ID3D12Resource* resource, ID3D12Resource* counter = nullptr) {
+	void Create(const VIEW_DESC& desc, ID3D12Resource* resource=nullptr, ID3D12Resource* counter = nullptr) {
 		auto device = GDX12Device->GetIDevice();
 		if constexpr (std::is_same_v<VIEW_DESC, D3D12_RENDER_TARGET_VIEW_DESC>) {
 			device->CreateRenderTargetView(resource, &desc, mHeapPos.cpuHandle);
@@ -81,7 +81,7 @@ public:
 		} else if constexpr (std::is_same_v<VIEW_DESC, D3D12_SHADER_RESOURCE_VIEW_DESC>) {
 			device->CreateShaderResourceView(resource, &desc, mHeapPos.cpuHandle);
 		} else if constexpr (std::is_same_v<VIEW_DESC, D3D12_CONSTANT_BUFFER_VIEW_DESC>) {
-			device->CreateConstantBufferView(resource, &desc, mHeapPos.cpuHandle);
+			device->CreateConstantBufferView(&desc, mHeapPos.cpuHandle);
 		} else if constexpr (std::is_same_v<VIEW_DESC, D3D12_UNORDERED_ACCESS_VIEW_DESC>) {
 			device->CreateUnorderedAccessView(resource, counter, &desc, mHeapPos.cpuHandle);
 		}
@@ -108,11 +108,11 @@ public:
 		return mDescriptor.GetCPUHandle();
 	}
 protected:
-	void CreateView(const VIEW_DESC& desc, DX12Resource* res, DX12Resource* counter = nullptr) {
+	void CreateView(const VIEW_DESC& desc, DX12Resource* res = nullptr, DX12Resource* counter = nullptr) {
 		mResouce = res;
 		mDesc = desc;
 
-		mDescriptor.Create(desc, res->GetIResource(), counter ? counter->GetIResource() : nullptr);
+		mDescriptor.Create(desc, res ? res->GetIResource() : nullptr, counter ? counter->GetIResource() : nullptr);
 	}
 
 	DX12DescriptorViewHandle<VIEW_DESC> mDescriptor;
@@ -141,7 +141,13 @@ public:
 	DX12ShaderResourceView(D3D12_SHADER_RESOURCE_VIEW_DESC& desc, DX12Resource* res) {
 		CreateView(desc, res);
 	}
+};
 
+class DX12ConstantBufferView : public DX12DescriptorView<D3D12_CONSTANT_BUFFER_VIEW_DESC> {
+public:
+	DX12ConstantBufferView(D3D12_CONSTANT_BUFFER_VIEW_DESC& desc) {
+		CreateView(desc);
+	}
 };
 
 }

@@ -15,8 +15,8 @@ void DX12DescriptorHeapAllocator::CreateHeapAllocators() {
 	gDescHeapRTV = new DX12DescriptorHeapAllocator(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 64);
 	gDescHeapDSV = new DX12DescriptorHeapAllocator(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 64);
 	gDescHeapSRV = new DX12DescriptorHeapAllocator(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1024);
-	gDescHeapCBV = gDescHeapCBV;
-	gDescHeapUAV = gDescHeapUAV;
+	gDescHeapCBV = gDescHeapSRV;
+	gDescHeapUAV = gDescHeapSRV;
 }
 
 void DX12DescriptorHeapAllocator::DestroyHeapAllocators() {

@@ -69,6 +69,8 @@ public:
 		return &mOwner;
 	}
 
+
+
 private:
 	DX12ResourceOwner mOwner;
 

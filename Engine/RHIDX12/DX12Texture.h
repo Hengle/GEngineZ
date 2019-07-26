@@ -23,9 +23,12 @@ public:
 		mShaderResourceView = view;
 	}
 
-private:
+
 
 	RefCountPtr<DX12ShaderResourceView> mShaderResourceView;
+
+private:
+
 	std::vector<RefCountPtr<DX12RenderTargetView>> mRenderTargets;
 };
 

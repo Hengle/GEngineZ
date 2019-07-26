@@ -31,7 +31,7 @@ public:
 };
 
 
-class RHIUniformBuffer : public RHIResource {
+class RHIConstantBuffer : public RHIResource {
 
 };
 
@@ -56,6 +56,14 @@ class RHIRenderTarget : public RHITexture2D {
 };
 
 class RHIPipeline : public RHIResource {
+
+};
+
+class RHIVertexLayout : public RHIResource {
+
+};
+
+class RHIUniformLayout : public RHIResource {
 
 };
 

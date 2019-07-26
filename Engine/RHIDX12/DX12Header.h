@@ -8,7 +8,6 @@
 #include <DirectXPackedVector.h>
 #include <DirectXColors.h>
 #include <DirectXCollision.h>
-#include "DX12/d3dx12.h"
 
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "D3D12.lib")
@@ -18,6 +17,9 @@
 #include <RHI/RHIConst.h>
 #include <RHI/RHIResource.h>
 #include <Core/CoreHeader.h>
+
+#include <RHIDX12/DX12/d3dx12.h>
+#include <RHIDX12/DX12Const.h>
 
 class COMException {
 public:
@@ -29,4 +31,7 @@ private:
 	const HRESULT error_;
 };
 
-#define DX12_CHECK(hr) if (FAILED(hr)){ throw COMException(hr); }
+#define DX12_CHECK(hr) do {	\
+	HRESULT hr_ = (hr);	\
+	if (FAILED(hr_)) { throw COMException(hr_); }	\
+} while (0);

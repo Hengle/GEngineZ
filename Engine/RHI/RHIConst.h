@@ -61,12 +61,40 @@ struct RHITextureDesc {
 
 
 // Shader
-enum ShaderType {
-	EShaderType_Unknown = 0,
-	EShaderType_Vertex = 1,
-	EShaderType_Pixel = 2,
+enum EShaderType {
+	SHADER_TYPE_UNKNOWN = 0,
+	SHADER_TYPE_VERTEX,
+	SHADER_TYPE_PIXEL,
 
-	EShaderType_MAX
+	SHADER_TYPE_MAX
+};
+
+enum EVertexLaytoutFlag {
+	VERTEX_LAYOUT_INVALID = 0,
+	VERTEX_LAYOUT_PER_INSTANCE,
+	VERTEX_LAYOUT_PER_VERTEX,
+};
+
+enum EPixelFormat{
+	VERTEX_FORMAT_INVALID = 0,
+	VERTEX_FORAMT_R32_FLAOT,
+	VERTEX_FORAMT_R32G12_FLAOT,
+	VERTEX_FORMAT_R32G32B32_FLOAT,
+	VERTEX_FORMAT_R32G32B32A32_FLOAT,
+
+	VERTEX_FORMAT_MAX
+};
+
+enum EUniformLayoutFlag {
+	UNIFORM_LAYOUT_INVALID = 0,
+	UNIFORM_LAYOUT_CONSTANT_BUFFER = 1,
+};
+
+
+
+
+struct BlendState {
+
 };
 
 

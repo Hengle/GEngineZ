@@ -2,6 +2,7 @@
 #include <Core/CoreHeader.h>
 #include <RHI/RHIResource.h>
 #include "DX12Resource.h"
+#include "DX12Descriptor.h"
 
 namespace z {
 
@@ -14,6 +15,8 @@ public:
 		buffer->GetResourceOwner()->OwnResource(EResourceOwn_Exclusive, resource);
 		return buffer;
 	}
+
+	
 
 	template<typename BufferT>
 	static BufferT* Create(const D3D12_RESOURCE_DESC& desc, uint32_t stride, uint32_t size) {}
@@ -44,6 +47,17 @@ public:
 	D3D12_INDEX_BUFFER_VIEW GetView() {
 		return D3D12_INDEX_BUFFER_VIEW{};
 	}
+
+};
+
+class DX12ConstantBuffer : public DX12ShaderResource, public RHIConstantBuffer {
+public:
+	DX12ConstantBuffer(uint32_t size);
+	void CopyData(void *data, uint32_t size);
+private:
+	RefCountPtr<DX12ConstantBufferView> mView;
+	BYTE* mMappedBuffer;
+	int mSize;
 };
 
 
