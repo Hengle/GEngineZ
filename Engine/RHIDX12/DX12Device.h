@@ -6,13 +6,15 @@
 namespace z {
 
 class DX12DescriptorHeapAllocator;
-class DX12CommandContext;
+class DX12Executor;
 
 class DX12Device: public RHIDevice {
 public:
 	DX12Device(HWND hwnd);
 	~DX12Device();
 
+
+	// DX12 Method
 	void InitDevice(HWND hwnd);
 
 	IDXGIFactory5* GetIDXGIFactory() {
@@ -27,20 +29,37 @@ public:
 		return mDevice.GetRef();
 	}
 
-	DX12CommandContext* GetCommandContext() {
-		return mCommandContext;
+	DX12Executor* GetExecutor() {
+		return mExecutor;
 	}
 
-	
+	// ====  begin device method ====
+	RHIViewport* CreateViewport(uint32_t width, uint32_t height, ERHIPixelFormat format) override;
+	RHIDepthStencil* CreateDepthStencil(uint32_t width, uint32_t height, ERHIPixelFormat format) override;
+	RHIShader* CreateShader(const char* data, size_t dataLen, ERHIShaderType stype) override;
+	RHIVertexLayout* CreateVertexLayout() override;
+	RHIUniformLayout* CreateUniformLayout() override;
+	RHIPipelineState* CreatePipelineState(const RHIPipelineStateDesc&) override;
+	RHIConstantBuffer* CreateConstantBuffer(uint32_t size) override;
+	RHIIndexBuffer* CreateIndexBuffer(uint32_t num, uint32_t stride, const void* data) override;
+	RHIVertexBuffer* CreateVertexBuffer(uint32_t num, uint32_t stride, const void* data) override;
+
+	void SetPipelineState(RHIPipelineState*) override;
+	void SetRenderTargets(const std::vector<RHIRenderTarget*>&) override;
+	void SetDepthStencil(RHIDepthStencil* res) override;
+	void SetVertexBuffer(RHIVertexBuffer*) override;
+	void SetIndexBuffer(RHIIndexBuffer*) override;
+	void SetConstantBuffer(int, RHIConstantBuffer*) override;
+	void DrawIndexed() override;
+	// ==== end device method ====
+
 
 private:
 	HWND mHWND;
 	RefCountPtr<IDXGIFactory5> mDxgiFactory{ nullptr };
 	RefCountPtr<ID3D12Device3> mDevice{ nullptr };
-	
-	DX12CommandContext* mCommandContext{ nullptr };
 
-
+	DX12Executor* mExecutor;
 };
 
 extern DX12Device* GDX12Device;

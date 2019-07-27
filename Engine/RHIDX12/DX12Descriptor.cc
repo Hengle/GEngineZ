@@ -63,11 +63,15 @@ void DX12DescriptorHeapAllocator::AllocateNewHeap() {
 	GDX12Device->GetIDevice()->CreateDescriptorHeap(&mDesc, IID_PPV_ARGS(newHeap.GetComRef()));
 	mHeaps.push_back(newHeap);
 
-	D3D12_CPU_DESCRIPTOR_HANDLE addr = newHeap->GetCPUDescriptorHandleForHeapStart();
-
+	D3D12_CPU_DESCRIPTOR_HANDLE cpuAddr = newHeap->GetCPUDescriptorHandleForHeapStart();
+	D3D12_GPU_DESCRIPTOR_HANDLE gpuAddr = newHeap->GetGPUDescriptorHandleForHeapStart();
 	for (uint32_t i = 0; i < mDesc.NumDescriptors; i++) {
 		mFreeDescriptors.emplace_back(
-			DX12DescriptorHeapPos{ newHeap.GetRef(), addr.ptr + i * mDescSize }
+			DX12DescriptorHeapPos{
+				newHeap.GetRef(),
+				cpuAddr.ptr + i * mDescSize,
+				gpuAddr.ptr + i * mDescSize,
+			}
 		);
 	}
 

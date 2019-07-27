@@ -1,4 +1,14 @@
 
+cbuffer cbPerObject : register(b0)
+{
+	float4x4 gWorld;
+};
+
+cbuffer cbPass : register(b1)
+{
+	float4x4 gViewProj;
+}
+
 struct VertexIn {
 	float3 pos : POSITION;
 	float4 color : COLOR;
@@ -11,8 +21,10 @@ struct VertexOut {
 
 VertexOut VS(VertexIn vin) {
 	VertexOut vout;
-	vout.pos = float4(1.0, 1.0, 1.0, 1.0);
-	vout.color = float4(1.0, 1.0, 1.0, 1.0);
+	float4 pos = mul(float4(vin.pos, 1.0f), gWorld);
+	vout.pos = mul(pos, gViewProj);
+
+	vout.color = vin.color;
 	return vout;
 }
 

@@ -18,7 +18,9 @@ public:
 
 	int32_t Release() const {
 		int old = --mCnt;
-		if (mCnt == 0) delete this;
+		if (mCnt == 0) {
+			delete this;
+		}
 		return old;
 	}
 
@@ -112,7 +114,7 @@ private:
 		}
 	}
 
-	RefType*  mPtr;
+	RefType* mPtr{nullptr};
 
 };
 

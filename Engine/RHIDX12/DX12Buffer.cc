@@ -1,12 +1,12 @@
 #include "DX12Buffer.h"
 #include "DX12Device.h"
-#include "DX12Command.h"
+#include "DX12Executor.h"
 #include "DX12Descriptor.h"
 
 namespace z {
 
-RefCountPtr<DX12Resource> DX12BufferHelper::UploadBuffer(const void* data, size_t bufSize) {
-	auto cmdContext = GDX12Device->GetCommandContext();
+static RefCountPtr<DX12Resource> UploadBuffer(DX12ResourceOwner &uploadOnwer, uint32_t bufSize, const void* data) {
+	auto exec = GDX12Device->GetExecutor();
 
 	RefCountPtr<DX12Resource> uploader, dest;
 	D3D12_RESOURCE_DESC destDesc = CD3DX12_RESOURCE_DESC::Buffer(bufSize);
@@ -19,11 +19,31 @@ RefCountPtr<DX12Resource> DX12BufferHelper::UploadBuffer(const void* data, size_
 	subResourceData.SlicePitch = subResourceData.RowPitch;
 
 	dest->Transition(D3D12_RESOURCE_STATE_COPY_DEST);
-	UpdateSubresources<1>(cmdContext->List().GetCommandList(), dest->GetIResource(), uploader->GetIResource(), 0, 0, 1, &subResourceData);
+	UpdateSubresources<1>(exec->GetCommandList(), dest->GetIResource(), uploader->GetIResource(), 0, 0, 1, &subResourceData);
 	dest->Transition(D3D12_RESOURCE_STATE_GENERIC_READ);
+	uploadOnwer.OwnResource(EResourceOwn_Exclusive, uploader);
 	return dest;
 }
 
+// DX12 Index Buffer
+DX12IndexBuffer::DX12IndexBuffer(uint32_t num, uint32_t stride, const void* data) :
+	mNum(num) {
+	assert(stride == 2);
+	RefCountPtr<DX12Resource> resource = UploadBuffer(mUploader, num * sizeof(uint16_t), data);
+	GetResourceOwner()->OwnResource(EResourceOwn_Exclusive, resource);
+
+}
+
+
+// DX12 Vertex Buffer
+DX12VertexBuffer::DX12VertexBuffer(uint32_t num, uint32_t stride, const void* data) :
+	mNum(num),
+	mStride(stride) {
+	RefCountPtr<DX12Resource> resource = UploadBuffer(mUploader, num * stride, data);
+	GetResourceOwner()->OwnResource(EResourceOwn_Exclusive, resource);
+}
+
+// Constant Buffer
 
 DX12ConstantBuffer::DX12ConstantBuffer(uint32_t size) :
 	mMappedBuffer(nullptr),
@@ -49,7 +69,7 @@ DX12ConstantBuffer::DX12ConstantBuffer(uint32_t size) :
 
 
 void DX12ConstantBuffer::CopyData(void* data, uint32_t size) {
-	CHECK(size < mSize);
+	CHECK(size <= mSize);
 	memcpy(mMappedBuffer, data, size);
 }
 

@@ -3,7 +3,7 @@
 
 namespace z {
 
-RefCountPtr<DX12Shader> DX12Shader::FromCompile(const char* data, size_t dataLen, EShaderType stype) {
+DX12Shader* DX12Shader::FromCompile(const char* data, size_t dataLen, ERHIShaderType stype) {
 	// TODO cache 
 	static std::string ShaderTypeToName[SHADER_TYPE_MAX]{ "", "VS", "PS" };
 	static std::string ShaderTypeToTarget[SHADER_TYPE_MAX]{ "", "vs_5_0", "ps_5_0" };
@@ -20,7 +20,7 @@ RefCountPtr<DX12Shader> DX12Shader::FromCompile(const char* data, size_t dataLen
 	}
 	DX12_CHECK(hr);
 
-	RefCountPtr<DX12Shader> shader = new DX12Shader();
+	DX12Shader *shader = new DX12Shader();
 	shader->mBlob = blob;
 	shader->mType = stype;
 	return shader;
@@ -36,7 +36,7 @@ DX12VertexLayout::~DX12VertexLayout() {
 	mLayout.clear();
 }
 
-void DX12VertexLayout::PushLayout(const std::string& name, uint32_t index, EPixelFormat format, EVertexLaytoutFlag flag) {
+void DX12VertexLayout::PushLayout(const std::string& name, uint32_t index, ERHIPixelFormat format, EVertexLaytoutFlag flag) {
 	static std::unordered_map<EVertexLaytoutFlag, D3D12_INPUT_CLASSIFICATION> classicationMapping = {
 		{VERTEX_LAYOUT_PER_INSTANCE, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA},
 		{VERTEX_LAYOUT_PER_VERTEX, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA}
@@ -45,9 +45,9 @@ void DX12VertexLayout::PushLayout(const std::string& name, uint32_t index, EPixe
 	memcpy(s, name.data(), name.length());
 	s[name.length()] = 0;
 	mNames.push_back(s);
-	D3D12_INPUT_ELEMENT_DESC desc{ s, index, PixelFomat[format].format, 0, mSize, classicationMapping[flag], 0 };
+	D3D12_INPUT_ELEMENT_DESC desc{ s, index, FromRHIFormat(format), 0, mSize, classicationMapping[flag], 0 };
 	mLayout.push_back(desc);
-	mSize += PixelFomat[format].size;
+	mSize += GetPixelSize(FromRHIFormat(format));
 }
 
 
@@ -61,33 +61,23 @@ void DX12UniformLayout::PushLayout(std::string name, uint32_t registerNo, EUnifo
 }
 
 
-RefCountPtr<ID3D12RootSignature> DX12UniformLayout::GetRootSignature() {
+ID3D12RootSignature *DX12UniformLayout::GetRootSignature() {
 	if (mRootSignature) {
 		return mRootSignature;
 	}
-	CD3DX12_ROOT_PARAMETER rootParam;
-	CD3DX12_DESCRIPTOR_RANGE rangeTable[4]; 
 
-	const std::vector<std::string> *rangeVecs[] = { &mSRVs, &mUAVs, &mCBVs, &mSamplers};
-	const static D3D12_DESCRIPTOR_RANGE_TYPE rangeType[] = {
-		D3D12_DESCRIPTOR_RANGE_TYPE_SRV, D3D12_DESCRIPTOR_RANGE_TYPE_UAV,
-		D3D12_DESCRIPTOR_RANGE_TYPE_CBV, D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER
-	};
 	
-	int rangeIdx = 0;
-	uint32_t totalSize = 0;
-
-	for (int i = 0; i < 4; i++) {
-		const std::vector<std::string> &vec = *(rangeVecs[i]);
-		if (vec.size() > 0) {
-			rangeTable[rangeIdx++].Init(rangeType[i],vec.size(), 0, 0, totalSize);
-			totalSize += vec.size();
-		}
+	
+	CD3DX12_ROOT_PARAMETER rootParam[MAX_SIGNATURE_NUM];
+	CD3DX12_DESCRIPTOR_RANGE cbvTable[MAX_SIGNATURE_NUM];
+	uint32_t count = 0;
+	for (int i = 0; i < mCBVs.size(); i++) {
+		cbvTable[count].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, i);
+		rootParam[count].InitAsDescriptorTable(1, &cbvTable[count]);
+		count++;
 	}
 
-	rootParam.InitAsDescriptorTable(rangeIdx, rangeTable, D3D12_SHADER_VISIBILITY_ALL);
-
-	CD3DX12_ROOT_SIGNATURE_DESC rootSignDesc(1, &rootParam, 0, nullptr,
+	CD3DX12_ROOT_SIGNATURE_DESC rootSignDesc(count, rootParam, 0, nullptr,
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 	
 	RefCountPtr<ID3DBlob> serialzed, error;

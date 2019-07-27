@@ -8,19 +8,23 @@
 namespace z {
 
 
-static const uint32_t kBackBufferCount = 3;
+
 
 class DX12Viewport : public RHIViewport {
 public:
-	DX12Viewport(uint32_t with, uint32_t height);
+	DX12Viewport(uint32_t with, uint32_t height, DXGI_FORMAT format);
+	
+	// begin RHI Viewport
+	void Resize(uint32_t width, uint32_t height) override;
+	void BeginDraw(const RHIClearValue& clearValue) override;
+	void EndDraw() override;
+	
+	/*RHIRenderTarget* GetCurRenderTarget() override {
+		return 
+	}*/
+	// End RHI Viewport
 
-	void Init();
-	void Resize(uint32_t width, uint32_t height);
-
-	void BeginDraw();
-	void EndDraw();
-
-	DX12Texture2D* GetCurBackBuffer() {
+	DX12RenderTarget* GetCurBackBuffer() {
 		return mBackBuffers[mCurBackBufferIndex];
 	}
 
@@ -29,9 +33,11 @@ private:
 
 	uint32_t mWidth;
 	uint32_t mHeight;
+	DXGI_FORMAT mFormat;
 
+	// swapchain
 	RefCountPtr<IDXGISwapChain1> mSwapChain;
-	std::array<RefCountPtr<DX12Texture2D>, kBackBufferCount> mBackBuffers;
+	std::array<RefCountPtr<DX12RenderTarget>, BACK_BUFFER_COUNT> mBackBuffers;
 	int32_t mCurBackBufferIndex;
 };
 

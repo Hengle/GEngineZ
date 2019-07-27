@@ -2,10 +2,18 @@
 
 #include <Core/CoreHeader.h>
 
+#include <RHI/RHIResource.h>
+
 namespace z {
 class Scene;
 class RenderScene;
+
 class DX12Viewport;
+class DX12PipelineState;
+class DX12VertexBuffer;
+class DX12IndexBuffer;
+class DX12ConstantBuffer;
+class DX12DepthStencil;
 
 class Viewport {
 public:
@@ -21,7 +29,14 @@ private:
 	Scene* mScene;
 	RenderScene* mRenderScene;
 
-	DX12Viewport* view;
+	RHIViewport* viewport;
+	RefCountPtr<RHIPipelineState> state;
+	RefCountPtr<RHIVertexBuffer> vb;
+	RefCountPtr<RHIIndexBuffer> ib;
+	RefCountPtr<RHIConstantBuffer> cb1, cb0, cb2;
+	RefCountPtr<RHIDepthStencil> ds;
+	
+
 };
 
 

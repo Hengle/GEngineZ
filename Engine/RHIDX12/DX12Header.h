@@ -20,6 +20,7 @@
 
 #include <RHIDX12/DX12/d3dx12.h>
 #include <RHIDX12/DX12Const.h>
+#include <RHIDX12/DX12Util.h>
 
 class COMException {
 public:

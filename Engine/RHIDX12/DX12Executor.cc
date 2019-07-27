@@ -1,0 +1,216 @@
+#include "DX12Executor.h"
+#include "DX12Device.h"
+#include "DX12Texture.h"
+#include "DX12Descriptor.h"
+#include "DX12PipelineState.h"
+
+namespace z {
+
+// DX12Executor
+
+
+DX12Executor::DX12Executor(DX12Device* device) :
+	mDevice(device),
+	mList(device),
+	mFlag(0) {
+
+}
+
+DX12Executor::~DX12Executor() {
+
+}
+
+void DX12Executor::Reset() {
+	mVertexBuffer.Reset();
+	mIndexBuffer.Reset();
+	mConstantBuffers.clear();
+	mDepthStencil.Reset();
+	mRenderTargets.clear();
+	mPSO.Reset();
+	mFlag = 0;
+	mList.Reset();
+}
+void DX12Executor::Flush() {
+	mList.Flush();
+}
+
+void DX12Executor::SetPipelineState(DX12PipelineState* pso) {
+	mPSO = pso;
+	mFlag |= DX12EXE_FLAG_PSO_DIRTY;
+}
+
+void DX12Executor::SetRenderTargets(const std::vector<DX12RenderTarget*>& target) {
+	mRenderTargets.clear();
+	for (size_t i = 0; i < target.size(); i++) {
+		mRenderTargets.push_back(target[i]);
+	}
+	mFlag |= DX12EXE_FLAG_RT_DIRTY;
+}
+
+void DX12Executor::SetDepthStencil(DX12DepthStencil* ds) {
+	mDepthStencil = ds;
+	mFlag |= DX12EXE_FLAG_DS_DIRTY;
+}
+
+void DX12Executor::SetVertexBuffer(DX12VertexBuffer* vb) {
+	mVertexBuffer = vb;
+	mFlag |= DX12EXE_FLAG_VB_DIRTY;
+}
+
+void DX12Executor::SetIndexBuffer(DX12IndexBuffer* ib) {
+	mIndexBuffer = ib;
+	mFlag |= DX12EXE_FLAG_IB_DIRTY;
+}
+
+
+void DX12Executor::SetConstantBuffer(int idx, DX12ConstantBuffer* cb) {
+	if (mConstantBuffers.size() <= idx) {
+		mConstantBuffers.resize(idx + 1);
+	}
+	mConstantBuffers[idx] = cb;
+	mFlag |= DX12EXE_FLAG_CB_DIRTY;
+}
+
+
+
+
+void DX12Executor::ApplyState() {
+	if (mFlag & DX12EXE_FLAG_PSO_DIRTY) {
+		// TODO, compare, mat not need change
+		GetCommandList()->SetPipelineState(mPSO->GetIPipelineState());
+		// TODO, compare, mat not need change
+		GetCommandList()->SetGraphicsRootSignature(mPSO->GetIRootSignature());
+		mFlag &= ~DX12EXE_FLAG_PSO_DIRTY;
+	}
+
+	int rtdsDirty = DX12EXE_FLAG_RT_DIRTY | DX12EXE_FLAG_DS_DIRTY;
+	if (mFlag & rtdsDirty) {
+		D3D12_CPU_DESCRIPTOR_HANDLE rtHandls[MAX_MRT_NUM]{0};
+		for (int i = 0; i < mRenderTargets.size(); i++) {
+			rtHandls[i] = mRenderTargets[i]->GetRTView()->GetCPUHandle();
+		}
+		if (mDepthStencil) {
+			D3D12_CPU_DESCRIPTOR_HANDLE dsHandle = mDepthStencil->GetView()->GetCPUHandle();
+			GetCommandList()->OMSetRenderTargets(mRenderTargets.size(), rtHandls, 0, &dsHandle);
+		} else {
+			GetCommandList()->OMSetRenderTargets(mRenderTargets.size(), rtHandls, 0, nullptr);
+		}
+		mFlag &= ~rtdsDirty;
+	}
+
+	// vertex
+	if (mFlag & DX12EXE_FLAG_VB_DIRTY) {
+		GetCommandList()->IASetVertexBuffers(0, 1, &mVertexBuffer->GetView());
+		mFlag &= ~DX12EXE_FLAG_VB_DIRTY;
+	}
+
+	// index
+	if (mFlag & DX12EXE_FLAG_IB_DIRTY) {
+		GetCommandList()->IASetIndexBuffer(&mIndexBuffer->GetView());
+		GetCommandList()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		mFlag &= ~DX12EXE_FLAG_IB_DIRTY;
+	}
+
+	// set descriptor heap first..
+	{
+		std::vector<ID3D12DescriptorHeap*> usedHeap;
+		if (mFlag & DX12EXE_FLAG_CB_DIRTY) {
+			for (int i = 0; i < mConstantBuffers.size(); i++) {
+				ID3D12DescriptorHeap* heap = mConstantBuffers[i]->GetView()->GetHeap();
+				int j = 0;
+				for (j = 0; j < usedHeap.size(); j++) {
+					if (usedHeap[j] == heap) break;
+				}
+				if (j == usedHeap.size()) {
+					usedHeap.emplace_back(heap);
+				}
+			}
+		}
+		if (usedHeap.size() > 0) {
+			GetCommandList()->SetDescriptorHeaps(usedHeap.size(), usedHeap.data());
+		}
+	}
+
+	// constant buffer
+	if (DX12EXE_FLAG_CB_DIRTY) {
+		for (int i = 0; i < mConstantBuffers.size(); i++) {
+			GetCommandList()->SetGraphicsRootDescriptorTable(i, mConstantBuffers[i]->GetView()->GetGPUHandle());
+		}
+		mFlag &= ~DX12EXE_FLAG_CB_DIRTY;
+	}
+}
+
+void DX12Executor::Draw() {
+	ApplyState();
+
+	GetCommandList()->DrawIndexedInstanced(mIndexBuffer->GetSize(), 1, 0, 0, 0);
+
+}
+
+
+// DX12CommandList
+DX12CommandList::DX12CommandList(DX12Device* device) :
+	mClosed(false),
+	mDevice(device){
+	auto idevice = mDevice->GetIDevice();
+	// create command objects (queue/allocator/list)
+	D3D12_COMMAND_QUEUE_DESC queueDesc{};
+	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+	queueDesc.Priority = 0;
+	queueDesc.NodeMask = 0;
+	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+	DX12_CHECK(idevice->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(mCommandQueue.GetComRef())));
+	DX12_CHECK(idevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(mCommandAllocator.GetComRef())));
+	DX12_CHECK(idevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, mCommandAllocator.GetRef(),
+		nullptr,                        // initial pipeline is none
+		IID_PPV_ARGS(mCommandList.GetComRef())));
+
+	DX12_CHECK(idevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(mFence.GetComRef())));
+	mFenceValue = 0;
+
+	Close();
+	Reset();
+
+	Log<LINFO>("Command queue create done.");
+}
+
+DX12CommandList::~DX12CommandList() {
+	// todo
+}
+
+void DX12CommandList::Close() {
+	if (!mClosed) {
+		DX12_CHECK(mCommandList->Close());
+		mClosed = true;
+	}
+}
+
+void DX12CommandList::Reset() {
+	mCommandAllocator->Reset();
+	mCommandList->Reset(mCommandAllocator.GetRef(), nullptr);
+	mClosed = false;
+}
+
+void DX12CommandList::Flush() {
+	Close();
+
+	ID3D12CommandList* cmdLists[] = { mCommandList.GetRef() };
+	mCommandQueue->ExecuteCommandLists(_countof(cmdLists), cmdLists);
+
+	// flush command and wait compeleted.
+	++mFenceValue;
+	DX12_CHECK(mCommandQueue->Signal(mFence.GetRef(), mFenceValue));
+	if (mFence->GetCompletedValue() < mFenceValue) {
+		HANDLE event = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
+		DX12_CHECK(mFence->SetEventOnCompletion(mFenceValue, event));
+		if (event) {
+			WaitForSingleObject(event, INFINITE);
+			CloseHandle(event);
+		}
+	}
+}
+
+
+
+
+}

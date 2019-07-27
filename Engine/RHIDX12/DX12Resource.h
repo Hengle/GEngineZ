@@ -27,6 +27,10 @@ public:
 		return mResource.GetRef();
 	}
 
+	const D3D12_RESOURCE_DESC& GetDesc() {
+		return mDesc;
+	}
+
 private:
 	RefCountPtr<ID3D12Resource> mResource;
 	D3D12_RESOURCE_DESC mDesc;

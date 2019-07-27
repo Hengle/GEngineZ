@@ -5,28 +5,66 @@
 
 namespace z {
 
+// rhi resource must be interface, and create by device
+
 class RHIResource : public RefCounter {
 public:
 	RHIResource() : RefCounter() {
-		Log<LINFO>("create rhi resource");
+		Log<LDEBUG>("create rhi resource", this);
 	}
 
 	virtual ~RHIResource() {
-		Log<LINFO>("destroy rhi resource");
+		Log<LDEBUG>("destroy rhi resource", this);
 	}
 };
 
+// Viewport 
 class RHIViewport : public RHIResource {
 public:
+	virtual void Resize(uint32_t width, uint32_t height) = 0;
+	virtual void BeginDraw(const RHIClearValue& clearValue) = 0;
+	virtual void EndDraw() = 0;
 };
 
+// texture
+class RHITexture : public RHIResource {
+
+};
+
+class RHITexture2D : public RHITexture {
+	
+};
+
+class RHIRenderTarget : public RHITexture2D {
+
+};
+
+class RHIDepthStencil : public RHITexture2D {
+public:
+	virtual void Clear(const RHIClearValue& v) = 0;
+};
+
+// pipeline state
 class RHIShader : public RHIResource {
 public:
+	virtual ERHIShaderType GetShaderType() = 0;
 };
 
-class RHIConstantBuffer : public RHIResource {
+class RHIVertexLayout : public RHIResource {
+public:
+	virtual void PushLayout(const std::string& name, uint32_t index, ERHIPixelFormat format, EVertexLaytoutFlag flag) = 0;
 };
 
+class RHIUniformLayout : public RHIResource {
+public:
+	virtual void PushLayout(std::string name, uint32_t registerNo, EUniformLayoutFlag flag) = 0;
+};
+
+class RHIPipelineState : public RHIResource {
+
+};
+
+// buffer
 class RHIVertexBuffer : public RHIResource {
 };
 
@@ -34,40 +72,25 @@ class RHIIndexBuffer : public RHIResource {
 
 };
 
-class RHITexture : public RHIResource {
-
+class RHIConstantBuffer : public RHIResource {
+public:
+	virtual void CopyData(void* data, uint32_t size) = 0;
 };
 
-class RHITexture2D : public RHITexture {
 
-};
 
-class RHIRenderTarget : public RHITexture2D {
 
-};
+
+
+
 
 class RHIPipeline : public RHIResource {
 
 };
 
-class RHIPipelineState : public RHIResource {
 
-};
 
-class RHIVertexLayout : public RHIResource {
 
-};
 
-class RHIUniformLayout : public RHIResource {
-
-};
-
-class RHIRenderTargetDesc : public RHIResource {
-
-};
-
-class RHIDepthStencilDesc : public RHIResource {
-
-};
 
 }

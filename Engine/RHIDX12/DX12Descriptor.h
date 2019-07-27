@@ -20,6 +20,7 @@ DX12DescriptorView
 struct DX12DescriptorHeapPos {
 	ID3D12DescriptorHeap* heap;
 	D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle;
+	D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle;
 };
 
 class DX12DescriptorHeapAllocator {
@@ -91,6 +92,15 @@ public:
 		return mHeapPos.cpuHandle;
 	}
 
+	const D3D12_GPU_DESCRIPTOR_HANDLE& GetGPUHandle() {
+		return mHeapPos.gpuHandle;
+	}
+
+
+	ID3D12DescriptorHeap* GetHeap() {
+		return mHeapPos.heap;
+	}
+
 private:
 	DX12DescriptorHeapPos mHeapPos;
 };
@@ -106,6 +116,14 @@ public:
 
 	const D3D12_CPU_DESCRIPTOR_HANDLE& GetCPUHandle() {
 		return mDescriptor.GetCPUHandle();
+	}
+
+	const D3D12_GPU_DESCRIPTOR_HANDLE& GetGPUHandle() {
+		return mDescriptor.GetGPUHandle();
+	}
+
+	ID3D12DescriptorHeap* GetHeap() {
+		return mDescriptor.GetHeap();
 	}
 protected:
 	void CreateView(const VIEW_DESC& desc, DX12Resource* res = nullptr, DX12Resource* counter = nullptr) {

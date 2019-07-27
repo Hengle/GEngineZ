@@ -7,19 +7,19 @@
 
 namespace z {
 
-// Shader
+// Shader(VS, PS...)
 // VertexLayout
 // UniformLayout
-// ShaderHub = PS Shader + VS Shader + Vertex Layout + Uniform Layout
+// RenderTargetDesc
+// DepthStencilDesc
 
 class DX12Shader : public RHIShader {
 public:
-	static RefCountPtr<DX12Shader> FromCompile(const char* data, size_t dataLen, EShaderType stype);
+	static DX12Shader* FromCompile(const char* data, size_t dataLen, ERHIShaderType stype);
 
-	EShaderType GetShaderType() {
+	ERHIShaderType GetShaderType() override {
 		return mType;
 	}
-
 	D3D12_SHADER_BYTECODE GetCode() const {
 		return { reinterpret_cast<BYTE*>(mBlob->GetBufferPointer()), mBlob->GetBufferSize() };
 	}
@@ -30,7 +30,7 @@ public:
 //private:
 	DX12Shader() :mType(SHADER_TYPE_UNKNOWN) {}
 	RefCountPtr<ID3D10Blob> mBlob{nullptr};
-	EShaderType mType;
+	ERHIShaderType mType;
 };
 
 
@@ -41,7 +41,7 @@ public:
 
 	~DX12VertexLayout();
 
-	void PushLayout(const std::string& semanticName, uint32_t semanticIndex, EPixelFormat format, EVertexLaytoutFlag flag);
+	void PushLayout(const std::string& semanticName, uint32_t semanticIndex, ERHIPixelFormat format, EVertexLaytoutFlag flag) override;
 	
 	D3D12_INPUT_LAYOUT_DESC GetDesc() {
 		return { mLayout.data(), (uint32_t)mLayout.size() };
@@ -55,9 +55,9 @@ private:
 
 class DX12UniformLayout : public RHIUniformLayout {
 public:
-	void PushLayout(std::string name, uint32_t registerno, EUniformLayoutFlag flag);
+	void PushLayout(std::string name, uint32_t registerNo, EUniformLayoutFlag flag) override;
 
-	RefCountPtr<ID3D12RootSignature> GetRootSignature();
+	ID3D12RootSignature* GetRootSignature();
 
 private:
 	std::vector<std::string> mCBVs;
@@ -69,11 +69,8 @@ private:
 
 };
 
-class DX12RenderTargetDesc : public RHIRenderTargetDesc {
 
-};
-
-class DX12DepthStencilDesc : public RHIDepthStencilDesc {
+class DX12BlendStateDesc {
 
 };
 
