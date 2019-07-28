@@ -14,7 +14,7 @@ bool Win32App::Init() {
 
 	// director
 	new Director();
-	GDirector->SetFrameLimit(30);
+	//GDirector->SetFrameLimit(30);
 
 	// main view
 	ViewportMain* main = new ViewportMain(this);

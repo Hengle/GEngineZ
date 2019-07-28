@@ -5,7 +5,6 @@
 namespace z {
 
 enum DeviceFlag {
-
 	EDevice_DF_EnableDebug = 1
 	// 
 	//EDEVICE_CF_
@@ -19,7 +18,6 @@ enum ERHIShaderType {
 
 	SHADER_TYPE_MAX
 };
-
 
 enum EVertexLaytoutFlag {
 	VERTEX_LAYOUT_INVALID = 0,
@@ -88,6 +86,15 @@ struct RHIPipelineStateDesc {
 	ERHIPixelFormat dsFormat;	
 };
 
+struct ScreenRenderRect {
+	float topLeftX;
+	float topLeftY;
+	float width;
+	float height;
+};
+
+
+// Texture...
 enum ERHISamplerFitler {
 	SAMPLER_FILTER_UNKNOWN = 0,
 	SAMPLER_FILTER_POINT,

@@ -87,17 +87,16 @@ void DX12Viewport::Present() {
 
 void DX12Viewport::BeginDraw(const RHIClearValue& clearValue) {
 	// TODO, move set viewport
-	D3D12_VIEWPORT screenViewport;
-	screenViewport.TopLeftX = 0;
-	screenViewport.TopLeftY = 0;
-	screenViewport.Width = (float)mWidth;
-	screenViewport.Height = (float)mHeight;
-	screenViewport.MinDepth = 0.0f;
-	screenViewport.MaxDepth = 1.0f;
+	mRenderRect.TopLeftX = 0;
+	mRenderRect.TopLeftY = 0;
+	mRenderRect.Width = (float)mWidth;
+	mRenderRect.Height = (float)mHeight;
+	mRenderRect.MinDepth = 0.0f;
+	mRenderRect.MaxDepth = 1.0f;
 
 	D3D12_RECT scissorRect;
 	scissorRect = { 0, 0, (long)mWidth, (long)mHeight };
-	GDX12Device->GetExecutor()->GetCommandList()->RSSetViewports(1, &screenViewport);
+	GDX12Device->GetExecutor()->GetCommandList()->RSSetViewports(1, &mRenderRect);
 	GDX12Device->GetExecutor()->GetCommandList()->RSSetScissorRects(1, &scissorRect);
 
 	// transition state to render target
@@ -113,6 +112,16 @@ void DX12Viewport::BeginDraw(const RHIClearValue& clearValue) {
 void DX12Viewport::EndDraw() {
 	Present();
 	GDX12Device->GetExecutor()->Reset();
+}
+
+
+void DX12Viewport::SetRenderRect(const ScreenRenderRect& rect) {
+	mRenderRect.TopLeftX = rect.topLeftX;
+	mRenderRect.TopLeftY = rect.topLeftY;
+	mRenderRect.Width = rect.width;
+	mRenderRect.Height = rect.height;
+
+	GDX12Device->GetExecutor()->GetCommandList()->RSSetViewports(1, &mRenderRect);
 }
 
 }

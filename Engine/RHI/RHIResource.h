@@ -24,7 +24,7 @@ public:
 	virtual void Resize(uint32_t width, uint32_t height) = 0;
 	virtual void BeginDraw(const RHIClearValue& clearValue) = 0;
 	virtual void EndDraw() = 0;
-	// virtual void SetViewRect() = 0;
+	virtual void SetRenderRect(const ScreenRenderRect& rect) = 0;
 };
 
 // texture

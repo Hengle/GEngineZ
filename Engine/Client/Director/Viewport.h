@@ -24,7 +24,9 @@ public:
 	void PostTick();
 	void Render();
 
+	void DrawTex();
 
+	
 private:
 	Scene* mScene;
 	RenderScene* mRenderScene;
@@ -36,8 +38,6 @@ private:
 	RefCountPtr<RHIConstantBuffer> cb1, cb0, cb2;
 	RefCountPtr<RHITexture> ds;
 	RefCountPtr<RHITexture> tex;
-	
-
 };
 
 

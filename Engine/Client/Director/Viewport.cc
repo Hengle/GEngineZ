@@ -6,6 +6,7 @@
 #include <RHI/RHIDevice.h>
 #include <Util/Image/Image.h>
 
+#include <d2d1.h>
 #include "GeometryGenerator.h"
 
 namespace z {
@@ -24,6 +25,58 @@ struct PerObjectConstants {
 struct PassConstants {
 	DirectX::XMFLOAT4X4 ViewProj;
 };
+
+void Viewport::DrawTex() {
+	float vertexs[] = {
+		-1.0f, -1.0f, 0.1f, 0.0f, 1.0f,
+		-1.0f, +1.0f, 0.1f, 0.0f, 0.0f,
+		+1.0f, +1.0f, 0.1f, 1.0f, 0.0f,
+		+1.0f, -1.0f, 0.1f, 1.0f, 1.0f,
+	};
+
+	uint16_t indices[] = {
+		0,  1,  2,
+		0,  2,  3,
+	};
+
+
+	RHIVertexBuffer *vb = GDevice->CreateVertexBuffer(4, 20, vertexs);
+	RHIIndexBuffer* ib = GDevice->CreateIndexBuffer(6, 2, indices);
+
+	std::string s = FileReader("E:/Code/GameZ/Content/Engine/Shader/render_tex.hlsl").ReadAll();
+	RHIShader* vs = GDevice->CreateShader(s.c_str(), s.length(), SHADER_TYPE_VERTEX);
+	RHIShader* ps = GDevice->CreateShader(s.c_str(), s.length(), SHADER_TYPE_PIXEL);
+
+	RHIVertexLayout* vl = GDevice->CreateVertexLayout();
+	vl->PushLayout("POSITION", 0, PIXEL_FORMAT_R32G32B32_FLOAT, VERTEX_LAYOUT_PER_VERTEX);
+	vl->PushLayout("TEXCOORD", 0, PIXEL_FORMAT_R32G32_FLOAT, VERTEX_LAYOUT_PER_VERTEX);
+	
+	RHIUniformLayout* ul = GDevice->CreateUniformLayout();
+	ul->PushLayout("texture0", 0, UNIFORM_LAYOUT_TEXTURE);
+
+
+	RHIPipelineStateDesc psoDesc;
+	psoDesc.vs = vs;
+	psoDesc.ps = ps;
+	psoDesc.ulayout = ul;
+	psoDesc.vlayout = vl;
+	psoDesc.rtsFormat = std::vector<ERHIPixelFormat>{ PIXEL_FORMAT_R8G8B8A8_UNORM };
+	psoDesc.dsFormat = PIXEL_FORMAT_D24_UNORM_S8_UINT;
+	RHIPipelineState *state = GDevice->CreatePipelineState(psoDesc);
+
+	GDevice->SetPipelineState(state);
+	GDevice->SetDepthStencil(ds);
+
+	GDevice->SetVertexBuffer(vb);
+	GDevice->SetIndexBuffer(ib);
+	GDevice->SetTexture(0, ds);
+
+	viewport->SetRenderRect(ScreenRenderRect{ 0, 0, 200, 150 });
+	GDevice->DrawIndexed();
+
+
+
+}
 
 Viewport::Viewport(uint32_t width, uint32_t height) {
 	mRenderScene = new RenderScene();
@@ -145,6 +198,8 @@ void Viewport::Render() {
 	GDevice->SetConstantBuffer(0, cb2);
 
 	GDevice->DrawIndexed();
+
+	DrawTex();
 
 
 	viewport->EndDraw();
