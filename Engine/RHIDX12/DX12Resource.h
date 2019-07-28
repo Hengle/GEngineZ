@@ -75,6 +75,8 @@ public:
 
 
 
+
+
 private:
 	DX12ResourceOwner mOwner;
 

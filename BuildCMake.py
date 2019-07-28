@@ -32,6 +32,7 @@ class Engine(BT.Module):
         super(Engine, self).__init__("Engine", BT.STATIC_LIB)
         self.SOURCE = ["Engine"]
         self.excludes = [r".*\.hlsl"]
+        self.DEPS = ["TPLib_Stb"]
 
 
 class Game(BT.Module):
@@ -49,12 +50,24 @@ class TestSched(BT.Module):
         self.DEPS = ["Engine"]
  
 
+# ================= ThirdParty =================
+class TPLib_Stb(BT.Module):
+    def __init__(self):
+        super(TPLib_Stb, self).__init__("TPLib_Stb", BT.STATIC_LIB)
+        self.SOURCE = ["ThirdParty/stb"]
+        self.DEPS = []
+
+
 build_targets = [
+    # ThirdParty
+    TPLib_Stb(),
+    # Main Targets
     Config(),
     Engine(),
     Game(),
     # Tests
     TestSched(),
+
 ]
 
 

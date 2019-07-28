@@ -57,6 +57,11 @@ void DX12UniformLayout::PushLayout(std::string name, uint32_t registerNo, EUnifo
 	case EUniformLayoutFlag::UNIFORM_LAYOUT_CONSTANT_BUFFER:
 		if (mCBVs.size() <= registerNo) mCBVs.resize(registerNo + 1);
 		mCBVs[registerNo] = name;
+		break;
+	case EUniformLayoutFlag::UNIFORM_LAYOUT_TEXTURE:
+		if (mSRVs.size() <= registerNo) mSRVs.resize(registerNo + 1);
+		mSRVs[registerNo] = name;
+		break;
 	}
 }
 
@@ -66,8 +71,6 @@ ID3D12RootSignature *DX12UniformLayout::GetRootSignature() {
 		return mRootSignature;
 	}
 
-	
-	
 	CD3DX12_ROOT_PARAMETER rootParam[MAX_SIGNATURE_NUM];
 	CD3DX12_DESCRIPTOR_RANGE cbvTable[MAX_SIGNATURE_NUM];
 	uint32_t count = 0;
@@ -76,8 +79,21 @@ ID3D12RootSignature *DX12UniformLayout::GetRootSignature() {
 		rootParam[count].InitAsDescriptorTable(1, &cbvTable[count]);
 		count++;
 	}
+	for (int i = 0; i < mSRVs.size(); i++) {
+		cbvTable[count].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, i);
+		rootParam[count].InitAsDescriptorTable(1, &cbvTable[count]);
+		count++;
+	}
 
-	CD3DX12_ROOT_SIGNATURE_DESC rootSignDesc(count, rootParam, 0, nullptr,
+	// todo static sampler
+	const CD3DX12_STATIC_SAMPLER_DESC sd(0,
+		D3D12_FILTER_MIN_MAG_MIP_LINEAR,
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP
+	);
+
+	CD3DX12_ROOT_SIGNATURE_DESC rootSignDesc(count, rootParam, 1, &sd,
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 	
 	RefCountPtr<ID3DBlob> serialzed, error;

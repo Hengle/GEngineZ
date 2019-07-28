@@ -44,6 +44,7 @@ enum ERHIPixelFormat {
 enum EUniformLayoutFlag {
 	UNIFORM_LAYOUT_INVALID = 0,
 	UNIFORM_LAYOUT_CONSTANT_BUFFER = 1,
+	UNIFORM_LAYOUT_TEXTURE = 2,
 };
 
 
@@ -94,7 +95,7 @@ struct RHITextureDesc {
 	uint32_t sizeZ;
 	uint32_t numMips;
 	uint32_t numSamples;
-	uint32_t pixelFormat;
+	ERHIPixelFormat format;
 	uint32_t flags;
 };
 

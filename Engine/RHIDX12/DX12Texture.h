@@ -10,10 +10,8 @@ namespace z {
 class DX12TextureBase : public DX12ShaderResource {
 public:
 	DX12TextureBase();
-	DX12TextureBase(const RHITextureDesc&);
 	DX12TextureBase(const D3D12_RESOURCE_DESC&);
 
-	void InitWithRHITexDesc(const RHITextureDesc&);
 	void InitWithResouceDesc(const D3D12_RESOURCE_DESC&);
 	
 	DXGI_FORMAT GetFormat() {
@@ -32,15 +30,15 @@ public:
 		return mDepth;
 	}
 
+	void SetShaderResourceView(DX12ShaderResourceView* view) {
+		mSRView = view;
+	}
+
+	DX12ShaderResourceView* GetShaderResourceView() {
+		return mSRView.GetRef();
+	}
 
 	virtual void Clear(const D3D12_CLEAR_VALUE& value) = 0;
-
-
-	/*	void SetShaderResourceView(DX12ShaderResourceView* view) {
-		mShaderResourceView = view;
-	}*/
-
-
 
 protected:
 	uint32_t mWidth;
@@ -50,32 +48,24 @@ protected:
 	//uint32_t numSamples;
 	DXGI_FORMAT mFormat;
 	uint32_t mFlags;
-	D3D12_CLEAR_VALUE mClearValue;
 
-	RefCountPtr<DX12ShaderResourceView> mShaderResourceView;
+	RefCountPtr<DX12ShaderResourceView> mSRView;
 };
 
 
-class DX12Texture2D : public RHITexture2D, public DX12TextureBase {
+class DX12Texture2D : public DX12TextureBase, public RHITexture2D {
 public:
-	DX12Texture2D(RHITextureDesc const& desc) : 
-		mDesc(desc),
-		RHITexture2D(),
-		DX12TextureBase(desc) {
+	DX12Texture2D(const D3D12_RESOURCE_DESC& desc, const uint8_t* data);
 
-	}
-
-	const RHITextureDesc& GetDesc() {
-		return mDesc;
-	}
 
 	void Clear(const D3D12_CLEAR_VALUE& value) {};
-protected:
-	RHITextureDesc mDesc;
 
+protected:
+	DX12ResourceOwner mUploader;
 };
 
-class DX12DepthStencil : public RHIDepthStencil, public DX12TextureBase {
+
+class DX12DepthStencil : public DX12TextureBase, public RHIDepthStencil {
 public:
 	DX12DepthStencil(uint32_t width, uint32_t height, DXGI_FORMAT format);
 	
@@ -95,7 +85,8 @@ private:
 	RefCountPtr<DX12DepthStencilView> mDSView;
 };
 
-class DX12RenderTarget : public RHIRenderTarget, public DX12TextureBase {
+
+class DX12RenderTarget :public DX12TextureBase, public RHIRenderTarget {
 public:
 	// creat render target from exist resource
 	DX12RenderTarget(DX12Resource* resource);

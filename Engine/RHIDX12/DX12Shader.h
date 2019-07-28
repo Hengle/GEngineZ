@@ -59,6 +59,22 @@ public:
 
 	ID3D12RootSignature* GetRootSignature();
 
+	int GetCBVNum() {
+		return mCBVs.size();
+	}
+
+	int GetSRVNum() {
+		return mSRVs.size();
+	}
+
+	int GetCBVStart() {
+		return 0;
+	}
+
+	int GetSRVStart() {
+		return mCBVs.size();
+	}
+
 private:
 	std::vector<std::string> mCBVs;
 	std::vector<std::string> mSRVs;

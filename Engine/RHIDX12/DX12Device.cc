@@ -121,6 +121,10 @@ RHIVertexBuffer* DX12Device::CreateVertexBuffer(uint32_t num, uint32_t stride, c
 	return new DX12VertexBuffer(num, stride, data);
 }
 
+RHITexture2D* DX12Device::CreateTexture2D(const RHITextureDesc& desc, const uint8_t* data) {
+	return new DX12Texture2D(FromRHITextureDesc(desc), data);
+}
+
 
 void DX12Device::SetPipelineState(RHIPipelineState* state) {
 	mExecutor->SetPipelineState(static_cast<DX12PipelineState*>(state));
@@ -146,6 +150,10 @@ void DX12Device::SetIndexBuffer(RHIIndexBuffer* res) {
 
 void DX12Device::SetConstantBuffer(int idx, RHIConstantBuffer* res) {
 	mExecutor->SetConstantBuffer(idx, static_cast<DX12ConstantBuffer*>(res));
+}
+
+void DX12Device::SetTexture(int idx, RHITexture* res) {
+	mExecutor->SetTexture(idx, dynamic_cast<DX12TextureBase*>(res));
 }
 
 void DX12Device::DrawIndexed() {

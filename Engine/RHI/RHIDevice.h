@@ -20,6 +20,7 @@ public:
 	virtual RHIConstantBuffer* CreateConstantBuffer(uint32_t size) = 0;
 	virtual RHIIndexBuffer* CreateIndexBuffer(uint32_t num, uint32_t stride, const void* data) = 0;
 	virtual RHIVertexBuffer* CreateVertexBuffer(uint32_t num, uint32_t stride, const void* data) = 0;
+	virtual RHITexture2D* CreateTexture2D(const RHITextureDesc& desc, const uint8_t* data) = 0;
 
 	// command
 	virtual void SetPipelineState(RHIPipelineState*) = 0;
@@ -28,6 +29,7 @@ public:
 	virtual void SetVertexBuffer(RHIVertexBuffer*) = 0;
 	virtual void SetIndexBuffer(RHIIndexBuffer*) = 0;
 	virtual void SetConstantBuffer(int, RHIConstantBuffer*) = 0;
+	virtual void SetTexture(int, RHITexture*) = 0;
 	virtual void DrawIndexed() = 0;
 };
 

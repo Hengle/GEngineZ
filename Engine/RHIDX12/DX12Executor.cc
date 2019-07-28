@@ -23,7 +23,8 @@ DX12Executor::~DX12Executor() {
 void DX12Executor::Reset() {
 	mVertexBuffer.Reset();
 	mIndexBuffer.Reset();
-	mConstantBuffers.clear();
+	mConstantBufferViews.clear();
+	mTextureViews.clear();
 	mDepthStencil.Reset();
 	mRenderTargets.clear();
 	mPSO.Reset();
@@ -36,7 +37,9 @@ void DX12Executor::Flush() {
 
 void DX12Executor::SetPipelineState(DX12PipelineState* pso) {
 	mPSO = pso;
-	mFlag |= DX12EXE_FLAG_PSO_DIRTY;
+	mConstantBufferViews.clear();
+	mTextureViews.clear();
+	mFlag |= DX12EXE_FLAG_PSO_DIRTY | DX12EXE_FLAG_TEX_DIRTY | DX12EXE_FLAG_CB_DIRTY;
 }
 
 void DX12Executor::SetRenderTargets(const std::vector<DX12RenderTarget*>& target) {
@@ -64,14 +67,20 @@ void DX12Executor::SetIndexBuffer(DX12IndexBuffer* ib) {
 
 
 void DX12Executor::SetConstantBuffer(int idx, DX12ConstantBuffer* cb) {
-	if (mConstantBuffers.size() <= idx) {
-		mConstantBuffers.resize(idx + 1);
+	if (mConstantBufferViews.size() <= idx) {
+		mConstantBufferViews.resize(idx + 1);
 	}
-	mConstantBuffers[idx] = cb;
+	mConstantBufferViews[idx] = cb->GetView();
 	mFlag |= DX12EXE_FLAG_CB_DIRTY;
 }
 
-
+void DX12Executor::SetTexture(int idx, DX12TextureBase* cb) {
+	if (mTextureViews.size() <= idx) {
+		mTextureViews.resize(idx + 1);
+	}
+	mTextureViews[idx] = cb->GetShaderResourceView();
+	mFlag |= DX12EXE_FLAG_TEX_DIRTY;
+}
 
 
 void DX12Executor::ApplyState() {
@@ -112,16 +121,25 @@ void DX12Executor::ApplyState() {
 	}
 
 	// set descriptor heap first..
-	{
+	if (mPSO) {
 		std::vector<ID3D12DescriptorHeap*> usedHeap;
-		if (mFlag & DX12EXE_FLAG_CB_DIRTY) {
-			for (int i = 0; i < mConstantBuffers.size(); i++) {
-				ID3D12DescriptorHeap* heap = mConstantBuffers[i]->GetView()->GetHeap();
-				int j = 0;
-				for (j = 0; j < usedHeap.size(); j++) {
-					if (usedHeap[j] == heap) break;
+		auto CheckInUsed = [&usedHeap](ID3D12DescriptorHeap* heap) {
+			for (int i = 0; i < usedHeap.size(); i++) {
+				if (usedHeap[i] == heap) return true;
+			}
+			return false;
+		};
+
+		if (mFlag & (DX12EXE_FLAG_CB_DIRTY|DX12EXE_FLAG_TEX_DIRTY)) {
+			for (int i = 0; i < mConstantBufferViews.size(); i++) {
+				ID3D12DescriptorHeap* heap = mConstantBufferViews[i]->GetHeap();
+				if (!CheckInUsed(heap)) {
+ 					usedHeap.emplace_back(heap);
 				}
-				if (j == usedHeap.size()) {
+			}
+			for (int i = 0; i < mTextureViews.size(); i++) {
+				ID3D12DescriptorHeap* heap = mTextureViews[i]->GetHeap();
+				if (!CheckInUsed(heap)) {
 					usedHeap.emplace_back(heap);
 				}
 			}
@@ -132,11 +150,19 @@ void DX12Executor::ApplyState() {
 	}
 
 	// constant buffer
-	if (DX12EXE_FLAG_CB_DIRTY) {
-		for (int i = 0; i < mConstantBuffers.size(); i++) {
-			GetCommandList()->SetGraphicsRootDescriptorTable(i, mConstantBuffers[i]->GetView()->GetGPUHandle());
+	if (mFlag & DX12EXE_FLAG_CB_DIRTY) {
+		for (int i = 0; i < mConstantBufferViews.size(); i++) {
+			GetCommandList()->SetGraphicsRootDescriptorTable(i, mConstantBufferViews[i]->GetGPUHandle());
 		}
 		mFlag &= ~DX12EXE_FLAG_CB_DIRTY;
+	}
+	// texture
+	if (mFlag & DX12EXE_FLAG_TEX_DIRTY) {
+		int base = mPSO->GetUniformLayout()->GetSRVStart();
+		for (int i = 0; i < mTextureViews.size(); i++) {
+			GetCommandList()->SetGraphicsRootDescriptorTable(base + i, mTextureViews[i]->GetGPUHandle());
+		}
+		mFlag &= ~DX12EXE_FLAG_TEX_DIRTY;
 	}
 }
 

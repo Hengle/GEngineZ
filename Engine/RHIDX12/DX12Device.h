@@ -43,6 +43,7 @@ public:
 	RHIConstantBuffer* CreateConstantBuffer(uint32_t size) override;
 	RHIIndexBuffer* CreateIndexBuffer(uint32_t num, uint32_t stride, const void* data) override;
 	RHIVertexBuffer* CreateVertexBuffer(uint32_t num, uint32_t stride, const void* data) override;
+	RHITexture2D* CreateTexture2D(const RHITextureDesc& desc, const uint8_t* data) override;
 
 	void SetPipelineState(RHIPipelineState*) override;
 	void SetRenderTargets(const std::vector<RHIRenderTarget*>&) override;
@@ -50,6 +51,7 @@ public:
 	void SetVertexBuffer(RHIVertexBuffer*) override;
 	void SetIndexBuffer(RHIIndexBuffer*) override;
 	void SetConstantBuffer(int, RHIConstantBuffer*) override;
+	void SetTexture(int, RHITexture*) override;
 	void DrawIndexed() override;
 	// ==== end device method ====
 

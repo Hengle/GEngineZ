@@ -50,8 +50,8 @@ public:
 	}
 
 	template<typename T, typename... Args>
-	void Print(T first, Args... args) {
-		mStream << first << " ";
+	void Print(const T& first, Args... args) {
+ 		mStream << first << " ";
 		if constexpr (sizeof...(args) > 0) {
 			Print(args...);
 		}

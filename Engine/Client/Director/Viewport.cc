@@ -5,18 +5,18 @@
 
 #include <RHI/RHIDevice.h>
 
-#include <RHIDX12/DX12Viewport.h>
 #include <RHIDX12/DX12Shader.h>
 #include <RHIDX12/DX12Buffer.h>
 #include <RHIDX12/DX12PipelineState.h>
 #include <RHIDX12/DX12Device.h>
 #include <RHIDX12/DX12Executor.h>
+#include <Util/Image/Image.h>
 
 namespace z {
 
 struct VertexIn{
 	DirectX::XMFLOAT3 pos;
-	DirectX::XMFLOAT4 color;
+	DirectX::XMFLOAT2 UV;
 };
 
 struct PerObjectConstants {
@@ -33,19 +33,20 @@ Viewport::Viewport(uint32_t width, uint32_t height) {
 	viewport = GDevice->CreateViewport(width, height, PIXEL_FORMAT_R8G8B8A8_UNORM);
 
 	// compile shader
-	std::string s = FileReader("E:/Code/GameZ/Engine/Shader/test.hlsl").ReadAll();
+	std::string s = FileReader("E:/Code/GameZ/Content/Engine/Shader/test.hlsl").ReadAll();
 	RHIShader *vs = GDevice->CreateShader(s.c_str(), s.length(), SHADER_TYPE_VERTEX);
 	RHIShader *ps = GDevice->CreateShader(s.c_str(), s.length(), SHADER_TYPE_PIXEL);
 
 	// vertex layout
 	RHIVertexLayout *vl = new DX12VertexLayout();
 	vl->PushLayout("POSITION", 0, PIXEL_FORMAT_R32G32B32_FLOAT, VERTEX_LAYOUT_PER_VERTEX);
-	vl->PushLayout("COLOR", 0, PIXEL_FORMAT_R32G32B32A32_FLOAT, VERTEX_LAYOUT_PER_VERTEX);
+	vl->PushLayout("TEXCOORD", 0, PIXEL_FORMAT_R32G32_FLOAT, VERTEX_LAYOUT_PER_VERTEX);
 
 	// uniform layout
 	RHIUniformLayout *ul = new DX12UniformLayout();
 	ul->PushLayout("globalcb", 0, UNIFORM_LAYOUT_CONSTANT_BUFFER);
 	ul->PushLayout("privatecb", 1, UNIFORM_LAYOUT_CONSTANT_BUFFER);
+	ul->PushLayout("texture0", 0, UNIFORM_LAYOUT_TEXTURE);
 
 	cb1 = new DX12ConstantBuffer(sizeof(PassConstants));
 	cb0 = new DX12ConstantBuffer(sizeof(PerObjectConstants));
@@ -61,14 +62,14 @@ Viewport::Viewport(uint32_t width, uint32_t height) {
 	state = GDevice->CreatePipelineState(psoDesc);
 	
 	const std::array<VertexIn, 8> kVertices{
-			VertexIn({ DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f), DirectX::XMFLOAT4(DirectX::Colors::White) }),
-			VertexIn({ DirectX::XMFLOAT3(-1.0f, +1.0f, -1.0f), DirectX::XMFLOAT4(DirectX::Colors::Black) }),
-			VertexIn({ DirectX::XMFLOAT3(+1.0f, +1.0f, -1.0f), DirectX::XMFLOAT4(DirectX::Colors::Red) }),
-			VertexIn({ DirectX::XMFLOAT3(+1.0f, -1.0f, -1.0f), DirectX::XMFLOAT4(DirectX::Colors::Green) }),
-			VertexIn({ DirectX::XMFLOAT3(-1.0f, -1.0f, +1.0f), DirectX::XMFLOAT4(DirectX::Colors::Blue) }),
-			VertexIn({ DirectX::XMFLOAT3(-1.0f, +1.0f, +1.0f), DirectX::XMFLOAT4(DirectX::Colors::Yellow) }),
-			VertexIn({ DirectX::XMFLOAT3(+1.0f, +1.0f, +1.0f), DirectX::XMFLOAT4(DirectX::Colors::Cyan) }),
-			VertexIn({ DirectX::XMFLOAT3(+1.0f, -1.0f, +1.0f), DirectX::XMFLOAT4(DirectX::Colors::Magenta) })
+			VertexIn({ DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f), DirectX::XMFLOAT2(0.0f , 1.0f) }),
+			VertexIn({ DirectX::XMFLOAT3(-1.0f, +1.0f, -1.0f), DirectX::XMFLOAT2(0.0f , 0.0f) }),
+			VertexIn({ DirectX::XMFLOAT3(+1.0f, +1.0f, -1.0f), DirectX::XMFLOAT2(1.0f , 0.0f) }),
+			VertexIn({ DirectX::XMFLOAT3(+1.0f, -1.0f, -1.0f), DirectX::XMFLOAT2(1.0f , 1.0f) }),
+			VertexIn({ DirectX::XMFLOAT3(-1.0f, -1.0f, +1.0f), DirectX::XMFLOAT2(1.0f , 0.0f) }),
+			VertexIn({ DirectX::XMFLOAT3(-1.0f, +1.0f, +1.0f), DirectX::XMFLOAT2(0.0f , 1.0f) }),
+			VertexIn({ DirectX::XMFLOAT3(+1.0f, +1.0f, +1.0f), DirectX::XMFLOAT2(0.0f , 0.0f) }),
+			VertexIn({ DirectX::XMFLOAT3(+1.0f, -1.0f, +1.0f), DirectX::XMFLOAT2(0.0f , 1.0f) })
 	};
 
 	const std::array<std::uint16_t, 36> kIndices = {
@@ -84,8 +85,16 @@ Viewport::Viewport(uint32_t width, uint32_t height) {
 	vb = GDevice->CreateVertexBuffer(kVertices.size(), sizeof(VertexIn), kVertices.data());
 	ib = GDevice->CreateIndexBuffer(kIndices.size(), 2, kIndices.data());
 
-
 	ds = GDevice->CreateDepthStencil(width, height, PIXEL_FORMAT_D24_UNORM_S8_UINT);
+
+	Image* image = Image::Load("E:/Code/GameZ/Content/Test/1001_d_01.tga");
+	RHITextureDesc desc;
+	desc.sizeX = image->GetWidth();
+	desc.sizeY = image->GetHeight();
+	desc.sizeZ = 0;
+	desc.numMips = 1;
+	desc.format = image->GetFormat();
+	tex = GDevice->CreateTexture2D(desc, image->GetData());
 }
 
 Viewport::~Viewport() {
@@ -140,6 +149,7 @@ void Viewport::Render() {
 	GDevice->SetIndexBuffer(ib);
 	GDevice->SetConstantBuffer(0, cb0);
 	GDevice->SetConstantBuffer(1, cb1);
+	GDevice->SetTexture(0, tex);
 
 	GDevice->DrawIndexed();
 

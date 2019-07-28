@@ -10,7 +10,10 @@ class DX12CommandList;
 class DX12Device;
 class DX12VertexBuffer;
 class DX12IndexBuffer;
+class DX12TextureBase;
 class DX12ConstantBuffer;
+class DX12ConstantBufferView;
+class DX12ShaderResourceView;
 
 
 enum ExecutorStateFlag {
@@ -19,7 +22,8 @@ enum ExecutorStateFlag {
 	DX12EXE_FLAG_DS_DIRTY  = 0x0004,
 	DX12EXE_FLAG_IB_DIRTY  = 0x0008,
 	DX12EXE_FLAG_VB_DIRTY  = 0x0010,
-	DX12EXE_FLAG_CB_DIRTY  = 0x0020
+	DX12EXE_FLAG_CB_DIRTY  = 0x0020,
+	DX12EXE_FLAG_TEX_DIRTY = 0x0040,
 };
 
 
@@ -79,6 +83,7 @@ public:
 	void SetVertexBuffer(DX12VertexBuffer*);
 	void SetIndexBuffer(DX12IndexBuffer*);
 	void SetConstantBuffer(int idx, DX12ConstantBuffer*);
+	void SetTexture(int idx, DX12TextureBase*);
 	void ApplyState();
 
 	void Draw();
@@ -111,7 +116,8 @@ private:
 	RefCountPtr<DX12VertexBuffer> mVertexBuffer;
 	RefCountPtr<DX12IndexBuffer> mIndexBuffer;
 
-	std::vector<RefCountPtr<DX12ConstantBuffer>> mConstantBuffers;
+	std::vector<RefCountPtr<DX12ConstantBufferView>> mConstantBufferViews;
+	std::vector<RefCountPtr<DX12ShaderResourceView>> mTextureViews;
 
 	int mFlag;
 

@@ -35,6 +35,7 @@ private:
 	RefCountPtr<RHIIndexBuffer> ib;
 	RefCountPtr<RHIConstantBuffer> cb1, cb0, cb2;
 	RefCountPtr<RHIDepthStencil> ds;
+	RefCountPtr<RHITexture2D> tex;
 	
 
 };

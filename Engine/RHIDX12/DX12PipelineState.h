@@ -30,6 +30,10 @@ public:
 		mUniformLayout = layout;
 	}
 
+	DX12UniformLayout* GetUniformLayout() {
+		return mUniformLayout.GetRef();
+	}
+
 	void SetDepthStencilFormat(DXGI_FORMAT format) {
 		mDepthStencilFormat = format;
 	}
