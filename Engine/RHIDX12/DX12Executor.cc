@@ -1,7 +1,7 @@
 #include "DX12Executor.h"
 #include "DX12Device.h"
 #include "DX12Texture.h"
-#include "DX12Descriptor.h"
+#include "DX12View.h"
 #include "DX12PipelineState.h"
 
 namespace z {
@@ -12,7 +12,9 @@ namespace z {
 DX12Executor::DX12Executor(DX12Device* device) :
 	mDevice(device),
 	mList(device),
-	mFlag(0) {
+	mFlag(0),
+	mCurRootSignature(nullptr),
+	mCurPipelineState(nullptr) {
 
 }
 
@@ -28,6 +30,8 @@ void DX12Executor::Reset() {
 	mDepthStencil.Reset();
 	mRenderTargets.clear();
 	mPSO.Reset();
+	mCurRootSignature = nullptr;
+	mCurPipelineState = nullptr;
 	mFlag = 0;
 	mList.Reset();
 }
@@ -39,7 +43,7 @@ void DX12Executor::SetPipelineState(DX12PipelineState* pso) {
 	mPSO = pso;
 	mConstantBufferViews.clear();
 	mTextureViews.clear();
-	mFlag |= DX12EXE_FLAG_PSO_DIRTY | DX12EXE_FLAG_TEX_DIRTY | DX12EXE_FLAG_CB_DIRTY;
+	mFlag |= DX12EXE_FLAG_PSO_DIRTY;
 }
 
 void DX12Executor::SetRenderTargets(const std::vector<DX12RenderTarget*>& target) {
@@ -85,13 +89,22 @@ void DX12Executor::SetTexture(int idx, DX12Texture* cb) {
 
 void DX12Executor::ApplyState() {
 	if (mFlag & DX12EXE_FLAG_PSO_DIRTY) {
-		// TODO, compare, mat not need change
-		GetCommandList()->SetPipelineState(mPSO->GetIPipelineState());
-		// TODO, compare, mat not need change
-		GetCommandList()->SetGraphicsRootSignature(mPSO->GetIRootSignature());
+		// set root signature
+		if (mPSO->GetIRootSignature() != mCurRootSignature) {
+			GetCommandList()->SetGraphicsRootSignature(mPSO->GetIRootSignature());
+			mCurRootSignature = mPSO->GetIRootSignature();
+		}
+
+		// set pipelinestate
+		if (mPSO->GetIPipelineState() != mCurPipelineState) {
+			GetCommandList()->SetPipelineState(mPSO->GetIPipelineState());
+			mCurPipelineState = mPSO->GetIPipelineState();
+		}
+		
 		mFlag &= ~DX12EXE_FLAG_PSO_DIRTY;
 	}
-
+	
+	// render target
 	int rtdsDirty = DX12EXE_FLAG_RT_DIRTY | DX12EXE_FLAG_DS_DIRTY;
 	if (mFlag & rtdsDirty) {
 		D3D12_CPU_DESCRIPTOR_HANDLE rtHandls[MAX_MRT_NUM]{0};
@@ -125,7 +138,7 @@ void DX12Executor::ApplyState() {
 	// set descriptor heap first..
 	if (mPSO) {
 		std::vector<ID3D12DescriptorHeap*> usedHeap;
-		auto CheckInUsed = [&usedHeap](ID3D12DescriptorHeap* heap) {
+		auto CheckInUsed = [&usedHeap](const ID3D12DescriptorHeap* heap) {
 			for (int i = 0; i < usedHeap.size(); i++) {
 				if (usedHeap[i] == heap) return true;
 			}
@@ -134,15 +147,15 @@ void DX12Executor::ApplyState() {
 
 		if (mFlag & (DX12EXE_FLAG_CB_DIRTY|DX12EXE_FLAG_TEX_DIRTY)) {
 			for (int i = 0; i < mConstantBufferViews.size(); i++) {
-				ID3D12DescriptorHeap* heap = mConstantBufferViews[i]->GetHeap();
+				const ID3D12DescriptorHeap* heap = mConstantBufferViews[i]->GetHeap();
 				if (!CheckInUsed(heap)) {
- 					usedHeap.emplace_back(heap);
+ 					usedHeap.emplace_back(const_cast<ID3D12DescriptorHeap*>(heap));
 				}
 			}
 			for (int i = 0; i < mTextureViews.size(); i++) {
-				ID3D12DescriptorHeap* heap = mTextureViews[i]->GetHeap();
+				const ID3D12DescriptorHeap* heap = mTextureViews[i]->GetHeap();
 				if (!CheckInUsed(heap)) {
-					usedHeap.emplace_back(heap);
+					usedHeap.emplace_back(const_cast<ID3D12DescriptorHeap*>(heap));
 				}
 			}
 		}

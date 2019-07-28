@@ -8,7 +8,7 @@
 namespace z {
 
 /*
-Manager D3D12 Descriptors
+Manager D3D12 View
 
 DX12DescriptorHeapPos
 DX12DescriptorHeapAllocator 
@@ -17,12 +17,12 @@ DX12DescriptorHeapAllocator
 DX12DescriptorViewHandle
 	- keep DX12DescriptorHeapPos
 
-DX12Descriptor
+DX12View
 	- interface of GetCPUHandle/GetGPUHandle/GetHeap
 
 DX12DescriptorView
 	- keep DX12DescriptorViewHandle
-	- inherit DX12Descriptor
+	- inherit DX12View
 
 DX12RenderTargetView 
 DX12ShaderResourceView
@@ -120,18 +120,19 @@ private:
 };
 
 
-class DX12Descriptor : public RHIResource {
+class DX12View : public RefCounter {
 public:
 	virtual const D3D12_CPU_DESCRIPTOR_HANDLE& GetCPUHandle() = 0;
 	virtual const D3D12_GPU_DESCRIPTOR_HANDLE& GetGPUHandle() = 0;
-	virtual ID3D12DescriptorHeap* GetHeap() = 0;
+	virtual const ID3D12DescriptorHeap* GetHeap() = 0;
+	virtual DX12Resource* GetResource() = 0;
 };
 
 template<typename VIEW_DESC>
-class DX12DescriptorView : public DX12Descriptor {
+class DX12DescriptorView : public DX12View {
 public:
 
-	DX12Resource* GetResource() {
+	DX12Resource* GetResource() override {
 		return mResouce;
 	}
 
@@ -143,7 +144,7 @@ public:
 		return mDescriptor.GetGPUHandle();
 	}
 
-	ID3D12DescriptorHeap* GetHeap() override {
+	const ID3D12DescriptorHeap* GetHeap() override {
 		return mDescriptor.GetHeap();
 	}
 protected:

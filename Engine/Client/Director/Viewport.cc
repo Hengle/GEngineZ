@@ -61,11 +61,11 @@ void Viewport::DrawTex() {
 	psoDesc.ulayout = ul;
 	psoDesc.vlayout = vl;
 	psoDesc.rtsFormat = std::vector<ERHIPixelFormat>{ PIXEL_FORMAT_R8G8B8A8_UNORM };
-	psoDesc.dsFormat = PIXEL_FORMAT_D24_UNORM_S8_UINT;
+	psoDesc.dsFormat = PIXEL_FORMAT_INVALID;
 	RHIPipelineState *state = GDevice->CreatePipelineState(psoDesc);
 
 	GDevice->SetPipelineState(state);
-	GDevice->SetDepthStencil(ds);
+	GDevice->SetDepthStencil(nullptr);
 
 	GDevice->SetVertexBuffer(vb);
 	GDevice->SetIndexBuffer(ib);
@@ -178,9 +178,14 @@ void Viewport::Render() {
 	XMStoreFloat4x4(&objConstants.World, DirectX::XMMatrixTranspose(world));
 	cb0->CopyData(&objConstants, sizeof(PerObjectConstants));
 
+	DirectX::XMMATRIX world2 = DirectX::XMMatrixTranslation(-3.0f, -1.5f, 0.0f);
+	XMStoreFloat4x4(&objConstants.World, DirectX::XMMatrixTranspose(world2));
+	cb2->CopyData(&objConstants, sizeof(PerObjectConstants));
+
 	ds->Clear(RHIClearValue(1.0, 0));
-	GDevice->SetDepthStencil(ds);
+	
 	GDevice->SetPipelineState(state);
+	GDevice->SetDepthStencil(ds);
 	GDevice->SetVertexBuffer(vb);
 	GDevice->SetIndexBuffer(ib);
 	GDevice->SetIndexBuffer(ib);
@@ -190,13 +195,7 @@ void Viewport::Render() {
 
 	GDevice->DrawIndexed();
 
-
-	DirectX::XMMATRIX world2 = DirectX::XMMatrixTranslation(-3.0f, -1.5f, 0.0f);
-	XMStoreFloat4x4(&objConstants.World, DirectX::XMMatrixTranspose(world2));
-	cb2->CopyData(&objConstants, sizeof(PerObjectConstants));
-
 	GDevice->SetConstantBuffer(0, cb2);
-
 	GDevice->DrawIndexed();
 
 	DrawTex();

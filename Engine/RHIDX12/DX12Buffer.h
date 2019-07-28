@@ -2,7 +2,7 @@
 #include <Core/CoreHeader.h>
 #include <RHI/RHIResource.h>
 #include "DX12Resource.h"
-#include "DX12Descriptor.h"
+#include "DX12View.h"
 
 namespace z {
 

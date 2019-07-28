@@ -1,7 +1,7 @@
 #include "DX12Buffer.h"
 #include "DX12Device.h"
 #include "DX12Executor.h"
-#include "DX12Descriptor.h"
+#include "DX12View.h"
 
 namespace z {
 

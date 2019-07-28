@@ -119,6 +119,10 @@ private:
 	std::vector<RefCountPtr<DX12ConstantBufferView>> mConstantBufferViews;
 	std::vector<RefCountPtr<DX12ShaderResourceView>> mTextureViews;
 
+
+	ID3D12RootSignature* mCurRootSignature;
+	ID3D12PipelineState* mCurPipelineState;
+
 	int mFlag;
 
 	DX12Device* mDevice;
