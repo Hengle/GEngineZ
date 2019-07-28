@@ -24,7 +24,7 @@ public:
 	}
 
 private:
-	//DXGI_FORMAT mFormat;
+	//DXGI_FORMAT format;
 	uint32_t mNum;
 
 	DX12ResourceOwner mUploader;

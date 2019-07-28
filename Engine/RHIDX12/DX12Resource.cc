@@ -19,7 +19,7 @@ DX12Resource::DX12Resource(D3D12_HEAP_TYPE heapType, D3D12_RESOURCE_STATES state
 		D3D12_CLEAR_VALUE clearValue;
 		clearValue.Format = desc.Format;
 		clearValue.DepthStencil.Depth = 1.0f;
-		clearValue.DepthStencil.Stencil = 0.0f;
+		clearValue.DepthStencil.Stencil = 0;
 		optClear = &clearValue;
 	}
 	DX12_CHECK(GDX12Device->GetIDevice()->CreateCommittedResource(
@@ -49,8 +49,8 @@ void DX12Resource::Transition(D3D12_RESOURCE_STATES toState) {
 	barrier.Transition.StateAfter  = toState;
 	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 
-	SetState(toState);
 	GDX12Device->GetExecutor()->GetCommandList()->ResourceBarrier(1, &barrier);
+	SetState(toState);
 }
 
 // DX12ResourceOwner

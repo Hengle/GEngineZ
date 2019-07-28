@@ -94,7 +94,7 @@ Viewport::Viewport(uint32_t width, uint32_t height) {
 	desc.sizeZ = 0;
 	desc.numMips = 1;
 	desc.format = image->GetFormat();
-	tex = GDevice->CreateTexture2D(desc, image->GetData());
+	tex = GDevice->CreateTexture(desc, image->GetData());
 }
 
 Viewport::~Viewport() {

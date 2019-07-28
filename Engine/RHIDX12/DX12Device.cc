@@ -78,7 +78,7 @@ RHIViewport* DX12Device::CreateViewport(uint32_t width, uint32_t height, ERHIPix
 	return new DX12Viewport(width, height, FromRHIFormat(format));
 }
 
-RHIDepthStencil* DX12Device::CreateDepthStencil(uint32_t width, uint32_t height, ERHIPixelFormat format) {
+RHITexture* DX12Device::CreateDepthStencil(uint32_t width, uint32_t height, ERHIPixelFormat format) {
 	return new DX12DepthStencil(width, height, FromRHIFormat(format));
 }
 
@@ -121,8 +121,8 @@ RHIVertexBuffer* DX12Device::CreateVertexBuffer(uint32_t num, uint32_t stride, c
 	return new DX12VertexBuffer(num, stride, data);
 }
 
-RHITexture2D* DX12Device::CreateTexture2D(const RHITextureDesc& desc, const uint8_t* data) {
-	return new DX12Texture2D(FromRHITextureDesc(desc), data);
+RHITexture* DX12Device::CreateTexture(const RHITextureDesc& desc, const uint8_t* data) {
+	return new DX12Texture2D(desc, data);
 }
 
 
@@ -130,13 +130,13 @@ void DX12Device::SetPipelineState(RHIPipelineState* state) {
 	mExecutor->SetPipelineState(static_cast<DX12PipelineState*>(state));
 }
 
-void DX12Device::SetRenderTargets(const std::vector<RHIRenderTarget*>& res) {
+void DX12Device::SetRenderTargets(const std::vector<RHITexture*>& res) {
 	std::vector<DX12RenderTarget*> rts(res.size());
-	memcpy(rts.data(), res.data(), res.size() * sizeof(RHIRenderTarget));
+	memcpy(rts.data(), res.data(), res.size() * sizeof(RHITexture*));
 	mExecutor->SetRenderTargets(rts);
 }
 
-void DX12Device::SetDepthStencil(RHIDepthStencil* res) {
+void DX12Device::SetDepthStencil(RHITexture* res) {
 	mExecutor->SetDepthStencil(static_cast<DX12DepthStencil*>(res));
 }
 
@@ -153,7 +153,7 @@ void DX12Device::SetConstantBuffer(int idx, RHIConstantBuffer* res) {
 }
 
 void DX12Device::SetTexture(int idx, RHITexture* res) {
-	mExecutor->SetTexture(idx, dynamic_cast<DX12TextureBase*>(res));
+	mExecutor->SetTexture(idx, dynamic_cast<DX12Texture*>(res));
 }
 
 void DX12Device::DrawIndexed() {

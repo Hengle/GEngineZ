@@ -10,7 +10,7 @@ class DX12CommandList;
 class DX12Device;
 class DX12VertexBuffer;
 class DX12IndexBuffer;
-class DX12TextureBase;
+class DX12Texture;
 class DX12ConstantBuffer;
 class DX12ConstantBufferView;
 class DX12ShaderResourceView;
@@ -83,7 +83,7 @@ public:
 	void SetVertexBuffer(DX12VertexBuffer*);
 	void SetIndexBuffer(DX12IndexBuffer*);
 	void SetConstantBuffer(int idx, DX12ConstantBuffer*);
-	void SetTexture(int idx, DX12TextureBase*);
+	void SetTexture(int idx, DX12Texture*);
 	void ApplyState();
 
 	void Draw();

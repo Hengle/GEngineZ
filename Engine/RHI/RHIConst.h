@@ -88,18 +88,57 @@ struct RHIPipelineStateDesc {
 	ERHIPixelFormat dsFormat;	
 };
 
+enum ERHISamplerFitler {
+	SAMPLER_FILTER_UNKNOWN = 0,
+	SAMPLER_FILTER_POINT,
+	SAMPLER_FILTER_LINEAR,
+	SAMPLER_FILTER_ANISOTROPIC
+};
+
+enum ERHISamplerAddressMode {
+	SAMPLER_ADDRESS_MODE_UNKNOWN = 0,
+	SAMPLER_ADDRESS_MODE_WRAP,
+	SAMPLER_ADDRESS_MODE_MIRROR,
+	SAMPLER_ADDRESS_MODE_CLAMP,
+	SAMPLER_ADDRESS_MODE_BORDER,
+	SAMPLER_MODE_MIRROR_ONCE
+};
+
+enum ERHITexDimension {
+	TEX_DIMENSION_UNKNOWN = 0,
+	TEX_DIMENSION_1D,
+	TEX_DIMENSION_2D,
+	TEX_DIMENSION_3D,
+	TEX_DIMENSION_CUBE,
+	TEX_DIMENSION_1D_ARRAY,
+	TEX_DIMENSION_2D_ARRAY,
+	TEX_DIMENSION_3D_ARRAY,
+};
+
+struct RHISamplerDesc {
+	ERHISamplerFitler minFilter;
+	ERHISamplerFitler maxFilter;
+	ERHISamplerFitler mipFilter;
+	ERHISamplerAddressMode addressU;
+	ERHISamplerAddressMode addressV;
+	ERHISamplerAddressMode addressW;
+};
 
 struct RHITextureDesc {
 	uint32_t sizeX;
 	uint32_t sizeY;
 	uint32_t sizeZ;
-	uint32_t numMips;
-	uint32_t numSamples;
-	ERHIPixelFormat format;
 	uint32_t flags;
+	RHISamplerDesc samplerDesc;
+	ERHIPixelFormat format;
+	ERHITexDimension dimension;
+	uint8_t numMips;
 };
 
-
+struct RHITextureData {
+	uint32_t datalen;
+	uint8_t* data;
+};
 
 
 

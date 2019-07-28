@@ -59,19 +59,19 @@ public:
 
 	ID3D12RootSignature* GetRootSignature();
 
-	int GetCBVNum() {
+	size_t GetCBVNum() {
 		return mCBVs.size();
 	}
 
-	int GetSRVNum() {
+	size_t GetSRVNum() {
 		return mSRVs.size();
 	}
 
-	int GetCBVStart() {
+	size_t GetCBVStart() {
 		return 0;
 	}
 
-	int GetSRVStart() {
+	size_t GetSRVStart() {
 		return mCBVs.size();
 	}
 

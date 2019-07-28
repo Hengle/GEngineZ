@@ -74,11 +74,11 @@ void DX12Executor::SetConstantBuffer(int idx, DX12ConstantBuffer* cb) {
 	mFlag |= DX12EXE_FLAG_CB_DIRTY;
 }
 
-void DX12Executor::SetTexture(int idx, DX12TextureBase* cb) {
+void DX12Executor::SetTexture(int idx, DX12Texture* cb) {
 	if (mTextureViews.size() <= idx) {
 		mTextureViews.resize(idx + 1);
 	}
-	mTextureViews[idx] = cb->GetShaderResourceView();
+	mTextureViews[idx] = cb->GetSRView();
 	mFlag |= DX12EXE_FLAG_TEX_DIRTY;
 }
 
@@ -97,12 +97,14 @@ void DX12Executor::ApplyState() {
 		D3D12_CPU_DESCRIPTOR_HANDLE rtHandls[MAX_MRT_NUM]{0};
 		for (int i = 0; i < mRenderTargets.size(); i++) {
 			rtHandls[i] = mRenderTargets[i]->GetRTView()->GetCPUHandle();
+			mRenderTargets[i]->SetWritable();
 		}
 		if (mDepthStencil) {
-			D3D12_CPU_DESCRIPTOR_HANDLE dsHandle = mDepthStencil->GetView()->GetCPUHandle();
-			GetCommandList()->OMSetRenderTargets(mRenderTargets.size(), rtHandls, 0, &dsHandle);
+			mDepthStencil->SetWritable();
+			D3D12_CPU_DESCRIPTOR_HANDLE dsHandle = mDepthStencil->GetDSView()->GetCPUHandle();
+			GetCommandList()->OMSetRenderTargets((uint32_t)mRenderTargets.size(), rtHandls, 0, &dsHandle);
 		} else {
-			GetCommandList()->OMSetRenderTargets(mRenderTargets.size(), rtHandls, 0, nullptr);
+			GetCommandList()->OMSetRenderTargets((uint32_t)mRenderTargets.size(), rtHandls, 0, nullptr);
 		}
 		mFlag &= ~rtdsDirty;
 	}

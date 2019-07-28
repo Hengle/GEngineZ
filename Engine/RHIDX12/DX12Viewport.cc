@@ -74,22 +74,19 @@ void DX12Viewport::Resize(uint32_t width, uint32_t height) {
 
 void DX12Viewport::Present() {
 	// transition back buffer to state present
-	DX12RenderTarget* backBuffer = GetCurBackBuffer();
-	DX12RenderTargetView* view = backBuffer->GetRTView();
-	view->GetResource()->Transition(D3D12_RESOURCE_STATE_PRESENT);
-
+	GetCurBackBuffer()->SetPresent();
+	
 	// execute commandlist and flush
 	GDX12Device->GetExecutor()->Flush();
 
 	// present and swap buffer
 	DX12_CHECK(mSwapChain->Present(1, 0));
 	mCurBackBufferIndex = (mCurBackBufferIndex + 1) % BACK_BUFFER_COUNT;
-	GDX12Device->GetExecutor()->Reset();
 }
 
 
 void DX12Viewport::BeginDraw(const RHIClearValue& clearValue) {
-	// set viewport
+	// TODO, move set viewport
 	D3D12_VIEWPORT screenViewport;
 	screenViewport.TopLeftX = 0;
 	screenViewport.TopLeftY = 0;
@@ -114,8 +111,8 @@ void DX12Viewport::BeginDraw(const RHIClearValue& clearValue) {
 }
 
 void DX12Viewport::EndDraw() {
-
 	Present();
+	GDX12Device->GetExecutor()->Reset();
 }
 
 }

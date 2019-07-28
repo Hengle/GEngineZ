@@ -10,13 +10,28 @@ namespace z {
 /*
 Manager D3D12 Descriptors
 
-DX12DescriptorHeap
+DX12DescriptorHeapPos
+DX12DescriptorHeapAllocator 
+	- allocate DX12DescriptorHeapPos
+
+DX12DescriptorViewHandle
+	- keep DX12DescriptorHeapPos
+
+DX12Descriptor
+	- interface of GetCPUHandle/GetGPUHandle/GetHeap
+
 DX12DescriptorView
+	- keep DX12DescriptorViewHandle
+	- inherit DX12Descriptor
+
+DX12RenderTargetView 
+DX12ShaderResourceView
+DX12ConstantBufferView
+	- inherit DX12DescriptorView
 
 */
 
 /////////// Descriptor Heap
-
 struct DX12DescriptorHeapPos {
 	ID3D12DescriptorHeap* heap;
 	D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle;
@@ -60,8 +75,7 @@ private:
 };
 
 
-/////////// Descriptor View
-
+/////////// Descriptor View Handle
 template<typename VIEW_DESC>
 class DX12DescriptorViewHandle {
 public:
@@ -106,23 +120,30 @@ private:
 };
 
 
+class DX12Descriptor : public RHIResource {
+public:
+	virtual const D3D12_CPU_DESCRIPTOR_HANDLE& GetCPUHandle() = 0;
+	virtual const D3D12_GPU_DESCRIPTOR_HANDLE& GetGPUHandle() = 0;
+	virtual ID3D12DescriptorHeap* GetHeap() = 0;
+};
+
 template<typename VIEW_DESC>
-class DX12DescriptorView : public RHIResource {
+class DX12DescriptorView : public DX12Descriptor {
 public:
 
 	DX12Resource* GetResource() {
 		return mResouce;
 	}
 
-	const D3D12_CPU_DESCRIPTOR_HANDLE& GetCPUHandle() {
+	const D3D12_CPU_DESCRIPTOR_HANDLE& GetCPUHandle() override {
 		return mDescriptor.GetCPUHandle();
 	}
 
-	const D3D12_GPU_DESCRIPTOR_HANDLE& GetGPUHandle() {
+	const D3D12_GPU_DESCRIPTOR_HANDLE& GetGPUHandle() override {
 		return mDescriptor.GetGPUHandle();
 	}
 
-	ID3D12DescriptorHeap* GetHeap() {
+	ID3D12DescriptorHeap* GetHeap() override {
 		return mDescriptor.GetHeap();
 	}
 protected:

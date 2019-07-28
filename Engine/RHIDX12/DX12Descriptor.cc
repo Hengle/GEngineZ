@@ -25,7 +25,6 @@ void DX12DescriptorHeapAllocator::DestroyHeapAllocators() {
 	SAFE_DELETE(gDescHeapSRV);
 	gDescHeapCBV = nullptr;
 	gDescHeapUAV = nullptr;
-
 }
 
 DX12DescriptorHeapAllocator::DX12DescriptorHeapAllocator(D3D12_DESCRIPTOR_HEAP_TYPE type, const uint32_t bucketSize) :
