@@ -216,4 +216,4 @@ void DX12RenderTarget::Clear(const D3D12_CLEAR_VALUE& value) {
 
 
 
-}\
+}

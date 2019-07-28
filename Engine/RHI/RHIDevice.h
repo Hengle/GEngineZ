@@ -23,7 +23,6 @@ public:
 	virtual RHITexture* CreateRenderTarget(uint32_t width, uint32_t height, ERHIPixelFormat format) = 0;
 	virtual RHITexture* CreateTexture(const RHITextureDesc& desc, const uint8_t* data) = 0;
 
-
 	// command
 	virtual void SetPipelineState(RHIPipelineState*) = 0;
 	virtual void SetRenderTargets(const std::vector<RHITexture*>&) = 0;

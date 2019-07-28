@@ -25,3 +25,5 @@
 
 // platform
 #include <Core/Platform/OSHeader.h>
+
+#include <Core/Math/DXMath.h>

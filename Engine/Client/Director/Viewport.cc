@@ -4,19 +4,17 @@
 #include <Render/RenderScene.h>
 
 #include <RHI/RHIDevice.h>
-
-#include <RHIDX12/DX12Shader.h>
-#include <RHIDX12/DX12Buffer.h>
-#include <RHIDX12/DX12PipelineState.h>
-#include <RHIDX12/DX12Device.h>
-#include <RHIDX12/DX12Executor.h>
 #include <Util/Image/Image.h>
+
+#include "GeometryGenerator.h"
 
 namespace z {
 
 struct VertexIn{
 	DirectX::XMFLOAT3 pos;
-	DirectX::XMFLOAT2 UV;
+	DirectX::XMFLOAT3 normal;
+	DirectX::XMFLOAT3 tangent;
+	DirectX::XMFLOAT2 uv;
 };
 
 struct PerObjectConstants {
@@ -32,25 +30,28 @@ Viewport::Viewport(uint32_t width, uint32_t height) {
 
 	viewport = GDevice->CreateViewport(width, height, PIXEL_FORMAT_R8G8B8A8_UNORM);
 
-	// compile shader
+	// vertex and indices
+	GeometryGenerator geoGen;
+	GeometryGenerator::MeshData box = geoGen.CreateBox(2.0f, 2.0f, 2.0f, 3);
+	vb = GDevice->CreateVertexBuffer(box.Vertices.size(), sizeof(VertexIn), box.Vertices.data());
+	ib = GDevice->CreateIndexBuffer(box.GetIndices16().size(), 2, box.GetIndices16().data());
+
+	// pipeline
 	std::string s = FileReader("E:/Code/GameZ/Content/Engine/Shader/test.hlsl").ReadAll();
 	RHIShader *vs = GDevice->CreateShader(s.c_str(), s.length(), SHADER_TYPE_VERTEX);
 	RHIShader *ps = GDevice->CreateShader(s.c_str(), s.length(), SHADER_TYPE_PIXEL);
 
-	// vertex layout
-	RHIVertexLayout *vl = new DX12VertexLayout();
+	RHIVertexLayout* vl = GDevice->CreateVertexLayout();
 	vl->PushLayout("POSITION", 0, PIXEL_FORMAT_R32G32B32_FLOAT, VERTEX_LAYOUT_PER_VERTEX);
+	vl->PushLayout("NORMAL", 0, PIXEL_FORMAT_R32G32B32_FLOAT, VERTEX_LAYOUT_PER_VERTEX);
+	vl->PushLayout("TANGENT", 0, PIXEL_FORMAT_R32G32B32_FLOAT, VERTEX_LAYOUT_PER_VERTEX);
 	vl->PushLayout("TEXCOORD", 0, PIXEL_FORMAT_R32G32_FLOAT, VERTEX_LAYOUT_PER_VERTEX);
 
-	// uniform layout
-	RHIUniformLayout *ul = new DX12UniformLayout();
+	RHIUniformLayout* ul = GDevice->CreateUniformLayout();
 	ul->PushLayout("globalcb", 0, UNIFORM_LAYOUT_CONSTANT_BUFFER);
 	ul->PushLayout("privatecb", 1, UNIFORM_LAYOUT_CONSTANT_BUFFER);
 	ul->PushLayout("texture0", 0, UNIFORM_LAYOUT_TEXTURE);
 
-	cb1 = new DX12ConstantBuffer(sizeof(PassConstants));
-	cb0 = new DX12ConstantBuffer(sizeof(PerObjectConstants));
-	cb2 = new DX12ConstantBuffer(sizeof(PerObjectConstants));
 
 	RHIPipelineStateDesc psoDesc;
 	psoDesc.vs = vs;
@@ -60,34 +61,14 @@ Viewport::Viewport(uint32_t width, uint32_t height) {
 	psoDesc.rtsFormat = std::vector<ERHIPixelFormat>{ PIXEL_FORMAT_R8G8B8A8_UNORM };
 	psoDesc.dsFormat = PIXEL_FORMAT_D24_UNORM_S8_UINT;
 	state = GDevice->CreatePipelineState(psoDesc);
-	
-	const std::array<VertexIn, 8> kVertices{
-			VertexIn({ DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f), DirectX::XMFLOAT2(0.0f , 1.0f) }),
-			VertexIn({ DirectX::XMFLOAT3(-1.0f, +1.0f, -1.0f), DirectX::XMFLOAT2(0.0f , 0.0f) }),
-			VertexIn({ DirectX::XMFLOAT3(+1.0f, +1.0f, -1.0f), DirectX::XMFLOAT2(1.0f , 0.0f) }),
-			VertexIn({ DirectX::XMFLOAT3(+1.0f, -1.0f, -1.0f), DirectX::XMFLOAT2(1.0f , 1.0f) }),
-			VertexIn({ DirectX::XMFLOAT3(-1.0f, -1.0f, +1.0f), DirectX::XMFLOAT2(1.0f , 0.0f) }),
-			VertexIn({ DirectX::XMFLOAT3(-1.0f, +1.0f, +1.0f), DirectX::XMFLOAT2(0.0f , 1.0f) }),
-			VertexIn({ DirectX::XMFLOAT3(+1.0f, +1.0f, +1.0f), DirectX::XMFLOAT2(0.0f , 0.0f) }),
-			VertexIn({ DirectX::XMFLOAT3(+1.0f, -1.0f, +1.0f), DirectX::XMFLOAT2(0.0f , 1.0f) })
-	};
 
-	const std::array<std::uint16_t, 36> kIndices = {
-		0, 1, 2, 0, 2, 3, // front face
-		4, 6, 5, 4, 7, 6, // back face
-		4, 5, 1, 4, 1, 0, // left face
-		3, 2, 6, 3, 6, 7, // right face
-		1, 5, 6, 1, 6, 2, // top face
-		4, 0, 3, 4, 3, 7  // bottom face
-	};
+	// constant buffer
+	cb1 = GDevice->CreateConstantBuffer(sizeof(PassConstants));
+	cb0 = GDevice->CreateConstantBuffer(sizeof(PerObjectConstants));
+	cb2 = GDevice->CreateConstantBuffer(sizeof(PerObjectConstants));
 
-
-	vb = GDevice->CreateVertexBuffer(kVertices.size(), sizeof(VertexIn), kVertices.data());
-	ib = GDevice->CreateIndexBuffer(kIndices.size(), 2, kIndices.data());
-
-	ds = GDevice->CreateDepthStencil(width, height, PIXEL_FORMAT_D24_UNORM_S8_UINT);
-
-	Image* image = Image::Load("E:/Code/GameZ/Content/Test/1001_d_01.tga");
+	// texture
+	Image* image = Image::Load("E:/Code/GameZ/Content/Test/WoodCrate01.tga");
 	RHITextureDesc desc;
 	desc.sizeX = image->GetWidth();
 	desc.sizeY = image->GetHeight();
@@ -95,6 +76,9 @@ Viewport::Viewport(uint32_t width, uint32_t height) {
 	desc.numMips = 1;
 	desc.format = image->GetFormat();
 	tex = GDevice->CreateTexture(desc, image->GetData());
+
+	// depth stencil
+	ds = GDevice->CreateDepthStencil(width, height, PIXEL_FORMAT_D24_UNORM_S8_UINT);
 }
 
 Viewport::~Viewport() {

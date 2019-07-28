@@ -14,8 +14,11 @@ SamplerState gSampler  : register(s0);
 
 struct VertexIn {
 	float3 pos : POSITION;
+	float3 normal : NORMAL;
+	float3 tangent : TANGENT;
 	float4 uv : TEXCOORD;
 };
+
 
 struct VertexOut {
 	float4 pos : SV_POSITION;
