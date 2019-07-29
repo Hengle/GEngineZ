@@ -133,8 +133,7 @@ DX12DepthStencil::DX12DepthStencil(uint32_t width, uint32_t height, DXGI_FORMAT 
 
 	// int texture info
 	InitWithResourceDesc(dsDesc);
-	// TODO, init sampler
-
+	
 	// create resource
 	DX12Resource* resource = new DX12Resource(D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_COMMON, dsDesc);
 	AttachResource(resource);
@@ -209,6 +208,52 @@ DX12RenderTarget::DX12RenderTarget(DX12Resource* resource) {
 	srvDesc.Texture2D.MipLevels           = 1;
 	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 	srvDesc.Texture2D.PlaneSlice          = 0;
+	SetSRView(new DX12ShaderResourceView(srvDesc, resource));
+}
+
+
+DX12RenderTarget::DX12RenderTarget(uint32_t width, uint32_t height, DXGI_FORMAT format) :
+	DX12Texture()  {
+	D3D12_RESOURCE_DESC dsDesc;
+	dsDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	dsDesc.Alignment = 0;
+	dsDesc.Width = width;
+	dsDesc.Height = height;
+	dsDesc.DepthOrArraySize = 1;
+	dsDesc.MipLevels = 1;
+	dsDesc.Format = format;
+	dsDesc.SampleDesc.Count = 1;
+	dsDesc.SampleDesc.Quality = 0;
+	dsDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+	dsDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+
+	// int texture info
+	InitWithResourceDesc(dsDesc);
+
+	// creat sampler view
+	CreateSamplerView();
+
+	// create resource
+	DX12Resource* resource = new DX12Resource(D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_COMMON, dsDesc);
+	AttachResource(resource);
+
+	// create render target view
+	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
+	rtvDesc.Format = format;
+	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+	rtvDesc.Texture2D.MipSlice = 0;
+	rtvDesc.Texture2D.PlaneSlice = 0;
+	mRTView = new DX12RenderTargetView(rtvDesc, resource);
+
+	// create shader view
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.Format = format;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	srvDesc.Texture2D.MipLevels = 1;
+	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+	srvDesc.Texture2D.PlaneSlice = 0;
 	SetSRView(new DX12ShaderResourceView(srvDesc, resource));
 }
 

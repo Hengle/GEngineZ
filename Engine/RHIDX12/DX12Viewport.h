@@ -19,6 +19,9 @@ public:
 	void BeginDraw(const RHIClearValue& clearValue) override;
 	void EndDraw() override;
 	void SetRenderRect(const ScreenRenderRect& rect) override;
+	RHITexture* GetBackBuffer() override {
+		return GetCurBackBuffer();
+	}
 	
 	/*RHIRenderTarget* GetCurRenderTarget() override {
 		return 

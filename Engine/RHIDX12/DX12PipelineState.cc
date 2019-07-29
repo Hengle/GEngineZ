@@ -3,7 +3,11 @@
 namespace z {
 
 DX12PipelineState::DX12PipelineState() :
-	mDepthStencilFormat(DXGI_FORMAT_UNKNOWN) {
+	mDepthStencilFormat(DXGI_FORMAT_UNKNOWN),
+	mRasterizerState(CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT)),
+	mBlendState(CD3DX12_BLEND_DESC(D3D12_DEFAULT)),
+	mDepthStencilState(CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT))
+{
 
 }
 
@@ -13,14 +17,14 @@ void DX12PipelineState::Create() {
 	}
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC desc;
 	ZeroMemory(&desc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
-	
+
 	desc.pRootSignature        = mUniformLayout->GetRootSignature();
 	desc.VS                    = mShaderVS->GetCode();
 	desc.PS                    = mShaderPS->GetCode();
-	desc.BlendState            = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	desc.BlendState            = mBlendState;
 	desc.SampleMask            = UINT_MAX;
-	desc.RasterizerState       = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-	desc.DepthStencilState     = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	desc.RasterizerState       = mRasterizerState;
+	desc.DepthStencilState     = mDepthStencilState;
 	desc.InputLayout           = mVertexLayout->GetDesc();
 	desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	desc.NumRenderTargets      = mRenderTargetsFormat.size();

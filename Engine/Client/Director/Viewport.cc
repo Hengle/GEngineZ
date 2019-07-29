@@ -43,7 +43,7 @@ void Viewport::DrawTex() {
 	RHIVertexBuffer *vb = GDevice->CreateVertexBuffer(4, 20, vertexs);
 	RHIIndexBuffer* ib = GDevice->CreateIndexBuffer(6, 2, indices);
 
-	std::string s = FileReader("E:/Code/GameZ/Content/Engine/Shader/render_tex.hlsl").ReadAll();
+	std::string s = FileReader("G:/Code/GameZ/Content/Engine/Shader/render_tex.hlsl").ReadAll();
 	RHIShader* vs = GDevice->CreateShader(s.c_str(), s.length(), SHADER_TYPE_VERTEX);
 	RHIShader* ps = GDevice->CreateShader(s.c_str(), s.length(), SHADER_TYPE_PIXEL);
 
@@ -65,11 +65,12 @@ void Viewport::DrawTex() {
 	RHIPipelineState *state = GDevice->CreatePipelineState(psoDesc);
 
 	GDevice->SetPipelineState(state);
+	GDevice->SetRenderTargets({ viewport->GetBackBuffer() });
 	GDevice->SetDepthStencil(nullptr);
 
 	GDevice->SetVertexBuffer(vb);
 	GDevice->SetIndexBuffer(ib);
-	GDevice->SetTexture(0, ds);
+	GDevice->SetTexture(0, rt);
 
 	viewport->SetRenderRect(ScreenRenderRect{ 0, 0, 200, 150 });
 	GDevice->DrawIndexed();
@@ -90,7 +91,7 @@ Viewport::Viewport(uint32_t width, uint32_t height) {
 	ib = GDevice->CreateIndexBuffer(box.GetIndices16().size(), 2, box.GetIndices16().data());
 
 	// pipeline
-	std::string s = FileReader("E:/Code/GameZ/Content/Engine/Shader/test.hlsl").ReadAll();
+	std::string s = FileReader("G:/Code/GameZ/Content/Engine/Shader/test.hlsl").ReadAll();
 	RHIShader *vs = GDevice->CreateShader(s.c_str(), s.length(), SHADER_TYPE_VERTEX);
 	RHIShader *ps = GDevice->CreateShader(s.c_str(), s.length(), SHADER_TYPE_PIXEL);
 
@@ -113,6 +114,7 @@ Viewport::Viewport(uint32_t width, uint32_t height) {
 	psoDesc.vlayout = vl;
 	psoDesc.rtsFormat = std::vector<ERHIPixelFormat>{ PIXEL_FORMAT_R8G8B8A8_UNORM };
 	psoDesc.dsFormat = PIXEL_FORMAT_D24_UNORM_S8_UINT;
+	psoDesc.fillMode = FILL_MODE_WIREFRAME;
 	state = GDevice->CreatePipelineState(psoDesc);
 
 	// constant buffer
@@ -121,7 +123,7 @@ Viewport::Viewport(uint32_t width, uint32_t height) {
 	cb2 = GDevice->CreateConstantBuffer(sizeof(PerObjectConstants));
 
 	// texture
-	Image* image = Image::Load("E:/Code/GameZ/Content/Test/WoodCrate01.tga");
+	Image* image = Image::Load("G:/Code/GameZ/Content/Test/WoodCrate01.tga");
 	RHITextureDesc desc;
 	desc.sizeX = image->GetWidth();
 	desc.sizeY = image->GetHeight();
@@ -133,6 +135,8 @@ Viewport::Viewport(uint32_t width, uint32_t height) {
 
 	// depth stencil
 	ds = GDevice->CreateDepthStencil(width, height, PIXEL_FORMAT_D24_UNORM_S8_UINT);
+	rt = GDevice->CreateRenderTarget(width, height, PIXEL_FORMAT_R8G8B8A8_UNORM);
+	rt->Clear(RHIClearValue(0.2f, 0.3f, 0.3f, 1.0f));
 }
 
 Viewport::~Viewport() {
@@ -186,6 +190,7 @@ void Viewport::Render() {
 	ds->Clear(RHIClearValue(1.0, 0));
 	
 	GDevice->SetPipelineState(state);
+	GDevice->SetRenderTargets({ rt });
 	GDevice->SetDepthStencil(ds);
 	GDevice->SetVertexBuffer(vb);
 	GDevice->SetIndexBuffer(ib);

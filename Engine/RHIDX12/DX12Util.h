@@ -15,7 +15,7 @@ inline D3D12_CLEAR_VALUE FromRHIClearVale(const RHIClearValue& rv) {
 inline DXGI_FORMAT FromRHIFormat(ERHIPixelFormat format) {
 	static std::unordered_map<ERHIPixelFormat, DXGI_FORMAT> formatMap = {
 		{PIXEL_FORMAT_INVALID           , DXGI_FORMAT_UNKNOWN},
-		{PIXEL_FORMAT_R32_FLOAT         , DXGI_FORMAT_R32_FLOAT},
+		{PIXEL_FORMAT_R32_F         , DXGI_FORMAT_R32_FLOAT},
 		{PIXEL_FORMAT_R32G32_FLOAT      , DXGI_FORMAT_R32G32_FLOAT},
 		{PIXEL_FORMAT_R32G32B32_FLOAT   , DXGI_FORMAT_R32G32B32_FLOAT},
 		{PIXEL_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT},
@@ -86,5 +86,23 @@ inline const D3D12_SAMPLER_DESC FromRHISamplerDesc(const RHISamplerDesc& desc) {
 	samplerDesc.MaxLOD         = D3D12_FLOAT32_MAX;
 	return samplerDesc;
 }
+
+inline const D3D12_CULL_MODE FromRHICullMode(const ERHICullMode& cullmode) {
+	static std::unordered_map<ERHICullMode, D3D12_CULL_MODE> cullmodeMap = {
+		{CULL_MODE_NONE, D3D12_CULL_MODE_NONE},
+		{CULL_MODE_FRONT, D3D12_CULL_MODE_FRONT},
+		{CULL_MODE_BACK, D3D12_CULL_MODE_BACK},
+	};
+	return cullmodeMap[cullmode];
+}
+
+inline const D3D12_FILL_MODE FromRHIFillMode(const ERHIFillMode& fillmode) {
+	static std::unordered_map<ERHIFillMode, D3D12_FILL_MODE> fillmodeMap = {
+		{FILL_MODE_WIREFRAME, D3D12_FILL_MODE_WIREFRAME},
+		{FILL_MODE_SOLID,	D3D12_FILL_MODE_SOLID},
+	};
+	return fillmodeMap[fillmode];
+}
+
 
 }

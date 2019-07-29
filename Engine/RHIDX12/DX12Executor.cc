@@ -80,13 +80,14 @@ void DX12Executor::SetConstantBuffer(int idx, DX12ConstantBuffer* cb) {
 	mFlag |= DX12EXE_FLAG_CB_DIRTY;
 }
 
-void DX12Executor::SetTexture(int idx, DX12Texture* cb) {
+void DX12Executor::SetTexture(int idx, DX12Texture* tex) {
 	if (mTextureViews.size() <= idx) {
 		mTextureViews.resize(idx + 1);
 		mSamplerViews.resize(idx + 1);
 	}
-	mTextureViews[idx] = cb->GetSRView();
-	mSamplerViews[idx] = cb->GetSamplerView();
+	mTextureViews[idx] = tex->GetSRView();
+	mSamplerViews[idx] = tex->GetSamplerView();
+	tex->SetReadable();
 	mFlag |= DX12EXE_FLAG_TEX_DIRTY;
 }
 

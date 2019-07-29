@@ -36,7 +36,7 @@ private:
 	RefCountPtr<RHIVertexBuffer> vb;
 	RefCountPtr<RHIIndexBuffer> ib;
 	RefCountPtr<RHIConstantBuffer> cb1, cb0, cb2;
-	RefCountPtr<RHITexture> ds;
+	RefCountPtr<RHITexture> ds, rt;
 	RefCountPtr<RHITexture> tex;
 };
 

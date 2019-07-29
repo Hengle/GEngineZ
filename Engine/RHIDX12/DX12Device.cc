@@ -78,10 +78,6 @@ RHIViewport* DX12Device::CreateViewport(uint32_t width, uint32_t height, ERHIPix
 	return new DX12Viewport(width, height, FromRHIFormat(format));
 }
 
-RHITexture* DX12Device::CreateDepthStencil(uint32_t width, uint32_t height, ERHIPixelFormat format) {
-	return new DX12DepthStencil(width, height, FromRHIFormat(format));
-}
-
 RHIShader* DX12Device::CreateShader(const char* data, size_t dataLen, ERHIShaderType stype) {
 	return DX12Shader::FromCompile(data, dataLen, stype);
 }
@@ -106,6 +102,13 @@ RHIPipelineState* DX12Device::CreatePipelineState(const RHIPipelineStateDesc& de
 		rtsFormat.emplace_back(FromRHIFormat(desc.rtsFormat[i]));
 	}
 	state->SetRenderTargetsFormat(rtsFormat);
+
+	if (FromRHIFormat(desc.dsFormat) == DXGI_FORMAT_UNKNOWN) {
+		state->GetDepthStencilState().DepthEnable = false;
+	}
+	state->GetRasterizerState().CullMode = FromRHICullMode(desc.cullMode);
+	state->GetRasterizerState().FillMode = FromRHIFillMode(desc.fillMode);
+
 	return state;
 }
 
@@ -123,6 +126,14 @@ RHIVertexBuffer* DX12Device::CreateVertexBuffer(uint32_t num, uint32_t stride, c
 
 RHITexture* DX12Device::CreateTexture(const RHITextureDesc& desc, const uint8_t* data) {
 	return new DX12Texture2D(desc, data);
+}
+
+RHITexture* DX12Device::CreateRenderTarget(uint32_t width, uint32_t height, ERHIPixelFormat format) {
+	return new DX12RenderTarget(width, height, FromRHIFormat(format));
+};
+
+RHITexture* DX12Device::CreateDepthStencil(uint32_t width, uint32_t height, ERHIPixelFormat format) {
+	return new DX12DepthStencil(width, height, FromRHIFormat(format));
 }
 
 

@@ -42,6 +42,19 @@ public:
 		mRenderTargetsFormat = format;
 	}
 
+
+	D3D12_RASTERIZER_DESC& GetRasterizerState() {
+		return mRasterizerState;
+	}
+
+	D3D12_BLEND_DESC& GetBlendState() {
+		return mBlendState;
+	}
+
+	D3D12_DEPTH_STENCIL_DESC& GetDepthStencilState() {
+		return mDepthStencilState;
+	}
+
 	void Create();
 
 	ID3D12PipelineState* GetIPipelineState();
@@ -57,6 +70,10 @@ private:
 	DXGI_FORMAT mDepthStencilFormat;
 
 	RefCountPtr<ID3D12PipelineState> mState;
+
+	D3D12_RASTERIZER_DESC mRasterizerState;
+	D3D12_BLEND_DESC mBlendState;
+	D3D12_DEPTH_STENCIL_DESC mDepthStencilState;
 };
 
 

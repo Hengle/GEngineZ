@@ -6,7 +6,6 @@
 namespace z {
 
 // rhi resource must be interface, and create by device
-
 class RHIResource : public RefCounter {
 public:
 	RHIResource() : RefCounter() {
@@ -18,6 +17,13 @@ public:
 	}
 };
 
+
+// texture
+class RHITexture : public RHIResource {
+public:
+	virtual void Clear(const RHIClearValue& v) = 0;
+};
+
 // Viewport 
 class RHIViewport : public RHIResource {
 public:
@@ -25,12 +31,7 @@ public:
 	virtual void BeginDraw(const RHIClearValue& clearValue) = 0;
 	virtual void EndDraw() = 0;
 	virtual void SetRenderRect(const ScreenRenderRect& rect) = 0;
-};
-
-// texture
-class RHITexture : public RHIResource {
-public:
-	virtual void Clear(const RHIClearValue& v) = 0;
+	virtual RHITexture* GetBackBuffer() = 0;
 };
 
 // pipeline state

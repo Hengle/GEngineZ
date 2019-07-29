@@ -28,7 +28,7 @@ public:
 	//void GetViewPS();
 
 //private:
-	DX12Shader() :mType(SHADER_TYPE_UNKNOWN) {}
+	DX12Shader() :mType(SHADER_TYPE_INVALID) {}
 	RefCountPtr<ID3D10Blob> mBlob{nullptr};
 	ERHIShaderType mType;
 };

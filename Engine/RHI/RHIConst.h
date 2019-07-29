@@ -12,12 +12,13 @@ enum DeviceFlag {
 
 
 enum ERHIShaderType {
-	SHADER_TYPE_UNKNOWN = 0,
+	SHADER_TYPE_INVALID = 0,
 	SHADER_TYPE_VERTEX,
 	SHADER_TYPE_PIXEL,
 
 	SHADER_TYPE_MAX
 };
+
 
 enum EVertexLaytoutFlag {
 	VERTEX_LAYOUT_INVALID = 0,
@@ -28,7 +29,7 @@ enum EVertexLaytoutFlag {
 
 enum ERHIPixelFormat {
 	PIXEL_FORMAT_INVALID = 0,
-	PIXEL_FORMAT_R32_FLOAT,
+	PIXEL_FORMAT_R32_F,
 	PIXEL_FORMAT_R32G32_FLOAT,
 	PIXEL_FORMAT_R32G32B32_FLOAT,
 	PIXEL_FORMAT_R32G32B32A32_FLOAT,
@@ -44,6 +45,51 @@ enum EUniformLayoutFlag {
 	UNIFORM_LAYOUT_CONSTANT_BUFFER = 1,
 	UNIFORM_LAYOUT_TEXTURE = 2,
 };
+
+
+enum ERHISamplerFitler {
+	SAMPLER_FILTER_UNKNOWN = 0,
+	SAMPLER_FILTER_POINT,
+	SAMPLER_FILTER_LINEAR,
+	SAMPLER_FILTER_ANISOTROPIC
+};
+
+
+enum ERHISamplerAddressMode {
+	SAMPLER_ADDRESS_MODE_UNKNOWN = 0,
+	SAMPLER_ADDRESS_MODE_WRAP,
+	SAMPLER_ADDRESS_MODE_MIRROR,
+	SAMPLER_ADDRESS_MODE_CLAMP,
+	SAMPLER_ADDRESS_MODE_BORDER,
+	SAMPLER_MODE_MIRROR_ONCE
+};
+
+
+enum ERHITexDimension {
+	TEX_DIMENSION_UNKNOWN = 0,
+	TEX_DIMENSION_1D,
+	TEX_DIMENSION_2D,
+	TEX_DIMENSION_3D,
+	TEX_DIMENSION_CUBE,
+	TEX_DIMENSION_1D_ARRAY,
+	TEX_DIMENSION_2D_ARRAY,
+	TEX_DIMENSION_3D_ARRAY,
+};
+
+
+enum ERHIFillMode {
+	FILL_MODE_WIREFRAME = 2,
+	FILL_MODE_SOLID = 3
+};
+
+
+enum ERHICullMode {
+	CULL_MODE_NONE = 1,
+	CULL_MODE_FRONT = 2,
+	CULL_MODE_BACK = 3
+};
+
+
 
 
 struct RHIClearValue {
@@ -74,8 +120,13 @@ class RHIUniformLayout;
 
 struct RHIPipelineStateDesc {
 	RHIPipelineStateDesc() :
-		vs(nullptr), ps(nullptr), vlayout(nullptr), ulayout(nullptr),
-		dsFormat(PIXEL_FORMAT_INVALID) {
+		vs(nullptr), 
+		ps(nullptr), 
+		vlayout(nullptr), 
+		ulayout(nullptr),
+		dsFormat(PIXEL_FORMAT_INVALID),
+		fillMode(FILL_MODE_SOLID),
+		cullMode(CULL_MODE_BACK) {
 	}
 
 	RHIShader* vs;
@@ -83,7 +134,9 @@ struct RHIPipelineStateDesc {
 	RHIVertexLayout* vlayout;
 	RHIUniformLayout* ulayout;
 	std::vector<ERHIPixelFormat> rtsFormat;
-	ERHIPixelFormat dsFormat;	
+	ERHIPixelFormat dsFormat;
+	ERHIFillMode fillMode;
+	ERHICullMode cullMode;
 };
 
 struct ScreenRenderRect {
@@ -95,32 +148,7 @@ struct ScreenRenderRect {
 
 
 // Texture...
-enum ERHISamplerFitler {
-	SAMPLER_FILTER_UNKNOWN = 0,
-	SAMPLER_FILTER_POINT,
-	SAMPLER_FILTER_LINEAR,
-	SAMPLER_FILTER_ANISOTROPIC
-};
 
-enum ERHISamplerAddressMode {
-	SAMPLER_ADDRESS_MODE_UNKNOWN = 0,
-	SAMPLER_ADDRESS_MODE_WRAP,
-	SAMPLER_ADDRESS_MODE_MIRROR,
-	SAMPLER_ADDRESS_MODE_CLAMP,
-	SAMPLER_ADDRESS_MODE_BORDER,
-	SAMPLER_MODE_MIRROR_ONCE
-};
-
-enum ERHITexDimension {
-	TEX_DIMENSION_UNKNOWN = 0,
-	TEX_DIMENSION_1D,
-	TEX_DIMENSION_2D,
-	TEX_DIMENSION_3D,
-	TEX_DIMENSION_CUBE,
-	TEX_DIMENSION_1D_ARRAY,
-	TEX_DIMENSION_2D_ARRAY,
-	TEX_DIMENSION_3D_ARRAY,
-};
 
 struct RHISamplerDesc {
 	ERHISamplerFitler minFilter;
