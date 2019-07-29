@@ -59,8 +59,12 @@ void DX12UniformLayout::PushLayout(std::string name, uint32_t registerNo, EUnifo
 		mCBVs[registerNo] = name;
 		break;
 	case EUniformLayoutFlag::UNIFORM_LAYOUT_TEXTURE:
-		if (mSRVs.size() <= registerNo) mSRVs.resize(registerNo + 1);
+		if (mSRVs.size() <= registerNo) {
+			mSRVs.resize(registerNo + 1);
+			mSamplers.resize(registerNo + 1);
+		}
 		mSRVs[registerNo] = name;
+		mSamplers[registerNo] = name;
 		break;
 	}
 }
@@ -84,16 +88,14 @@ ID3D12RootSignature *DX12UniformLayout::GetRootSignature() {
 		rootParam[count].InitAsDescriptorTable(1, &cbvTable[count]);
 		count++;
 	}
+	for (int i = 0; i < mSRVs.size(); i++) {
+		cbvTable[count].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 1, i);
+		rootParam[count].InitAsDescriptorTable(1, &cbvTable[count]);
+		count++;
+	}
 
-	// todo static sampler
-	const CD3DX12_STATIC_SAMPLER_DESC sd(0,
-		D3D12_FILTER_MIN_MAG_MIP_LINEAR,
-		D3D12_TEXTURE_ADDRESS_MODE_WRAP,
-		D3D12_TEXTURE_ADDRESS_MODE_WRAP,
-		D3D12_TEXTURE_ADDRESS_MODE_WRAP
-	);
 
-	CD3DX12_ROOT_SIGNATURE_DESC rootSignDesc(count, rootParam, 1, &sd,
+	CD3DX12_ROOT_SIGNATURE_DESC rootSignDesc(count, rootParam, 0, nullptr,
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 	
 	RefCountPtr<ID3DBlob> serialzed, error;

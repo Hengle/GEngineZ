@@ -128,6 +128,7 @@ Viewport::Viewport(uint32_t width, uint32_t height) {
 	desc.sizeZ = 0;
 	desc.numMips = 1;
 	desc.format = image->GetFormat();
+	desc.samplerDesc = RHISamplerDesc(SAMPLER_FILTER_POINT, SAMPLER_ADDRESS_MODE_CLAMP);
 	tex = GDevice->CreateTexture(desc, image->GetData());
 
 	// depth stencil

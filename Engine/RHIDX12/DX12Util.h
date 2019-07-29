@@ -41,19 +41,50 @@ inline uint16_t GetPixelSize(DXGI_FORMAT format) {
 	return 0;
 }
 
-inline const D3D12_RESOURCE_DESC FromRHITextureDesc(const RHITextureDesc &rhi_desc) {
-	D3D12_RESOURCE_DESC ret;
-	if (rhi_desc.sizeY == 0 && rhi_desc.sizeZ == 0) {
-		CHECK(0, "not support");
-	} else if (rhi_desc.sizeZ == 0) {
-		ret = CD3DX12_RESOURCE_DESC::Tex2D(
-			FromRHIFormat(rhi_desc.format),
-			rhi_desc.sizeX, rhi_desc.sizeY, 1, rhi_desc.numMips
-		);
-	} else {
-		CHECK(0, "not support");
-	}
-	return ret;
+inline const D3D12_SAMPLER_DESC FromRHISamplerDesc(const RHISamplerDesc& desc) {
+	auto static DecideAddressMode = [](ERHISamplerAddressMode mode) -> D3D12_TEXTURE_ADDRESS_MODE {
+		if (mode == SAMPLER_ADDRESS_MODE_WRAP) 
+			return D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		if (mode == SAMPLER_ADDRESS_MODE_MIRROR) 
+			return D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+		if (mode == SAMPLER_ADDRESS_MODE_CLAMP) 
+			return D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+		if (mode == SAMPLER_ADDRESS_MODE_BORDER) 
+			return D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+		if (mode == SAMPLER_MODE_MIRROR_ONCE) 
+			return D3D12_TEXTURE_ADDRESS_MODE_MIRROR_ONCE;
+		return D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	};
+		
+	auto static DecideFilter = [](ERHISamplerFitler minf, ERHISamplerFitler maxf, ERHISamplerFitler mipf) -> D3D12_FILTER {
+#define DECIDE(m0, m1, m2, mr)	if (minf == m0 && maxf == m1 && mipf == m2) return mr;
+		DECIDE(SAMPLER_FILTER_POINT  , SAMPLER_FILTER_POINT  , SAMPLER_FILTER_POINT  , D3D12_FILTER_MIN_MAG_MIP_POINT);
+		DECIDE(SAMPLER_FILTER_POINT  , SAMPLER_FILTER_POINT  , SAMPLER_FILTER_LINEAR , D3D12_FILTER_MIN_MAG_MIP_POINT);
+		DECIDE(SAMPLER_FILTER_POINT  , SAMPLER_FILTER_LINEAR , SAMPLER_FILTER_POINT  , D3D12_FILTER_MIN_POINT_MAG_LINEAR_MIP_POINT);
+		DECIDE(SAMPLER_FILTER_POINT  , SAMPLER_FILTER_LINEAR , SAMPLER_FILTER_LINEAR , D3D12_FILTER_MIN_POINT_MAG_MIP_LINEAR);
+		DECIDE(SAMPLER_FILTER_LINEAR , SAMPLER_FILTER_POINT  , SAMPLER_FILTER_POINT  , D3D12_FILTER_MIN_LINEAR_MAG_MIP_POINT);
+		DECIDE(SAMPLER_FILTER_LINEAR , SAMPLER_FILTER_POINT  , SAMPLER_FILTER_LINEAR , D3D12_FILTER_MIN_LINEAR_MAG_POINT_MIP_LINEAR);
+		DECIDE(SAMPLER_FILTER_LINEAR , SAMPLER_FILTER_LINEAR , SAMPLER_FILTER_POINT  , D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT);
+		DECIDE(SAMPLER_FILTER_LINEAR , SAMPLER_FILTER_LINEAR , SAMPLER_FILTER_LINEAR , D3D12_FILTER_MIN_MAG_MIP_LINEAR);
+		DECIDE(SAMPLER_FILTER_ANISOTROPIC, SAMPLER_FILTER_ANISOTROPIC, SAMPLER_FILTER_ANISOTROPIC, D3D12_FILTER_ANISOTROPIC);
+#undef DECIDE
+		Log<LWARN>("sampler filter not supported");
+		return D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+	};
+
+
+	D3D12_SAMPLER_DESC samplerDesc{};
+	samplerDesc.Filter         = DecideFilter(desc.minFilter, desc.maxFilter, desc.mipFilter);
+	samplerDesc.AddressU       = DecideAddressMode(desc.addressU);
+	samplerDesc.AddressV       = DecideAddressMode(desc.addressV);
+	samplerDesc.AddressW       = DecideAddressMode(desc.addressW);
+	samplerDesc.MipLODBias     = 0;
+	samplerDesc.MaxAnisotropy  = 1;
+	samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+	samplerDesc.BorderColor[4] = { 0.f };
+	samplerDesc.MinLOD         = 0;
+	samplerDesc.MaxLOD         = D3D12_FLOAT32_MAX;
+	return samplerDesc;
 }
 
 }

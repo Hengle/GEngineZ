@@ -56,6 +56,7 @@ public:
 	DEF_GETALLOC(D3D12_SHADER_RESOURCE_VIEW_DESC, gDescHeapSRV)
 	DEF_GETALLOC(D3D12_CONSTANT_BUFFER_VIEW_DESC, gDescHeapCBV)
 	DEF_GETALLOC(D3D12_UNORDERED_ACCESS_VIEW_DESC, gDescHeapUAV)
+	DEF_GETALLOC(D3D12_SAMPLER_DESC, gDescHeapSampler)
 #undef DEF_GETALLOC
 
 private:
@@ -72,6 +73,7 @@ private:
 	static DX12DescriptorHeapAllocator* gDescHeapSRV;
 	static DX12DescriptorHeapAllocator* gDescHeapCBV;
 	static DX12DescriptorHeapAllocator* gDescHeapUAV;
+	static DX12DescriptorHeapAllocator* gDescHeapSampler;
 };
 
 
@@ -99,6 +101,8 @@ public:
 			device->CreateConstantBufferView(&desc, mHeapPos.cpuHandle);
 		} else if constexpr (std::is_same_v<VIEW_DESC, D3D12_UNORDERED_ACCESS_VIEW_DESC>) {
 			device->CreateUnorderedAccessView(resource, counter, &desc, mHeapPos.cpuHandle);
+		} else if constexpr (std::is_same_v<VIEW_DESC, D3D12_SAMPLER_DESC>) {
+			device->CreateSampler(&desc, mHeapPos.cpuHandle);
 		}
 	}
 
@@ -186,6 +190,13 @@ public:
 class DX12ConstantBufferView : public DX12DescriptorView<D3D12_CONSTANT_BUFFER_VIEW_DESC> {
 public:
 	DX12ConstantBufferView(D3D12_CONSTANT_BUFFER_VIEW_DESC& desc) {
+		CreateView(desc);
+	}
+};
+
+class DX12SamplerView : public DX12DescriptorView<D3D12_SAMPLER_DESC> {
+public:
+	DX12SamplerView(D3D12_SAMPLER_DESC& desc) {
 		CreateView(desc);
 	}
 };

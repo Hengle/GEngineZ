@@ -67,12 +67,20 @@ public:
 		return mSRVs.size();
 	}
 
+	size_t GetSamplerNum() {
+		return mSamplers.size();
+	}
+
 	size_t GetCBVStart() {
 		return 0;
 	}
 
 	size_t GetSRVStart() {
-		return mCBVs.size();
+		return GetCBVNum();
+	}
+
+	size_t GetSamplerStart() {
+		return GetSRVStart() + GetSRVNum();
 	}
 
 private:
@@ -80,6 +88,8 @@ private:
 	std::vector<std::string> mSRVs;
 	std::vector<std::string> mUAVs;
 	std::vector<std::string> mSamplers;
+
+	// CBV...|SRV...|Sampler...|UAV
 
 	RefCountPtr<ID3D12RootSignature> mRootSignature;
 

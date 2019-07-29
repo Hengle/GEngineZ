@@ -10,11 +10,11 @@ namespace z {
 class RHIResource : public RefCounter {
 public:
 	RHIResource() : RefCounter() {
-		Log<LDEBUG>("create rhi resource", this);
+		//Log<LDEBUG>("create rhi resource", this);
 	}
 
 	virtual ~RHIResource() {
-		Log<LDEBUG>("destroy rhi resource", this);
+		//Log<LDEBUG>("destroy rhi resource", this);
 	}
 };
 

@@ -129,6 +129,13 @@ struct RHISamplerDesc {
 	ERHISamplerAddressMode addressU;
 	ERHISamplerAddressMode addressV;
 	ERHISamplerAddressMode addressW;
+
+	RHISamplerDesc() : RHISamplerDesc(SAMPLER_FILTER_LINEAR, SAMPLER_ADDRESS_MODE_WRAP) {}
+	RHISamplerDesc(ERHISamplerFitler filter, ERHISamplerAddressMode mode) {
+		minFilter = maxFilter = mipFilter = filter;
+		addressU = addressV = addressW = mode;
+	}
+
 };
 
 struct RHITextureDesc {

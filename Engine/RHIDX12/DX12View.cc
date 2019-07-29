@@ -9,12 +9,13 @@ DX12DescriptorHeapAllocator* DX12DescriptorHeapAllocator::gDescHeapDSV = nullptr
 DX12DescriptorHeapAllocator* DX12DescriptorHeapAllocator::gDescHeapSRV = nullptr;
 DX12DescriptorHeapAllocator* DX12DescriptorHeapAllocator::gDescHeapCBV = nullptr;
 DX12DescriptorHeapAllocator* DX12DescriptorHeapAllocator::gDescHeapUAV = nullptr;
-
+DX12DescriptorHeapAllocator* DX12DescriptorHeapAllocator::gDescHeapSampler = nullptr;
 
 void DX12DescriptorHeapAllocator::CreateHeapAllocators() {
 	gDescHeapRTV = new DX12DescriptorHeapAllocator(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 64);
 	gDescHeapDSV = new DX12DescriptorHeapAllocator(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 64);
 	gDescHeapSRV = new DX12DescriptorHeapAllocator(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1024);
+	gDescHeapSampler = new DX12DescriptorHeapAllocator(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, 1024);
 	gDescHeapCBV = gDescHeapSRV;
 	gDescHeapUAV = gDescHeapSRV;
 }
@@ -23,6 +24,7 @@ void DX12DescriptorHeapAllocator::DestroyHeapAllocators() {
 	SAFE_DELETE(gDescHeapRTV);
 	SAFE_DELETE(gDescHeapDSV);
 	SAFE_DELETE(gDescHeapSRV);
+	SAFE_DELETE(gDescHeapSampler)
 	gDescHeapCBV = nullptr;
 	gDescHeapUAV = nullptr;
 }

@@ -14,7 +14,7 @@ class DX12Texture;
 class DX12ConstantBuffer;
 class DX12ConstantBufferView;
 class DX12ShaderResourceView;
-
+class DX12SamplerView;
 
 enum ExecutorStateFlag {
 	DX12EXE_FLAG_PSO_DIRTY = 0x0001,
@@ -118,7 +118,7 @@ private:
 
 	std::vector<RefCountPtr<DX12ConstantBufferView>> mConstantBufferViews;
 	std::vector<RefCountPtr<DX12ShaderResourceView>> mTextureViews;
-
+	std::vector<RefCountPtr<DX12SamplerView>> mSamplerViews;
 
 	ID3D12RootSignature* mCurRootSignature;
 	ID3D12PipelineState* mCurPipelineState;

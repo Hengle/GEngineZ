@@ -22,6 +22,10 @@ public:
 		return mSRView;
 	}
 
+	DX12SamplerView* GetSamplerView() {
+		return mSamplerView;
+	}
+
 	void AttachResource(DX12Resource* resource);
 
 	virtual void Clear(const D3D12_CLEAR_VALUE& value) {}
@@ -43,9 +47,12 @@ public:
 	DXGI_FORMAT format;
 	// dimension
 	// sampler
+	D3D12_SAMPLER_DESC samplerDesc;
 
 protected:
-
+	void InitDefaultSamplerDesc();
+	void CreateSamplerView();
+	RefCountPtr<DX12SamplerView> mSamplerView;
 	RefCountPtr<DX12ShaderResourceView> mSRView;
 };
 
@@ -53,7 +60,6 @@ protected:
 class DX12Texture2D : public DX12Texture {
 public:
 	DX12Texture2D(const RHITextureDesc& desc, const uint8_t* data);
-
 
 
 protected:

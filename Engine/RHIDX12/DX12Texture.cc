@@ -11,7 +11,8 @@ DX12Texture::DX12Texture() :
 	depth(0), 
 	numMips(0), 
 	format(DXGI_FORMAT_UNKNOWN) {
-
+	InitDefaultSamplerDesc();
+	// default sampler desc
 }
 
 DX12Texture::DX12Texture(const RHITextureDesc& desc) {
@@ -24,6 +25,7 @@ void DX12Texture::InitWithResourceDesc(const D3D12_RESOURCE_DESC& desc) {
 	depth = desc.DepthOrArraySize;
 	numMips = desc.MipLevels;
 	format = desc.Format;
+	InitDefaultSamplerDesc();
 }
 
 
@@ -33,11 +35,31 @@ void DX12Texture::InitWithRHITextureDesc(const RHITextureDesc& desc) {
 	depth = desc.sizeZ;
 	numMips = desc.numMips;
 	format = FromRHIFormat(desc.format);
+	samplerDesc = FromRHISamplerDesc(desc.samplerDesc);
+	CreateSamplerView();
 }
 
 
 void DX12Texture::AttachResource(DX12Resource* resource) {
 	GetResourceOwner()->OwnResource(EResourceOwn_Exclusive, resource);
+}
+
+void DX12Texture::InitDefaultSamplerDesc() {
+	samplerDesc.Filter         = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerDesc.AddressU       = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	samplerDesc.AddressV       = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	samplerDesc.AddressW       = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	samplerDesc.MipLODBias     = 0;
+	samplerDesc.MaxAnisotropy  = 1;
+	samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+	samplerDesc.BorderColor[4] = { 0.f };
+	samplerDesc.MinLOD         = 0;
+	samplerDesc.MaxLOD         = D3D12_FLOAT32_MAX;
+}
+
+
+void DX12Texture::CreateSamplerView() {
+	mSamplerView = new DX12SamplerView(samplerDesc);
 }
 
 // DX12Texture2D
@@ -135,6 +157,9 @@ DX12DepthStencil::DX12DepthStencil(uint32_t width, uint32_t height, DXGI_FORMAT 
 	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 	srvDesc.Texture2D.PlaneSlice          = 0;
 	SetSRView(new DX12ShaderResourceView(srvDesc, resource));
+
+	// craete default sampler view
+	CreateSamplerView();
 }
 
 void DX12DepthStencil::SetWritable() {
