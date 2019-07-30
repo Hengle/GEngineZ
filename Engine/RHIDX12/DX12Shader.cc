@@ -36,7 +36,7 @@ DX12VertexLayout::~DX12VertexLayout() {
 	mLayout.clear();
 }
 
-void DX12VertexLayout::PushLayout(const std::string& name, uint32_t index, ERHIPixelFormat format, EVertexLaytoutFlag flag) {
+void DX12VertexLayout::PushLayout(const std::string& name, ERHIPixelFormat format, EVertexLaytoutFlag flag) {
 	static std::unordered_map<EVertexLaytoutFlag, D3D12_INPUT_CLASSIFICATION> classicationMapping = {
 		{VERTEX_LAYOUT_PER_INSTANCE, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA},
 		{VERTEX_LAYOUT_PER_VERTEX, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA}
@@ -45,7 +45,7 @@ void DX12VertexLayout::PushLayout(const std::string& name, uint32_t index, ERHIP
 	memcpy(s, name.data(), name.length());
 	s[name.length()] = 0;
 	mNames.push_back(s);
-	D3D12_INPUT_ELEMENT_DESC desc{ s, index, FromRHIFormat(format), 0, mSize, classicationMapping[flag], 0 };
+	D3D12_INPUT_ELEMENT_DESC desc{ s, 0, FromRHIFormat(format), 0, mSize, classicationMapping[flag], 0 };
 	mLayout.push_back(desc);
 	mSize += GetPixelSize(FromRHIFormat(format));
 }

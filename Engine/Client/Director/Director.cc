@@ -5,7 +5,8 @@
 namespace z {
 Director* GDirector = nullptr;
 
-Director::Director() {
+Director::Director(FilePath rootPath) :
+	mRootPath(rootPath) {
 	InitializeSingleton<Director>(GDirector, this);
 	
 }

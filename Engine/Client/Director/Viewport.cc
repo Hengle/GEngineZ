@@ -1,4 +1,5 @@
 #include "Viewport.h"
+#include "Director.h"
 #include <Core/CoreHeader.h>
 #include <Client/Scene/Scene.h>
 #include <Render/RenderScene.h>
@@ -43,13 +44,13 @@ void Viewport::DrawTex() {
 	RHIVertexBuffer *vb = GDevice->CreateVertexBuffer(4, 20, vertexs);
 	RHIIndexBuffer* ib = GDevice->CreateIndexBuffer(6, 2, indices);
 
-	std::string s = FileReader("G:/Code/GameZ/Content/Engine/Shader/render_tex.hlsl").ReadAll();
+	std::string s = FileReader(GDirector->GetRootPath() / "Content/Engine/Shader/render_tex.hlsl").ReadAll();
 	RHIShader* vs = GDevice->CreateShader(s.c_str(), s.length(), SHADER_TYPE_VERTEX);
 	RHIShader* ps = GDevice->CreateShader(s.c_str(), s.length(), SHADER_TYPE_PIXEL);
 
 	RHIVertexLayout* vl = GDevice->CreateVertexLayout();
-	vl->PushLayout("POSITION", 0, PIXEL_FORMAT_R32G32B32_FLOAT, VERTEX_LAYOUT_PER_VERTEX);
-	vl->PushLayout("TEXCOORD", 0, PIXEL_FORMAT_R32G32_FLOAT, VERTEX_LAYOUT_PER_VERTEX);
+	vl->PushLayout("POSITION", PIXEL_FORMAT_R32G32B32_FLOAT, VERTEX_LAYOUT_PER_VERTEX);
+	vl->PushLayout("TEXCOORD", PIXEL_FORMAT_R32G32_FLOAT, VERTEX_LAYOUT_PER_VERTEX);
 	
 	RHIUniformLayout* ul = GDevice->CreateUniformLayout();
 	ul->PushLayout("texture0", 0, UNIFORM_LAYOUT_TEXTURE);
@@ -91,15 +92,15 @@ Viewport::Viewport(uint32_t width, uint32_t height) {
 	ib = GDevice->CreateIndexBuffer(box.GetIndices16().size(), 2, box.GetIndices16().data());
 
 	// pipeline
-	std::string s = FileReader("G:/Code/GameZ/Content/Engine/Shader/test.hlsl").ReadAll();
+	std::string s = FileReader(GDirector->GetRootPath() / "Content/Engine/Shader/test.hlsl").ReadAll();
 	RHIShader *vs = GDevice->CreateShader(s.c_str(), s.length(), SHADER_TYPE_VERTEX);
 	RHIShader *ps = GDevice->CreateShader(s.c_str(), s.length(), SHADER_TYPE_PIXEL);
 
 	RHIVertexLayout* vl = GDevice->CreateVertexLayout();
-	vl->PushLayout("POSITION", 0, PIXEL_FORMAT_R32G32B32_FLOAT, VERTEX_LAYOUT_PER_VERTEX);
-	vl->PushLayout("NORMAL", 0, PIXEL_FORMAT_R32G32B32_FLOAT, VERTEX_LAYOUT_PER_VERTEX);
-	vl->PushLayout("TANGENT", 0, PIXEL_FORMAT_R32G32B32_FLOAT, VERTEX_LAYOUT_PER_VERTEX);
-	vl->PushLayout("TEXCOORD", 0, PIXEL_FORMAT_R32G32_FLOAT, VERTEX_LAYOUT_PER_VERTEX);
+	vl->PushLayout("POSITION", PIXEL_FORMAT_R32G32B32_FLOAT, VERTEX_LAYOUT_PER_VERTEX);
+	vl->PushLayout("NORMAL",  PIXEL_FORMAT_R32G32B32_FLOAT, VERTEX_LAYOUT_PER_VERTEX);
+	vl->PushLayout("TANGENT",  PIXEL_FORMAT_R32G32B32_FLOAT, VERTEX_LAYOUT_PER_VERTEX);
+	vl->PushLayout("TEXCOORD",  PIXEL_FORMAT_R32G32_FLOAT, VERTEX_LAYOUT_PER_VERTEX);
 
 	RHIUniformLayout* ul = GDevice->CreateUniformLayout();
 	ul->PushLayout("globalcb", 0, UNIFORM_LAYOUT_CONSTANT_BUFFER);
@@ -123,7 +124,7 @@ Viewport::Viewport(uint32_t width, uint32_t height) {
 	cb2 = GDevice->CreateConstantBuffer(sizeof(PerObjectConstants));
 
 	// texture
-	Image* image = Image::Load("G:/Code/GameZ/Content/Test/WoodCrate01.tga");
+	Image* image = Image::Load(GDirector->GetRootPath() / "Content/Test/WoodCrate01.tga");
 	RHITextureDesc desc;
 	desc.sizeX = image->GetWidth();
 	desc.sizeY = image->GetHeight();

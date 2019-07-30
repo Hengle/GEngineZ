@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <Client/Scene/Scene.h>
+#include <Core/CoreHeader.h>
 
 #include "Viewport.h"
 
@@ -9,7 +10,7 @@ namespace z {
 
 class Director {
 public:
-	Director();
+	Director(FilePath rootPath);
 	~Director();
 	
 	void Update();
@@ -25,9 +26,18 @@ public:
 	void AddViewport(Viewport*);
 	void DelViewport(Viewport*);
 
+	FilePath GetRootPath() {
+		return mRootPath;
+	}
+
+	void LoadShaders();
+
 private:
 	uint64_t mFrameInterval{ 0 };
 	std::vector<Viewport*> mViewports;
+
+	FilePath mRootPath;
+	
 };
 
 extern Director* GDirector;

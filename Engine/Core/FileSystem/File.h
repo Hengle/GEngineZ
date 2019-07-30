@@ -11,6 +11,8 @@ class FilePath {
 public:
 	static char SEP;
 
+	static FilePath CurrentPath;
+
 	FilePath();
 	FilePath(std::string const&);
 	FilePath(const char* str);

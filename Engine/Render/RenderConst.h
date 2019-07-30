@@ -2,9 +2,7 @@
 
 namespace z {
 
-enum RenderFlag {
-
-
+enum ERenderSet {
 
 };
 

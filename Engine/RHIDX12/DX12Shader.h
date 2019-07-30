@@ -41,7 +41,7 @@ public:
 
 	~DX12VertexLayout();
 
-	void PushLayout(const std::string& semanticName, uint32_t semanticIndex, ERHIPixelFormat format, EVertexLaytoutFlag flag) override;
+	void PushLayout(const std::string& semanticName, ERHIPixelFormat format, EVertexLaytoutFlag flag) override;
 	
 	D3D12_INPUT_LAYOUT_DESC GetDesc() {
 		return { mLayout.data(), (uint32_t)mLayout.size() };

@@ -42,7 +42,7 @@ public:
 
 class RHIVertexLayout : public RHIResource {
 public:
-	virtual void PushLayout(const std::string& name, uint32_t index, ERHIPixelFormat format, EVertexLaytoutFlag flag) = 0;
+	virtual void PushLayout(const std::string& name, ERHIPixelFormat format, EVertexLaytoutFlag flag) = 0;
 };
 
 class RHIUniformLayout : public RHIResource {

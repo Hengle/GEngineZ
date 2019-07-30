@@ -1,10 +1,10 @@
-#include <Platform/Win32/win32App.h>
-
+#include <Startup/Win32/win32App.h>
 #include <Util/Image/Image.h>
 
 using namespace z;
 
 int main(int argc, char *argv) {
+
 	z::Win32App app;
     if (app.Init()) app.Run();
     return 0;
