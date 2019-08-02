@@ -61,9 +61,16 @@ public:
 private:
 	void Reflect();
 	void ReflectInput(ID3D12ShaderReflection*, const D3D12_SHADER_DESC&);
+	void ReflectConstantBuffer(ID3D12ShaderReflection*, const D3D12_SHADER_DESC&);
+	void ReflectBoundResource(ID3D12ShaderReflection*, const D3D12_SHADER_DESC&);
 
 	RefCountPtr<DX12ShaderStage> mStageVS;
 	RefCountPtr<DX12ShaderStage> mStagePS;
+
+	std::vector<D3D12_INPUT_ELEMENT_DESC> mInputDescs;
+	std::unordered_map<std::string, std::vector<D3D12_SHADER_BUFFER_DESC>> mCBuffersDesc;
+	std::unordered_map<std::string, size_t> mCBuffersSize;
+
 };
 
 

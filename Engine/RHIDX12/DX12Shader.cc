@@ -41,12 +41,11 @@ void DX12Shader::Complete() {
 
 void DX12Shader::Reflect() {
 	std::vector<DX12ShaderStage*> stages{ mStageVS , mStagePS};
-
 	for (DX12ShaderStage* stage : stages) {
 		if (stage == nullptr) {
 			continue;
 		}
-
+		std::cout << "stage......" << stage->GetStage() << std::endl;
 		RefCountPtr<ID3D12ShaderReflection> reflection;
 		D3DReflect(stage->GetCode().pShaderBytecode, stage->GetCode().BytecodeLength, IID_PPV_ARGS(reflection.GetComRef()));
 		D3D12_SHADER_DESC shaderDesc;
@@ -60,13 +59,14 @@ void DX12Shader::Reflect() {
 
 		// constant buffers
 
-
-
+		ReflectConstantBuffer(reflection, shaderDesc);
+		ReflectBoundResource(reflection, shaderDesc);
 	}
 }
 
 
 void DX12Shader::ReflectInput(ID3D12ShaderReflection* reflection, const D3D12_SHADER_DESC &shaderDesc) {
+	mInputDescs.clear();
 	for (uint32_t i = 0; i < shaderDesc.InputParameters; i++) {
 		D3D12_SIGNATURE_PARAMETER_DESC paramDesc;
 		reflection->GetInputParameterDesc(i, &paramDesc);
@@ -94,76 +94,42 @@ void DX12Shader::ReflectInput(ID3D12ShaderReflection* reflection, const D3D12_SH
 		}
 #undef DECIDE_FORMAT
 
+		mInputDescs.push_back(inputDesc);
 
 		std::cout << inputDesc.SemanticName << inputDesc.SemanticIndex << " "<< inputDesc.Format << std::endl;
 	}
-	
 }
 
-	// TODO cache 
-	
 
-	//for (uint32_t i = 0; i < shaderDesc.ConstantBuffers; i++) {
-	//	ID3D12ShaderReflectionConstantBuffer *b = ref->GetConstantBufferByIndex(i);
-	//	D3D12_SHADER_BUFFER_DESC desc;
-	//	b->GetDesc(&desc);
-	//	for (int j = 0; j < desc.Variables; j++) {
-	//		ID3D12ShaderReflectionVariable *var = b->GetVariableByIndex(j);
-	//		D3D12_SHADER_VARIABLE_DESC desc2;
-	//		var->GetDesc(&desc2);
-	//		Log<LINFO>(desc2.Name);
-	//	}
+void DX12Shader::ReflectConstantBuffer(ID3D12ShaderReflection* reflection, const D3D12_SHADER_DESC &shaderDesc) {
+	for (uint32_t i = 0; i < shaderDesc.ConstantBuffers; i++) {
+		ID3D12ShaderReflectionConstantBuffer *cb = reflection->GetConstantBufferByIndex(i);
+		D3D12_SHADER_BUFFER_DESC cbDesc;
+		cb->GetDesc(&cbDesc);
 
-	//}
+		std::cout << "buffer " << cbDesc.Name << " " << cbDesc.Size << " " <<std::endl;
+		for (int vari = 0; vari < cbDesc.Variables; vari++) {
+			ID3D12ShaderReflectionVariable *var = cb->GetVariableByIndex(vari);
+			D3D12_SHADER_VARIABLE_DESC varDesc;
+			var->GetDesc(&varDesc);
+
+			std::cout << varDesc.Name << " " << varDesc.StartOffset << " " << varDesc.Size << std::endl;
+
+		}
+
+	}
+}
 
 
-	//for (uint32_t i = 0; i < shaderDesc.BoundResources; i++) {
-	//	D3D12_SHADER_INPUT_BIND_DESC desc;
-	//	ref->GetResourceBindingDesc(i, &desc);
-	//	Log<LINFO>() << "desc";
-	//}
-	//std::vector<D3D12_INPUT_ELEMENT_DESC> inputLayoutDesc;
-	//for (uint32_t i = 0; i < shaderDesc.InputParameters; i++)
-	//{
-	//	D3D12_SIGNATURE_PARAMETER_DESC paramDesc;
-	//	ref->GetInputParameterDesc(i, &paramDesc);
+void DX12Shader::ReflectBoundResource(ID3D12ShaderReflection* reflection, const D3D12_SHADER_DESC &shaderDesc) {
+	for (uint32_t i = 0; i < shaderDesc.BoundResources; i++) {
+		D3D12_SHADER_INPUT_BIND_DESC sibDesc;
+		reflection->GetResourceBindingDesc(i, &sibDesc);
+		std::cout << sibDesc.Name << " " << sibDesc.Dimension << " " << sibDesc.NumSamples << " "<< sibDesc.BindPoint << std::endl;
 
-	//	// fill out input element desc
-	//	D3D12_INPUT_ELEMENT_DESC inputDesc;
-	//	inputDesc.SemanticName = paramDesc.SemanticName;
-	//	inputDesc.SemanticIndex = paramDesc.SemanticIndex;
-	//	inputDesc.InputSlot = 0;
-	//	inputDesc.AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-	//	inputDesc.InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
-	//	inputDesc.InstanceDataStepRate = 0;
 
-	//	// determine DXGI format
-	//	if (paramDesc.Mask == 1)
-	//	{
-	//		if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32) inputDesc.Format = DXGI_FORMAT_R32_UINT;
-	//		else if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32) inputDesc.Format = DXGI_FORMAT_R32_SINT;
-	//		else if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) inputDesc.Format = DXGI_FORMAT_R32_FLOAT;
-	//	} else if (paramDesc.Mask <= 3)
-	//	{
-	//		if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32) inputDesc.Format = DXGI_FORMAT_R32G32_UINT;
-	//		else if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32) inputDesc.Format = DXGI_FORMAT_R32G32_SINT;
-	//		else if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) inputDesc.Format = DXGI_FORMAT_R32G32_FLOAT;
-	//	} else if (paramDesc.Mask <= 7)
-	//	{
-	//		if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32) inputDesc.Format = DXGI_FORMAT_R32G32B32_UINT;
-	//		else if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32) inputDesc.Format = DXGI_FORMAT_R32G32B32_SINT;
-	//		else if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) inputDesc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	//	} else if (paramDesc.Mask <= 15)
-	//	{
-	//		if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32) inputDesc.Format = DXGI_FORMAT_R32G32B32A32_UINT;
-	//		else if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32) inputDesc.Format = DXGI_FORMAT_R32G32B32A32_SINT;
-	//		else if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) inputDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	//	}
-
-	//	//save element desc
-	//	inputLayoutDesc.push_back(inputDesc);
-	//}
-
+	}
+}
 
 
 // DX12VertexLayout

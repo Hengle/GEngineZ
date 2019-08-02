@@ -22,7 +22,7 @@ static EntryInfo entryInfo[] = {
 
 void Process(const FilePath& path) {
 	std::string name = path.FileNameNoExt();
-	std::string shader = ShaderManager::PreProcessing(path);
+	std::string shader = ShaderManager::PreProcessingHLSL(path);
 	
 	for (int i = 0; i < sizeof(entryInfo) / sizeof(EntryInfo); i++) {
 		const EntryInfo& info = entryInfo[i];

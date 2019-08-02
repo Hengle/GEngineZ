@@ -3,6 +3,8 @@
 cbuffer cbPerObject : register(b0)
 {
 	float4x4 gWorld :WORLD;
+	float4 hello;
+	float4 nihao;
 };
 
 
