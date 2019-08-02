@@ -11,12 +11,9 @@ enum DeviceFlag {
 };
 
 
-enum ERHIShaderType {
-	SHADER_TYPE_INVALID = 0,
-	SHADER_TYPE_VERTEX,
-	SHADER_TYPE_PIXEL,
-
-	SHADER_TYPE_MAX
+enum ERHIShaderStage {
+	SHADER_STAGE_VERTEX,
+	SHADER_STAGE_PIXEL,
 };
 
 
@@ -115,6 +112,7 @@ struct RHIClearValue {
 };
 
 class RHIShader;
+class RHIShaderStage;
 class RHIVertexLayout;
 class RHIUniformLayout;
 
@@ -129,8 +127,8 @@ struct RHIPipelineStateDesc {
 		cullMode(CULL_MODE_BACK) {
 	}
 
-	RHIShader* vs;
-	RHIShader* ps;
+	RHIShaderStage* vs;
+	RHIShaderStage* ps;
 	RHIVertexLayout* vlayout;
 	RHIUniformLayout* ulayout;
 	std::vector<ERHIPixelFormat> rtsFormat;

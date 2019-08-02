@@ -13,24 +13,57 @@ namespace z {
 // RenderTargetDesc
 // DepthStencilDesc
 
-class DX12Shader : public RHIShader {
-public:
-	static DX12Shader* FromCompile(const char* data, size_t dataLen, ERHIShaderType stype);
 
-	ERHIShaderType GetShaderType() override {
-		return mType;
-	}
+class DX12ShaderStage : public RHIShaderStage {
+public:
+	static DX12ShaderStage* FromCompile(const char* data, size_t datalen, ERHIShaderStage stage);
+	
 	D3D12_SHADER_BYTECODE GetCode() const {
 		return { reinterpret_cast<BYTE*>(mBlob->GetBufferPointer()), mBlob->GetBufferSize() };
 	}
 
-	//void GetViewVS();
-	//void GetViewPS();
+	ERHIShaderStage GetStage() const override {
+		return mStage;
+	}
 
-//private:
-	DX12Shader() :mType(SHADER_TYPE_INVALID) {}
-	RefCountPtr<ID3D10Blob> mBlob{nullptr};
-	ERHIShaderType mType;
+
+private:
+	DX12ShaderStage(ERHIShaderStage stage, ID3D10Blob* blob);
+	RefCountPtr<ID3D10Blob> mBlob{ nullptr };
+	ERHIShaderStage mStage;
+};
+
+class DX12Shader : public RHIShader {
+public:
+	DX12Shader() {}
+
+	void CombineStage(RHIShaderStage* rhiStage) override {
+		DX12ShaderStage* stage = static_cast<DX12ShaderStage*>(rhiStage);
+		if (SHADER_STAGE_VERTEX == stage->GetStage()) {
+			mStageVS = stage;
+		} else if (SHADER_STAGE_PIXEL == stage->GetStage()) {
+			mStagePS = stage;
+		}
+	}
+
+	template<typename targetStage>
+	DX12ShaderStage* GetStage() {
+		if (constexpr SHADER_STAGE_VERTEX == targetStage) {
+			return mStageVS;
+		} 
+		if (constexpr SHADER_STAGE_PIXEL == targetStage) {
+			return mStagePS;
+		}
+	}
+
+	void Complete() override;
+
+private:
+	void Reflect();
+	void ReflectInput(ID3D12ShaderReflection*, const D3D12_SHADER_DESC&);
+
+	RefCountPtr<DX12ShaderStage> mStageVS;
+	RefCountPtr<DX12ShaderStage> mStagePS;
 };
 
 

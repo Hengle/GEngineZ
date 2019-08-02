@@ -35,9 +35,15 @@ public:
 };
 
 // pipeline state
+class RHIShaderStage : public RHIResource {
+public:
+	virtual ERHIShaderStage GetStage() const = 0;
+};
+
 class RHIShader : public RHIResource {
 public:
-	virtual ERHIShaderType GetShaderType() = 0;
+	virtual void CombineStage(RHIShaderStage* stage) = 0;
+	virtual void Complete() = 0;
 };
 
 class RHIVertexLayout : public RHIResource {

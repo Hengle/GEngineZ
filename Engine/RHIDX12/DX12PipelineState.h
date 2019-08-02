@@ -14,11 +14,11 @@ class DX12PipelineState : public RHIPipelineState {
 public:
 	DX12PipelineState();
 
-	void SetShaderVS(DX12Shader* shader) {
+	void SetShaderVS(DX12ShaderStage* shader) {
 		mShaderVS = shader;
 	}
 
-	void SetShaderPS(DX12Shader* shader) {
+	void SetShaderPS(DX12ShaderStage* shader) {
 		mShaderPS = shader;
 	}
 
@@ -61,8 +61,8 @@ public:
 	ID3D12RootSignature* GetIRootSignature();
 
 private:
-	RefCountPtr<DX12Shader> mShaderVS;
-	RefCountPtr<DX12Shader> mShaderPS;
+	RefCountPtr<DX12ShaderStage> mShaderVS;
+	RefCountPtr<DX12ShaderStage> mShaderPS;
 	RefCountPtr<DX12VertexLayout> mVertexLayout;
 	RefCountPtr<DX12UniformLayout> mUniformLayout;
 

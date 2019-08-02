@@ -35,7 +35,8 @@ public:
 
 	// ====  begin device method ====
 	RHIViewport* CreateViewport(uint32_t width, uint32_t height, ERHIPixelFormat format) override;
-	RHIShader* CreateShader(const char* data, size_t dataLen, ERHIShaderType stype) override;
+	RHIShaderStage* CreateShaderStage(const char* data, size_t dataLen, ERHIShaderStage stype) override;
+	RHIShader* CreateShader() override;
 	RHIVertexLayout* CreateVertexLayout() override;
 	RHIUniformLayout* CreateUniformLayout() override;
 	RHIPipelineState* CreatePipelineState(const RHIPipelineStateDesc&) override;

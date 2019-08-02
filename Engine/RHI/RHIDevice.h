@@ -12,7 +12,9 @@ public:
 
 	// create
 	virtual RHIViewport* CreateViewport(uint32_t width, uint32_t height, ERHIPixelFormat format) = 0;
-	virtual RHIShader* CreateShader(const char* data, size_t dataLen, ERHIShaderType stype) = 0;
+
+	virtual RHIShaderStage* CreateShaderStage(const char* data, size_t dataLen, ERHIShaderStage stype) = 0;
+	virtual RHIShader* CreateShader() = 0;
 	virtual RHIVertexLayout* CreateVertexLayout() = 0;
 	virtual RHIUniformLayout* CreateUniformLayout() = 0;
 	virtual RHIPipelineState* CreatePipelineState(const RHIPipelineStateDesc&) = 0;

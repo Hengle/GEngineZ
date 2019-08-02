@@ -41,6 +41,11 @@ class Game(BT.Module):
         self.SOURCE = ["Program/Game"]
         self.DEPS = ["Engine"]
 
+class SLConverter(BT.Module):
+    def __init__(self):
+        super(SLConverter, self).__init__("SLConverter", BT.EXECUTABLE)
+        self.SOURCE = ["Program/SLConverter"]
+        self.DEPS = ["Engine", "hlslcc"]
 
 # ================= Tests =================
 class TestSched(BT.Module):
@@ -51,20 +56,17 @@ class TestSched(BT.Module):
  
 
 # ================= ThirdParty =================
-class TPLib_Stb(BT.Module):
-    def __init__(self):
-        super(TPLib_Stb, self).__init__("TPLib_Stb", BT.STATIC_LIB)
-        self.SOURCE = ["ThirdParty/stb"]
-        self.DEPS = []
+
 
 
 build_targets = [
     # ThirdParty
-    TPLib_Stb(),
     # Main Targets
     Config(),
     Engine(),
+    # Progam
     Game(),
+    SLConverter(),
     # Tests
     TestSched(),
 

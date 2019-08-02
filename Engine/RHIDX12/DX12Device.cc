@@ -78,8 +78,12 @@ RHIViewport* DX12Device::CreateViewport(uint32_t width, uint32_t height, ERHIPix
 	return new DX12Viewport(width, height, FromRHIFormat(format));
 }
 
-RHIShader* DX12Device::CreateShader(const char* data, size_t dataLen, ERHIShaderType stype) {
-	return DX12Shader::FromCompile(data, dataLen, stype);
+RHIShaderStage* DX12Device::CreateShaderStage(const char* data, size_t dataLen, ERHIShaderStage stage) {
+	return DX12ShaderStage::FromCompile(data, dataLen, stage);
+}
+
+RHIShader* DX12Device::CreateShader() {
+	return new DX12Shader();
 }
 
 RHIVertexLayout* DX12Device::CreateVertexLayout() {
@@ -92,8 +96,8 @@ RHIUniformLayout* DX12Device::CreateUniformLayout() {
 
 RHIPipelineState* DX12Device::CreatePipelineState(const RHIPipelineStateDesc& desc) {
 	DX12PipelineState* state = new DX12PipelineState();
-	state->SetShaderVS(static_cast<DX12Shader*>(desc.vs));
-	state->SetShaderPS(static_cast<DX12Shader*>(desc.ps));
+	state->SetShaderVS(static_cast<DX12ShaderStage*>(desc.vs));
+	state->SetShaderPS(static_cast<DX12ShaderStage*>(desc.ps));
 	state->SetUniformLayout(static_cast<DX12UniformLayout*>(desc.ulayout));
 	state->SetVertexLayout(static_cast<DX12VertexLayout*>(desc.vlayout));
 	state->SetDepthStencilFormat(FromRHIFormat(desc.dsFormat));

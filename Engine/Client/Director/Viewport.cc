@@ -3,6 +3,7 @@
 #include <Core/CoreHeader.h>
 #include <Client/Scene/Scene.h>
 #include <Render/RenderScene.h>
+#include <Render/Shader.h>
 
 #include <RHI/RHIDevice.h>
 #include <Util/Image/Image.h>
@@ -44,9 +45,13 @@ void Viewport::DrawTex() {
 	RHIVertexBuffer *vb = GDevice->CreateVertexBuffer(4, 20, vertexs);
 	RHIIndexBuffer* ib = GDevice->CreateIndexBuffer(6, 2, indices);
 
-	std::string s = FileReader(GDirector->GetRootPath() / "Content/Engine/Shader/render_tex.hlsl").ReadAll();
-	RHIShader* vs = GDevice->CreateShader(s.c_str(), s.length(), SHADER_TYPE_VERTEX);
-	RHIShader* ps = GDevice->CreateShader(s.c_str(), s.length(), SHADER_TYPE_PIXEL);
+	std::string s = FileReader(GDirector->GetRootPath() / "Content/Engine/Shader/hlsl/render_tex.hlsl").ReadAll();
+	RHIShaderStage* vs = GDevice->CreateShaderStage(s.c_str(), s.length(), SHADER_STAGE_VERTEX);
+	RHIShaderStage* ps = GDevice->CreateShaderStage(s.c_str(), s.length(), SHADER_STAGE_PIXEL);
+
+	RHIShader* shader = GDevice->CreateShader();
+	shader->CombineStage(vs);
+	shader->CombineStage(ps);
 
 	RHIVertexLayout* vl = GDevice->CreateVertexLayout();
 	vl->PushLayout("POSITION", PIXEL_FORMAT_R32G32B32_FLOAT, VERTEX_LAYOUT_PER_VERTEX);
@@ -81,6 +86,9 @@ void Viewport::DrawTex() {
 }
 
 Viewport::Viewport(uint32_t width, uint32_t height) {
+	ShaderManager::LoadShaders(GDirector->GetRootPath() / "Content"/ "Engine" / "Shader" / "hlsl");
+	assert(0);
+	
 	mRenderScene = new RenderScene();
 
 	viewport = GDevice->CreateViewport(width, height, PIXEL_FORMAT_R8G8B8A8_UNORM);
@@ -92,9 +100,13 @@ Viewport::Viewport(uint32_t width, uint32_t height) {
 	ib = GDevice->CreateIndexBuffer(box.GetIndices16().size(), 2, box.GetIndices16().data());
 
 	// pipeline
-	std::string s = FileReader(GDirector->GetRootPath() / "Content/Engine/Shader/test.hlsl").ReadAll();
-	RHIShader *vs = GDevice->CreateShader(s.c_str(), s.length(), SHADER_TYPE_VERTEX);
-	RHIShader *ps = GDevice->CreateShader(s.c_str(), s.length(), SHADER_TYPE_PIXEL);
+	std::string s = FileReader(GDirector->GetRootPath() / "Content/Engine/Shader/hlsl/test.hlsl").ReadAll();
+	RHIShaderStage*vs = GDevice->CreateShaderStage(s.c_str(), s.length(), SHADER_STAGE_VERTEX);
+	RHIShaderStage*ps = GDevice->CreateShaderStage(s.c_str(), s.length(), SHADER_STAGE_PIXEL);
+
+	RHIShader* shader = GDevice->CreateShader();
+	shader->CombineStage(vs);
+	shader->CombineStage(ps);
 
 	RHIVertexLayout* vl = GDevice->CreateVertexLayout();
 	vl->PushLayout("POSITION", PIXEL_FORMAT_R32G32B32_FLOAT, VERTEX_LAYOUT_PER_VERTEX);

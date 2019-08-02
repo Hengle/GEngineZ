@@ -24,6 +24,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/Binary)
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/Binary)
 
+include_directories(ThirdParty/include)
+link_directories(ThirdParty/lib)
+
 %DEFINES%
 '''
 

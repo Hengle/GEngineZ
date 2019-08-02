@@ -10,31 +10,24 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/Binary)
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/Binary)
 
+include_directories(ThirdParty/include)
+link_directories(ThirdParty/lib)
+
 add_definitions(-DCMAKE_HELLDDO)
 
 add_definitions(-DCMAKE_HELLO)
 
 
 
-# ========== Library TPLib_Stb ==========
-include_directories(ThirdParty/stb)
-
-set(TPLib_Stb_SRC ThirdParty/stb/stb.h ThirdParty/stb/stb_connected_components.h ThirdParty/stb/stb_c_lexer.h ThirdParty/stb/stb_divide.h ThirdParty/stb/stb_ds.h ThirdParty/stb/stb_dxt.h ThirdParty/stb/stb_easy_font.h ThirdParty/stb/stb_herringbone_wang_tile.h ThirdParty/stb/stb_image.h ThirdParty/stb/stb_image_resize.h ThirdParty/stb/stb_image_write.h ThirdParty/stb/stb_include.h ThirdParty/stb/stb_leakcheck.h ThirdParty/stb/stb_perlin.h ThirdParty/stb/stb_rect_pack.h ThirdParty/stb/stb_sprintf.h ThirdParty/stb/stb_textedit.h ThirdParty/stb/stb_tilemap_editor.h ThirdParty/stb/stb_truetype.h ThirdParty/stb/stb_vorbis.c ThirdParty/stb/stb_voxel_render.h ThirdParty/stb/stretchy_buffer.h)
-
-
-
-add_library(TPLib_Stb STATIC ${TPLib_Stb_SRC})
-
-
 # ========== Library Engine ==========
 include_directories(Engine)
 
-set(Engine_SRC Engine/Core/Common/Define.h Engine/Core/Common/Logger.h Engine/Core/Common/Noncopyable.h Engine/Core/Common/RefCountPtr.h Engine/Core/Common/Singleton.h Engine/Core/Common/Time.h Engine/Render/PipelineState.h Engine/Render/Primitive.h Engine/Render/RenderConst.h Engine/Render/RenderItem.h Engine/Render/RenderOption.h Engine/Render/RenderScene.cc Engine/Render/RenderScene.h Engine/Render/ShaderDesc.h Engine/Render/ShaderManager.h Engine/Client/Entity/IEntity.h Engine/Core/CoreHeader.h Engine/Core/Platform/OSHeader.h Engine/Util/Image/Image.cc Engine/Util/Image/Image.h Engine/Render/Pipeline/Stage.h Engine/Core/Platform/Win32/Windows.h Engine/RHIDX12/DX12/d3dx12.h Engine/Core/Thread/todo Engine/RHIDX12/DX12Buffer.cc Engine/RHIDX12/DX12Buffer.h Engine/RHIDX12/DX12Const.h Engine/RHIDX12/DX12Device.cc Engine/RHIDX12/DX12Device.h Engine/RHIDX12/DX12Executor.cc Engine/RHIDX12/DX12Executor.h Engine/RHIDX12/DX12Header.h Engine/RHIDX12/DX12PipelineState.cc Engine/RHIDX12/DX12PipelineState.h Engine/RHIDX12/DX12Resource.cc Engine/RHIDX12/DX12Resource.h Engine/RHIDX12/DX12Shader.cc Engine/RHIDX12/DX12Shader.h Engine/RHIDX12/DX12Texture.cc Engine/RHIDX12/DX12Texture.h Engine/RHIDX12/DX12Util.h Engine/RHIDX12/DX12View.cc Engine/RHIDX12/DX12View.h Engine/RHIDX12/DX12Viewport.cc Engine/RHIDX12/DX12Viewport.h Engine/Core/Scheduler/Scheduler.h Engine/Core/Scheduler/Service.cc Engine/Core/Scheduler/Service.h Engine/Core/Scheduler/Worker.h Engine/Client/Director/AppWindow.h Engine/Client/Director/Director.cc Engine/Client/Director/Director.h Engine/Client/Director/Frame.h Engine/Client/Director/GeometryGenerator.cpp Engine/Client/Director/GeometryGenerator.h Engine/Client/Director/Viewport.cc Engine/Client/Director/Viewport.h Engine/Client/Director/ViewportMain.cc Engine/Client/Director/ViewportMain.h Engine/RHI/RHIConst.h Engine/RHI/RHIDevice.cc Engine/RHI/RHIDevice.h Engine/RHI/RHIResource.h Engine/Render/Shader/Phong.h Engine/Core/Object/IObject.h Engine/Core/Math/DXMath.h Engine/Core/Math/todo Engine/Startup/Win32/Win32App.cc Engine/Startup/Win32/Win32App.h Engine/Startup/Win32/Win32Window.cc Engine/Startup/Win32/Win32Window.h Engine/Client/Scene/Camera.cc Engine/Client/Scene/Camera.h Engine/Client/Scene/Scene.cc Engine/Client/Scene/Scene.h Engine/Client/Scene/WorldEnv.cc Engine/Client/Scene/WorldEnv.h Engine/Core/FileSystem/File.cc Engine/Core/FileSystem/File.h)
+set(Engine_SRC Engine/Core/Common/Define.h Engine/Core/Common/Logger.h Engine/Core/Common/Noncopyable.h Engine/Core/Common/RefCountPtr.h Engine/Core/Common/Singleton.h Engine/Core/Common/Time.h Engine/Render/PipelineState.h Engine/Render/Primitive.h Engine/Render/RenderConst.h Engine/Render/RenderItem.h Engine/Render/RenderOption.h Engine/Render/RenderScene.cc Engine/Render/RenderScene.h Engine/Render/Shader.cc Engine/Render/Shader.h Engine/Render/ShaderConst.h Engine/Render/ShaderDesc.h Engine/Client/Entity/IEntity.h Engine/Core/CoreHeader.h Engine/Core/Platform/OSHeader.h Engine/Util/Image/Image.cc Engine/Util/Image/Image.h Engine/Render/Pipeline/Stage.h Engine/Core/Platform/Win32/Windows.h Engine/RHIDX12/DX12/d3dx12.h Engine/Core/Thread/todo Engine/RHIDX12/DX12Buffer.cc Engine/RHIDX12/DX12Buffer.h Engine/RHIDX12/DX12Const.h Engine/RHIDX12/DX12Device.cc Engine/RHIDX12/DX12Device.h Engine/RHIDX12/DX12Executor.cc Engine/RHIDX12/DX12Executor.h Engine/RHIDX12/DX12Header.h Engine/RHIDX12/DX12PipelineState.cc Engine/RHIDX12/DX12PipelineState.h Engine/RHIDX12/DX12Resource.cc Engine/RHIDX12/DX12Resource.h Engine/RHIDX12/DX12Shader.cc Engine/RHIDX12/DX12Shader.h Engine/RHIDX12/DX12Texture.cc Engine/RHIDX12/DX12Texture.h Engine/RHIDX12/DX12Util.h Engine/RHIDX12/DX12View.cc Engine/RHIDX12/DX12View.h Engine/RHIDX12/DX12Viewport.cc Engine/RHIDX12/DX12Viewport.h Engine/Core/Scheduler/Scheduler.h Engine/Core/Scheduler/Service.cc Engine/Core/Scheduler/Service.h Engine/Core/Scheduler/Worker.h Engine/Client/Director/AppWindow.h Engine/Client/Director/Director.cc Engine/Client/Director/Director.h Engine/Client/Director/Frame.h Engine/Client/Director/GeometryGenerator.cpp Engine/Client/Director/GeometryGenerator.h Engine/Client/Director/Viewport.cc Engine/Client/Director/Viewport.h Engine/Client/Director/ViewportMain.cc Engine/Client/Director/ViewportMain.h Engine/RHI/RHIConst.h Engine/RHI/RHIDevice.cc Engine/RHI/RHIDevice.h Engine/RHI/RHIResource.h Engine/Startup/Win32/Win32App.cc Engine/Startup/Win32/Win32App.h Engine/Startup/Win32/Win32Window.cc Engine/Startup/Win32/Win32Window.h Engine/Core/Object/IObject.h Engine/Core/Math/DXMath.h Engine/Core/Math/todo Engine/Client/Scene/Camera.cc Engine/Client/Scene/Camera.h Engine/Client/Scene/Scene.cc Engine/Client/Scene/Scene.h Engine/Client/Scene/WorldEnv.cc Engine/Client/Scene/WorldEnv.h Engine/Core/FileSystem/Directory.h Engine/Core/FileSystem/File.cc Engine/Core/FileSystem/File.h)
 
 set(Engine_Core_Common_GROUP_FILES Engine/Core/Common/Define.h Engine/Core/Common/Logger.h Engine/Core/Common/Noncopyable.h Engine/Core/Common/RefCountPtr.h Engine/Core/Common/Singleton.h Engine/Core/Common/Time.h)
 source_group(Core\\Common FILES ${Engine_Core_Common_GROUP_FILES})
 
-set(Engine_Render_GROUP_FILES Engine/Render/PipelineState.h Engine/Render/Primitive.h Engine/Render/RenderConst.h Engine/Render/RenderItem.h Engine/Render/RenderOption.h Engine/Render/RenderScene.cc Engine/Render/RenderScene.h Engine/Render/ShaderDesc.h Engine/Render/ShaderManager.h)
+set(Engine_Render_GROUP_FILES Engine/Render/PipelineState.h Engine/Render/Primitive.h Engine/Render/RenderConst.h Engine/Render/RenderItem.h Engine/Render/RenderOption.h Engine/Render/RenderScene.cc Engine/Render/RenderScene.h Engine/Render/Shader.cc Engine/Render/Shader.h Engine/Render/ShaderConst.h Engine/Render/ShaderDesc.h)
 source_group(Render FILES ${Engine_Render_GROUP_FILES})
 
 set(Engine_Client_Entity_GROUP_FILES Engine/Client/Entity/IEntity.h)
@@ -73,8 +66,8 @@ source_group(Client\\Director FILES ${Engine_Client_Director_GROUP_FILES})
 set(Engine_RHI_GROUP_FILES Engine/RHI/RHIConst.h Engine/RHI/RHIDevice.cc Engine/RHI/RHIDevice.h Engine/RHI/RHIResource.h)
 source_group(RHI FILES ${Engine_RHI_GROUP_FILES})
 
-set(Engine_Render_Shader_GROUP_FILES Engine/Render/Shader/Phong.h)
-source_group(Render\\Shader FILES ${Engine_Render_Shader_GROUP_FILES})
+set(Engine_Startup_Win32_GROUP_FILES Engine/Startup/Win32/Win32App.cc Engine/Startup/Win32/Win32App.h Engine/Startup/Win32/Win32Window.cc Engine/Startup/Win32/Win32Window.h)
+source_group(Startup\\Win32 FILES ${Engine_Startup_Win32_GROUP_FILES})
 
 set(Engine_Core_Object_GROUP_FILES Engine/Core/Object/IObject.h)
 source_group(Core\\Object FILES ${Engine_Core_Object_GROUP_FILES})
@@ -82,17 +75,25 @@ source_group(Core\\Object FILES ${Engine_Core_Object_GROUP_FILES})
 set(Engine_Core_Math_GROUP_FILES Engine/Core/Math/DXMath.h Engine/Core/Math/todo)
 source_group(Core\\Math FILES ${Engine_Core_Math_GROUP_FILES})
 
-set(Engine_Startup_Win32_GROUP_FILES Engine/Startup/Win32/Win32App.cc Engine/Startup/Win32/Win32App.h Engine/Startup/Win32/Win32Window.cc Engine/Startup/Win32/Win32Window.h)
-source_group(Startup\\Win32 FILES ${Engine_Startup_Win32_GROUP_FILES})
-
 set(Engine_Client_Scene_GROUP_FILES Engine/Client/Scene/Camera.cc Engine/Client/Scene/Camera.h Engine/Client/Scene/Scene.cc Engine/Client/Scene/Scene.h Engine/Client/Scene/WorldEnv.cc Engine/Client/Scene/WorldEnv.h)
 source_group(Client\\Scene FILES ${Engine_Client_Scene_GROUP_FILES})
 
-set(Engine_Core_FileSystem_GROUP_FILES Engine/Core/FileSystem/File.cc Engine/Core/FileSystem/File.h)
+set(Engine_Core_FileSystem_GROUP_FILES Engine/Core/FileSystem/Directory.h Engine/Core/FileSystem/File.cc Engine/Core/FileSystem/File.h)
 source_group(Core\\FileSystem FILES ${Engine_Core_FileSystem_GROUP_FILES})
 
 
 add_library(Engine STATIC ${Engine_SRC})
+
+
+# ========== Executable SLConverter ==========
+include_directories(Program/SLConverter)
+
+set(SLConverter_SRC Program/SLConverter/main.cc)
+
+
+
+add_executable(SLConverter ${SLConverter_SRC})
+target_link_libraries(SLConverter Engine hlslcc)
 
 
 # ========== Executable Game ==========
