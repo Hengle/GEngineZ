@@ -33,6 +33,7 @@ DX12Resource::DX12Resource(D3D12_HEAP_TYPE heapType, D3D12_RESOURCE_STATES state
 }
 
 DX12Resource::~DX12Resource() {
+
 }
 
 
@@ -51,27 +52,6 @@ void DX12Resource::Transition(D3D12_RESOURCE_STATES toState) {
 
 	GDX12Device->GetExecutor()->GetCommandList()->ResourceBarrier(1, &barrier);
 	SetState(toState);
-}
-
-// DX12ResourceOwner
-DX12ResourceOwner::DX12ResourceOwner() :
-	mOwnType(EResourceOwnType::EResourceOwn_Invaild),
-	mResource(nullptr) {
-}
-
-DX12ResourceOwner::~DX12ResourceOwner() {
-	if (mOwnType == EResourceOwnType::EResourceOwn_Exclusive) {
-		CHECK(mResource->RefCount() == 1, "Invaild ref of EResourceOwn_Exclusive Resource");
-		mResource->Release();
-	}
-}
-
-void DX12ResourceOwner::OwnResource(const EResourceOwnType ownType, DX12Resource* resource) {
-	mOwnType = ownType;
-	mResource = resource;
-	if (ownType == EResourceOwnType::EResourceOwn_Exclusive) {
-		mResource->AddRef();
-	}
 }
 
 }

@@ -4,7 +4,7 @@
 
 namespace z {
 
-class DX12Resource : public ThreadSafeRefCounter {
+class DX12Resource : public RefCounter {
 public:
 	// new from exsit resource
 	DX12Resource(ID3D12Resource* res, D3D12_RESOURCE_STATES state, D3D12_RESOURCE_DESC const& desc);
@@ -38,43 +38,18 @@ private:
 
 };
 
-enum EResourceOwnType {
-	EResourceOwn_Invaild = 0,
-	EResourceOwn_Exclusive = 1,
-};
 
-class DX12ResourceOwner {
+// resource may be bound as shader resource
+class DX12ShaderResource {
 public:
-	DX12ResourceOwner();
-	~DX12ResourceOwner();
-
-	void OwnResource(const EResourceOwnType ownType, DX12Resource* resource);
+	DX12ShaderResource() {}
 
 	DX12Resource* GetResource() {
 		return mResource;
 	}
 
-private:
-	EResourceOwnType mOwnType;
-	DX12Resource *mResource;
-};
-
-
-
-
-// resource may be bound as shader resource
-class DX12ShaderResource {
-public:
-	DX12ShaderResource() {
-
-	}
-
-	DX12ResourceOwner* GetResourceOwner() {
-		return &mOwner;
-	}
-
-private:
-	DX12ResourceOwner mOwner;
+protected:
+	RefCountPtr<DX12Resource> mResource;
 
 };
 

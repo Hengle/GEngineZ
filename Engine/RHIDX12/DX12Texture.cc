@@ -1,8 +1,57 @@
 #include "DX12Texture.h"
 #include "DX12Device.h"
 #include "DX12Executor.h"
+#include "DX12Buffer.h"
 
 namespace z {
+
+// DX12Sampler
+DX12Sampler::DX12Sampler(uint32_t samplerFlag) :
+	mSamplerFlag (samplerFlag) {
+	D3D12_FILTER filter_mode = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+	D3D12_TEXTURE_ADDRESS_MODE address_mode = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	switch (samplerFlag & 0XFF) {
+	case SAMPLER_FILTER_LINEAR:
+		filter_mode = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+		break;
+	case SAMPLER_FILTER_POINT:
+		filter_mode = D3D12_FILTER_MIN_MAG_MIP_POINT;
+		break;
+	case SAMPLER_FILTER_ANISOTROPIC:
+		filter_mode = D3D12_FILTER_ANISOTROPIC;
+		break;
+	}
+
+	switch (samplerFlag & 0xFF00) {
+	case SAMPLER_ADDRESS_WRAP:
+		address_mode = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		break;
+	case SAMPLER_ADDRESS_MIRROR:
+		address_mode = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+		break;
+	case SAMPLER_ADDRESS_CLAMP:
+		address_mode = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+		break;
+	case SAMPLER_ADDRESS_BORDER:
+		address_mode = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+		break;
+	}
+
+	D3D12_SAMPLER_DESC samplerDesc;
+	samplerDesc.Filter = filter_mode;
+	samplerDesc.AddressU = address_mode;
+	samplerDesc.AddressV = address_mode;
+	samplerDesc.AddressW = address_mode;
+	samplerDesc.MipLODBias = 0;
+	samplerDesc.MaxAnisotropy = 1;
+	samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+	samplerDesc.BorderColor[4] = { 0.f };
+	samplerDesc.MinLOD = 0;
+	samplerDesc.MaxLOD = D3D12_FLOAT32_MAX;
+
+	mView = new DX12SamplerView(samplerDesc);
+}
+
 
 // DX12Texture
 DX12Texture::DX12Texture() :
@@ -10,9 +59,7 @@ DX12Texture::DX12Texture() :
 	height(0), 
 	depth(0), 
 	numMips(0), 
-	format(DXGI_FORMAT_UNKNOWN) {
-	InitDefaultSamplerDesc();
-	// default sampler desc
+	Format(DXGI_FORMAT_UNKNOWN) {
 }
 
 DX12Texture::DX12Texture(const RHITextureDesc& desc) {
@@ -24,8 +71,7 @@ void DX12Texture::InitWithResourceDesc(const D3D12_RESOURCE_DESC& desc) {
 	height = desc.Height;
 	depth = desc.DepthOrArraySize;
 	numMips = desc.MipLevels;
-	format = desc.Format;
-	InitDefaultSamplerDesc();
+	Format = desc.Format;
 }
 
 
@@ -34,33 +80,10 @@ void DX12Texture::InitWithRHITextureDesc(const RHITextureDesc& desc) {
 	height = desc.sizeY;
 	depth = desc.sizeZ;
 	numMips = desc.numMips;
-	format = FromRHIFormat(desc.format);
-	samplerDesc = FromRHISamplerDesc(desc.samplerDesc);
-	CreateSamplerView();
+	Format = FromRHIFormat(desc.format);
 }
 
 
-void DX12Texture::AttachResource(DX12Resource* resource) {
-	GetResourceOwner()->OwnResource(EResourceOwn_Exclusive, resource);
-}
-
-void DX12Texture::InitDefaultSamplerDesc() {
-	samplerDesc.Filter         = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-	samplerDesc.AddressU       = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	samplerDesc.AddressV       = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	samplerDesc.AddressW       = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	samplerDesc.MipLODBias     = 0;
-	samplerDesc.MaxAnisotropy  = 1;
-	samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
-	samplerDesc.BorderColor[4] = { 0.f };
-	samplerDesc.MinLOD         = 0;
-	samplerDesc.MaxLOD         = D3D12_FLOAT32_MAX;
-}
-
-
-void DX12Texture::CreateSamplerView() {
-	mSamplerView = new DX12SamplerView(samplerDesc);
-}
 
 // DX12Texture2D
 DX12Texture2D::DX12Texture2D(const RHITextureDesc& desc, const uint8_t* data) :
@@ -75,43 +98,25 @@ DX12Texture2D::DX12Texture2D(const RHITextureDesc& desc, const uint8_t* data) :
 	texDesc.Height             = height;
 	texDesc.DepthOrArraySize   = 1;
 	texDesc.MipLevels          = numMips;
-	texDesc.Format             = format;
+	texDesc.Format             = Format;
 	texDesc.SampleDesc.Count   = 1;
 	texDesc.SampleDesc.Quality = 0;
 	texDesc.Layout             = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	texDesc.Flags              = D3D12_RESOURCE_FLAG_NONE;
-	RefCountPtr<DX12Resource> uploader, dest;
-	dest = new DX12Resource(D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_COMMON, texDesc);
-	AttachResource(dest);
+	mResource = new DX12Resource(D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_COMMON, texDesc);
 
-	D3D12_SUBRESOURCE_DATA subResourceData = {};
-	subResourceData.pData = data;
-	subResourceData.RowPitch = (uint64_t)width * GetPixelSize(format);
-	subResourceData.SlicePitch = (uint64_t)height * width * GetPixelSize(format);
-
-	// creat uploader resource
-	const uint64_t size = GetRequiredIntermediateSize(dest->GetIResource(), 0, 1);
-	D3D12_RESOURCE_DESC uploaderDesc = CD3DX12_RESOURCE_DESC::Buffer(size);
-	uploader = new DX12Resource(D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, uploaderDesc);
-
-	// copy
-	dest->Transition(D3D12_RESOURCE_STATE_COPY_DEST);
-	UpdateSubresources<1>(exec->GetCommandList(), dest->GetIResource(), uploader->GetIResource(), 0, 0, 1, &subResourceData);
-	dest->Transition(D3D12_RESOURCE_STATE_GENERIC_READ);
+	DX12BufferUploader::UploadTexture(mResource, data, width, height, GetPixelSize(Format));
 	
-	GetResourceOwner()->OwnResource(EResourceOwn_Exclusive, dest);
-	mUploader.OwnResource(EResourceOwn_Exclusive, uploader);
-
 	// create shader resource view
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-	srvDesc.Format                        = format;
+	srvDesc.Format                        = Format;
 	srvDesc.ViewDimension                 = D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Shader4ComponentMapping       = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	srvDesc.Texture2D.MostDetailedMip     = 0;
 	srvDesc.Texture2D.MipLevels           = numMips;
 	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 	srvDesc.Texture2D.PlaneSlice          = 0;
-	SetSRView(new DX12ShaderResourceView(srvDesc, dest));
+	SetSRView(new DX12ShaderResourceView(srvDesc, mResource));
 }
 
 
@@ -135,16 +140,15 @@ DX12DepthStencil::DX12DepthStencil(uint32_t width, uint32_t height, DXGI_FORMAT 
 	InitWithResourceDesc(dsDesc);
 	
 	// create resource
-	DX12Resource* resource = new DX12Resource(D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_COMMON, dsDesc);
-	AttachResource(resource);
-
+	mResource = new DX12Resource(D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_COMMON, dsDesc);
+	
 	// create depth stencil view
 	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
 	dsvDesc.Format             = format;
 	dsvDesc.ViewDimension      = D3D12_DSV_DIMENSION_TEXTURE2D;
 	dsvDesc.Flags              = D3D12_DSV_FLAG_NONE;
 	dsvDesc.Texture2D.MipSlice = 0;
-	mDSView = new DX12DepthStencilView(dsvDesc, resource);
+	mDSView = new DX12DepthStencilView(dsvDesc, mResource);
 
 	// create shader view
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
@@ -155,23 +159,19 @@ DX12DepthStencil::DX12DepthStencil(uint32_t width, uint32_t height, DXGI_FORMAT 
 	srvDesc.Texture2D.MipLevels           = 1;
 	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 	srvDesc.Texture2D.PlaneSlice          = 0;
-	SetSRView(new DX12ShaderResourceView(srvDesc, resource));
+	SetSRView(new DX12ShaderResourceView(srvDesc, mResource));
 
-	// craete default sampler view
-	CreateSamplerView();
 }
 
 void DX12DepthStencil::SetWritable() {
-	DX12Resource* resource = GetResourceOwner()->GetResource();
-	if (resource->GetState() != D3D12_RESOURCE_STATE_DEPTH_WRITE) {
-		resource->Transition(D3D12_RESOURCE_STATE_DEPTH_WRITE);
+	if (mResource->GetState() != D3D12_RESOURCE_STATE_DEPTH_WRITE) {
+		mResource->Transition(D3D12_RESOURCE_STATE_DEPTH_WRITE);
 	}
 }
 
 void DX12DepthStencil::SetReadable() {
-	DX12Resource* resource = GetResourceOwner()->GetResource();
-	if (resource->GetState() != D3D12_RESOURCE_STATE_GENERIC_READ) {
-		resource->Transition(D3D12_RESOURCE_STATE_GENERIC_READ);
+	if (mResource->GetState() != D3D12_RESOURCE_STATE_GENERIC_READ) {
+		mResource->Transition(D3D12_RESOURCE_STATE_GENERIC_READ);
 	}
 }
 
@@ -186,29 +186,28 @@ void DX12DepthStencil::Clear(const D3D12_CLEAR_VALUE& value) {
 DX12RenderTarget::DX12RenderTarget(DX12Resource* resource) {
 	// int texture info
 	InitWithResourceDesc(resource->GetDesc());
-	// TODO, init sampler
-
+	
 	// attach
-	AttachResource(resource);
+	mResource = resource;
 
 	// create render target view
 	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
-	rtvDesc.Format               = format;
+	rtvDesc.Format               = Format;
 	rtvDesc.ViewDimension        = D3D12_RTV_DIMENSION_TEXTURE2D;
 	rtvDesc.Texture2D.MipSlice   = 0;
 	rtvDesc.Texture2D.PlaneSlice = 0;
-	mRTView = new DX12RenderTargetView(rtvDesc, resource);
+	mRTView = new DX12RenderTargetView(rtvDesc, mResource);
 
 	// create shader resource view
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-	srvDesc.Format                        = format;
+	srvDesc.Format                        = Format;
 	srvDesc.ViewDimension                 = D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Shader4ComponentMapping       = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	srvDesc.Texture2D.MostDetailedMip     = 0;
 	srvDesc.Texture2D.MipLevels           = 1;
 	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 	srvDesc.Texture2D.PlaneSlice          = 0;
-	SetSRView(new DX12ShaderResourceView(srvDesc, resource));
+	SetSRView(new DX12ShaderResourceView(srvDesc, mResource));
 }
 
 
@@ -230,20 +229,16 @@ DX12RenderTarget::DX12RenderTarget(uint32_t width, uint32_t height, DXGI_FORMAT 
 	// int texture info
 	InitWithResourceDesc(dsDesc);
 
-	// creat sampler view
-	CreateSamplerView();
-
 	// create resource
-	DX12Resource* resource = new DX12Resource(D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_COMMON, dsDesc);
-	AttachResource(resource);
-
+	mResource = new DX12Resource(D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_COMMON, dsDesc);
+	
 	// create render target view
 	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
 	rtvDesc.Format = format;
 	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 	rtvDesc.Texture2D.MipSlice = 0;
 	rtvDesc.Texture2D.PlaneSlice = 0;
-	mRTView = new DX12RenderTargetView(rtvDesc, resource);
+	mRTView = new DX12RenderTargetView(rtvDesc, mResource);
 
 	// create shader view
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
@@ -254,28 +249,25 @@ DX12RenderTarget::DX12RenderTarget(uint32_t width, uint32_t height, DXGI_FORMAT 
 	srvDesc.Texture2D.MipLevels = 1;
 	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 	srvDesc.Texture2D.PlaneSlice = 0;
-	SetSRView(new DX12ShaderResourceView(srvDesc, resource));
+	SetSRView(new DX12ShaderResourceView(srvDesc, mResource));
 }
 
 
 void DX12RenderTarget::SetReadable() {
-	DX12Resource* resource = GetResourceOwner()->GetResource();
-	if (resource->GetState() != D3D12_RESOURCE_STATE_GENERIC_READ) {
-		resource->Transition(D3D12_RESOURCE_STATE_GENERIC_READ);
+	if (mResource->GetState() != D3D12_RESOURCE_STATE_GENERIC_READ) {
+		mResource->Transition(D3D12_RESOURCE_STATE_GENERIC_READ);
 	}
 }
 
 void DX12RenderTarget::SetWritable() {
-	DX12Resource* resource = GetResourceOwner()->GetResource();
-	if (resource->GetState() != D3D12_RESOURCE_STATE_RENDER_TARGET) {
-		resource->Transition(D3D12_RESOURCE_STATE_RENDER_TARGET);
+	if (mResource->GetState() != D3D12_RESOURCE_STATE_RENDER_TARGET) {
+		mResource->Transition(D3D12_RESOURCE_STATE_RENDER_TARGET);
 	}
 }
 
 void DX12RenderTarget::SetPresent() {
-	DX12Resource* resource = GetResourceOwner()->GetResource();
-	if (resource->GetState() != D3D12_RESOURCE_STATE_PRESENT) {
-		resource->Transition(D3D12_RESOURCE_STATE_PRESENT);
+	if (mResource->GetState() != D3D12_RESOURCE_STATE_PRESENT) {
+		mResource->Transition(D3D12_RESOURCE_STATE_PRESENT);
 	}
 }
 

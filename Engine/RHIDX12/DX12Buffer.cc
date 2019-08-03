@@ -5,33 +5,59 @@
 
 namespace z {
 
-static RefCountPtr<DX12Resource> UploadBuffer(DX12ResourceOwner &uploadOnwer, uint32_t bufSize, const void* data) {
+std::vector<RefCountPtr<DX12Resource>> DX12BufferUploader::mUploadingBufers;
+
+void DX12BufferUploader::UploadBuffer(DX12Resource* dest, const void* data, uint32_t bufSize) {
 	auto exec = GDX12Device->GetExecutor();
 
-	RefCountPtr<DX12Resource> uploader, dest;
-	D3D12_RESOURCE_DESC destDesc = CD3DX12_RESOURCE_DESC::Buffer(bufSize);
-	dest = new DX12Resource(D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_COMMON, destDesc);
-	uploader = new DX12Resource(D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, destDesc);
+	D3D12_RESOURCE_DESC uploaderDesc = CD3DX12_RESOURCE_DESC::Buffer(bufSize);
+	DX12Resource* uploader = new DX12Resource(D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, uploaderDesc);
 
 	D3D12_SUBRESOURCE_DATA subResourceData = {};
-	subResourceData.pData = data;
-	subResourceData.RowPitch = bufSize;
+	subResourceData.pData      = data;
+	subResourceData.RowPitch   = bufSize;
 	subResourceData.SlicePitch = subResourceData.RowPitch;
 
 	dest->Transition(D3D12_RESOURCE_STATE_COPY_DEST);
 	UpdateSubresources<1>(exec->GetCommandList(), dest->GetIResource(), uploader->GetIResource(), 0, 0, 1, &subResourceData);
 	dest->Transition(D3D12_RESOURCE_STATE_GENERIC_READ);
-	uploadOnwer.OwnResource(EResourceOwn_Exclusive, uploader);
-	return dest;
+	mUploadingBufers.push_back(uploader);
 }
+
+
+void DX12BufferUploader::UploadTexture(DX12Resource* dest, const void* data, uint32_t width, uint32_t height, uint32_t pixelsize) {
+	auto exec = GDX12Device->GetExecutor();
+
+	// create uploader resource
+	const uint64_t size = GetRequiredIntermediateSize(dest->GetIResource(), 0, 1);
+	D3D12_RESOURCE_DESC uploaderDesc = CD3DX12_RESOURCE_DESC::Buffer(size);
+	DX12Resource* uploader = new DX12Resource(D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, uploaderDesc);
+
+	D3D12_SUBRESOURCE_DATA subResourceData = {};
+	subResourceData.pData = data;
+	subResourceData.RowPitch = (uint64_t)width* pixelsize;
+	subResourceData.SlicePitch = (uint64_t)height * width * pixelsize;
+
+	dest->Transition(D3D12_RESOURCE_STATE_COPY_DEST);
+	UpdateSubresources<1>(exec->GetCommandList(), dest->GetIResource(), uploader->GetIResource(), 0, 0, 1, &subResourceData);
+	dest->Transition(D3D12_RESOURCE_STATE_GENERIC_READ);
+	mUploadingBufers.push_back(uploader);
+}
+
+void DX12BufferUploader::Clear() {
+	mUploadingBufers.clear();
+}
+
 
 // DX12 Index Buffer
 DX12IndexBuffer::DX12IndexBuffer(uint32_t num, uint32_t stride, const void* data) :
 	mNum(num) {
 	assert(stride == 2);
-	RefCountPtr<DX12Resource> resource = UploadBuffer(mUploader, num * sizeof(uint16_t), data);
-	GetResourceOwner()->OwnResource(EResourceOwn_Exclusive, resource);
 
+	uint32_t size = num * sizeof(uint16_t);
+	D3D12_RESOURCE_DESC destDesc = CD3DX12_RESOURCE_DESC::Buffer(size);
+	mResource = new DX12Resource(D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_COMMON, destDesc);
+	DX12BufferUploader::UploadBuffer(mResource, data, size);
 }
 
 
@@ -39,8 +65,12 @@ DX12IndexBuffer::DX12IndexBuffer(uint32_t num, uint32_t stride, const void* data
 DX12VertexBuffer::DX12VertexBuffer(uint32_t num, uint32_t stride, const void* data) :
 	mNum(num),
 	mStride(stride) {
-	RefCountPtr<DX12Resource> resource = UploadBuffer(mUploader, num * stride, data);
-	GetResourceOwner()->OwnResource(EResourceOwn_Exclusive, resource);
+
+
+	uint32_t size = num * stride;
+	D3D12_RESOURCE_DESC destDesc = CD3DX12_RESOURCE_DESC::Buffer(size);
+	mResource = new DX12Resource(D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_COMMON, destDesc);
+	DX12BufferUploader::UploadBuffer(mResource, data, size);
 }
 
 // Constant Buffer
@@ -51,24 +81,21 @@ DX12ConstantBuffer::DX12ConstantBuffer(uint32_t size) :
 	// alignment
 	size = ((size + 255) & ~255);
 
-	// create reousrce and hold it
+	// create reousrce
 	D3D12_RESOURCE_DESC resDesc = CD3DX12_RESOURCE_DESC::Buffer(size);
-	RefCountPtr<DX12Resource> resource = new DX12Resource(D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, resDesc);
-	GetResourceOwner()->OwnResource(EResourceOwn_Exclusive, resource);
+	mResource = new DX12Resource(D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, resDesc);
+	mResource->GetIResource()->Map(0, nullptr, (void**)&mMappedBuffer);
 
-	// create view and hold it
-	D3D12_GPU_VIRTUAL_ADDRESS gpuAddress = resource->GetIResource()->GetGPUVirtualAddress();
+	// create view
+	D3D12_GPU_VIRTUAL_ADDRESS gpuAddress = mResource->GetIResource()->GetGPUVirtualAddress();
 	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
 	cbvDesc.BufferLocation = gpuAddress;
 	cbvDesc.SizeInBytes = size;
 	mView = new DX12ConstantBufferView(cbvDesc);
-	
-	// mapped memory
-	resource->GetIResource()->Map(0, nullptr, (void**)& mMappedBuffer); 
 }
 
 
-void DX12ConstantBuffer::CopyData(void* data, uint32_t size) {
+void DX12ConstantBuffer::CopyData(const void* data, uint32_t offset, uint32_t size) {
 	CHECK(size <= mSize);
 	memcpy(mMappedBuffer, data, size);
 }

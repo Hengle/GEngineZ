@@ -1,5 +1,5 @@
 #include <Core/CoreHeader.h>
-#include <Render/Shader.h>
+#include <Render/Material.h>
 #include <HLSLcc/hlslcc.h>
 
 #include <d3d12.h>
@@ -22,7 +22,7 @@ static EntryInfo entryInfo[] = {
 
 void Process(const FilePath& path) {
 	std::string name = path.FileNameNoExt();
-	std::string shader = ShaderManager::PreProcessingHLSL(path);
+	std::string shader = MaterialManager::PreProcessingHLSL(path);
 	
 	for (int i = 0; i < sizeof(entryInfo) / sizeof(EntryInfo); i++) {
 		const EntryInfo& info = entryInfo[i];
@@ -51,7 +51,7 @@ void Process(const FilePath& path) {
 }
 
 int main(int argc, char* argv[]) {
-	Process("E:/Code/GameZ/Content/Shader/hlsl/test.hlsl");
+	Process("E:/Code/GameZ/Content/Engine/Shader/hlsl/test.hlsl");
 
 
 

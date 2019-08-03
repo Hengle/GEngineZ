@@ -34,7 +34,7 @@ public:
 	virtual RHITexture* GetBackBuffer() = 0;
 };
 
-// pipeline state
+// shader
 class RHIShaderStage : public RHIResource {
 public:
 	virtual ERHIShaderStage GetStage() const = 0;
@@ -43,21 +43,14 @@ public:
 class RHIShader : public RHIResource {
 public:
 	virtual void CombineStage(RHIShaderStage* stage) = 0;
-	virtual void Complete() = 0;
+	virtual bool Complete() = 0;
+	virtual std::vector<RHIInputDesc> GetRHIInputsDesc() = 0;
 };
 
-class RHIVertexLayout : public RHIResource {
+class RHIShaderInstance : public RHIResource {
 public:
-	virtual void PushLayout(const std::string& name, ERHIPixelFormat format, EVertexLaytoutFlag flag) = 0;
-};
-
-class RHIUniformLayout : public RHIResource {
-public:
-	virtual void PushLayout(std::string name, uint32_t registerNo, EUniformLayoutFlag flag) = 0;
-};
-
-class RHIPipelineState : public RHIResource {
-
+	virtual void SetParameter(const std::string& key, const float* value, int size) = 0;
+	virtual void SetParameter(const std::string& key, RHITexture*, uint32_t sampler=SAMPLER_FILTER_LINEAR|SAMPLER_ADDRESS_WRAP) = 0;
 };
 
 // buffer
@@ -67,23 +60,6 @@ class RHIVertexBuffer : public RHIResource {
 class RHIIndexBuffer : public RHIResource {
 
 };
-
-class RHIConstantBuffer : public RHIResource {
-public:
-	virtual void CopyData(void* data, uint32_t size) = 0;
-};
-
-
-
-
-
-
-
-
-class RHIPipeline : public RHIResource {
-
-};
-
 
 
 

@@ -7,6 +7,24 @@
 
 namespace z {
 
+class DX12Sampler : public RefCounter {
+public:
+	DX12Sampler(uint32_t samplerFlag);
+	~DX12Sampler() {}
+
+	DX12SamplerView* GetView() {
+		return mView;
+	}
+	uint32_t GetSamplerFlag() {
+		return mSamplerFlag;
+	}
+
+private:
+	uint32_t mSamplerFlag;
+
+	RefCountPtr<DX12SamplerView> mView;
+};
+
 class DX12Texture : public DX12ShaderResource, public RHITexture {
 public:
 	DX12Texture();
@@ -18,12 +36,8 @@ public:
 		mSRView = view;
 	}
 
-	DX12ShaderResourceView* GetSRView() {
+	DX12ShaderResourceView* GetView() {
 		return mSRView;
-	}
-
-	DX12SamplerView* GetSamplerView() {
-		return mSamplerView;
 	}
 
 	void AttachResource(DX12Resource* resource);
@@ -44,15 +58,10 @@ public:
 	uint32_t height;
 	uint32_t depth;
 	uint32_t numMips;
-	DXGI_FORMAT format;
+	DXGI_FORMAT Format;
 	// dimension
-	// sampler
-	D3D12_SAMPLER_DESC samplerDesc;
 
 protected:
-	void InitDefaultSamplerDesc();
-	void CreateSamplerView();
-	RefCountPtr<DX12SamplerView> mSamplerView;
 	RefCountPtr<DX12ShaderResourceView> mSRView;
 };
 
@@ -61,9 +70,7 @@ class DX12Texture2D : public DX12Texture {
 public:
 	DX12Texture2D(const RHITextureDesc& desc, const uint8_t* data);
 
-
-protected:
-	DX12ResourceOwner mUploader;
+private:
 };
 
 
@@ -92,7 +99,6 @@ class DX12RenderTarget :public DX12Texture {
 public:
 	DX12RenderTarget(DX12Resource* resource);
 	DX12RenderTarget(uint32_t width, uint32_t height, DXGI_FORMAT format);
-
 	DX12RenderTargetView* GetRTView() {
 		return mRTView;
 	}

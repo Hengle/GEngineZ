@@ -1,9 +1,12 @@
 #include "DX12Shader.h"
 #include "DX12Device.h"
+#include "DX12Buffer.h"
+#include "DX12Texture.h"
+#include "DX12Executor.h"
 
 namespace z {
 
-
+// ==== DX12ShaderStage ====
 struct StageEntryInfo {
 	const char* entry;
 	const char* target;
@@ -22,21 +25,125 @@ DX12ShaderStage* DX12ShaderStage::FromCompile(const char* data, size_t dataLen, 
 		D3DCOMPILE_DEBUG, 0, blob.GetComRef(), error.GetComRef());
 	if (error) {
 		Log<LERROR>((char*)error->GetBufferPointer());
-
+		return nullptr;
 	}
 
 	return SUCCEEDED(hr) ? new DX12ShaderStage(stage, blob) : nullptr;
 }
-
 
 DX12ShaderStage::DX12ShaderStage(ERHIShaderStage stage, ID3D10Blob* blob) :
 	mStage(stage),
 	mBlob(blob) {
 }
 
+// ==== DX12ShaderInstance ====
+DX12ShaderInstance::DX12ShaderInstance(DX12Shader* shader) :
+	mShader(shader) {
+	// create constant buffer
+	for (auto& iter : shader->mCBufferMap) {
+		uint32_t slot = iter.second.index;
+		uint32_t size = iter.second.size;
+		if (slot >= mCBuffers.size()) {
+			mCBuffers.resize(slot + 1);
+		}
+		mCBuffers[slot] = new DX12ConstantBuffer(size);
+	}
+	uint32_t max_slot = 0;
+	for (auto& iter : shader->mTextureMap) {
+		max_slot = std::max(max_slot, iter.second.index + 1);
+	}
+	mTextures.resize(max_slot);
+	mSamplers.resize(max_slot);
+}
 
-void DX12Shader::Complete() {
-	Reflect();
+void DX12ShaderInstance::SetParameter(const std::string& key, const float* value, int size) {
+	auto iter = mShader->mVariableMap.find(key);
+	if (iter != mShader->mVariableMap.end()) {
+		CHECK(size * sizeof(float) == iter->second.size);
+		mCBuffers[iter->second.index]->CopyData(value, iter->second.offset,  iter->second.size);
+	}
+}
+
+void DX12ShaderInstance::SetParameter(const std::string& key, RHITexture* tex, uint32_t samplerFlag) {
+	auto iter = mShader->mTextureMap.find(key);
+	if (iter != mShader->mTextureMap.end()) {
+		uint32_t index = iter->second.index;
+		mTextures[index] = static_cast<DX12Texture*>(tex);
+		if (mSamplers[index] == nullptr || mSamplers[index]->GetSamplerFlag() != samplerFlag) {
+			mSamplers[index] = new DX12Sampler(samplerFlag);
+		}
+	}
+};
+
+
+std::vector<ID3D12DescriptorHeap*> DX12ShaderInstance::GetUsedHeap() const {
+	std::vector<ID3D12DescriptorHeap*> usedHeap;
+	auto PushIfUnique = [&usedHeap](const ID3D12DescriptorHeap* heap) {
+		for (int i = 0; i < usedHeap.size(); i++) {
+			if (usedHeap[i] == heap) return;
+		}
+		usedHeap.push_back(const_cast<ID3D12DescriptorHeap*>(heap));
+	};
+
+	for (int i = 0; i < mCBuffers.size(); i++) {
+		if (mCBuffers[i]) {
+			const ID3D12DescriptorHeap* heap = mCBuffers[i]->GetView()->GetHeap();
+			PushIfUnique(heap);
+		}
+	}
+	for (int i = 0; i < mTextures.size(); i++) {
+		if (mTextures[i]) {
+			const ID3D12DescriptorHeap* heap = mTextures[i]->GetView()->GetHeap();
+			PushIfUnique(heap);
+		}
+	}
+
+	for (int i = 0; i < mSamplers.size(); i++) {
+		if (mSamplers[i]) {
+			const ID3D12DescriptorHeap* heap = mSamplers[i]->GetView()->GetHeap();
+			PushIfUnique(heap);
+		}
+	}
+	return usedHeap;
+}
+
+std::vector<D3D12_GPU_DESCRIPTOR_HANDLE> DX12ShaderInstance::GetDescriptorTable() const {
+	std::vector<D3D12_GPU_DESCRIPTOR_HANDLE> result;
+	for (auto& iter : mShader->mCBufferMap) {
+		DX12ConstantBuffer* buffer = mCBuffers[iter.second.index];
+		if (buffer) {
+			result.push_back(buffer->GetView()->GetGPUHandle());
+		} else {
+			result.push_back(D3D12_GPU_DESCRIPTOR_HANDLE{ 0 });
+		}
+	}
+	for (auto& iter : mShader->mTextureMap) {
+		DX12Texture* tex = mTextures[iter.second.index];
+		if (tex) {
+			result.push_back(tex->GetView()->GetGPUHandle());
+		} else {
+			result.push_back(D3D12_GPU_DESCRIPTOR_HANDLE{0});
+		}
+	}
+	for (auto& iter : mShader->mSamplerMap) {
+		DX12Sampler* sampler = mSamplers[iter.second.index];
+		if (sampler) {
+			result.push_back(sampler->GetView()->GetGPUHandle());
+		} else {
+			result.push_back(D3D12_GPU_DESCRIPTOR_HANDLE{0});
+		}
+	}
+	return result;
+}
+
+
+// ==== DX12Shader ====
+DX12Shader::DX12Shader() {
+
+}
+
+DX12Shader::~DX12Shader() {
+
 }
 
 void DX12Shader::Reflect() {
@@ -45,34 +152,33 @@ void DX12Shader::Reflect() {
 		if (stage == nullptr) {
 			continue;
 		}
-		std::cout << "stage......" << stage->GetStage() << std::endl;
 		RefCountPtr<ID3D12ShaderReflection> reflection;
 		D3DReflect(stage->GetCode().pShaderBytecode, stage->GetCode().BytecodeLength, IID_PPV_ARGS(reflection.GetComRef()));
+		
 		D3D12_SHADER_DESC shaderDesc;
 		reflection->GetDesc(&shaderDesc);
 
-		// vertex input
+		ReflectBoundResource(reflection, shaderDesc);
+
 		if (stage->GetStage() == SHADER_STAGE_VERTEX) {
 			ReflectInput(reflection, shaderDesc);
+			ReflectConstantBuffer(reflection, shaderDesc);
 		}
-		
-
-		// constant buffers
-
-		ReflectConstantBuffer(reflection, shaderDesc);
-		ReflectBoundResource(reflection, shaderDesc);
 	}
 }
 
-
 void DX12Shader::ReflectInput(ID3D12ShaderReflection* reflection, const D3D12_SHADER_DESC &shaderDesc) {
-	mInputDescs.clear();
+	mInputELementsDesc.clear();
 	for (uint32_t i = 0; i < shaderDesc.InputParameters; i++) {
 		D3D12_SIGNATURE_PARAMETER_DESC paramDesc;
 		reflection->GetInputParameterDesc(i, &paramDesc);
 		
 		D3D12_INPUT_ELEMENT_DESC inputDesc;
-		inputDesc.SemanticName = paramDesc.SemanticName;
+		char* name = new char[strlen(paramDesc.SemanticName) + 1];
+		strcpy(name, paramDesc.SemanticName);
+		mInputNameMem.emplace_back(name);
+
+		inputDesc.SemanticName = name;
 		inputDesc.SemanticIndex = paramDesc.SemanticIndex;
 		inputDesc.InputSlot = 0;
 		inputDesc.AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
@@ -94,126 +200,137 @@ void DX12Shader::ReflectInput(ID3D12ShaderReflection* reflection, const D3D12_SH
 		}
 #undef DECIDE_FORMAT
 
-		mInputDescs.push_back(inputDesc);
-
-		std::cout << inputDesc.SemanticName << inputDesc.SemanticIndex << " "<< inputDesc.Format << std::endl;
+		mInputELementsDesc.emplace_back(inputDesc);
 	}
 }
-
 
 void DX12Shader::ReflectConstantBuffer(ID3D12ShaderReflection* reflection, const D3D12_SHADER_DESC &shaderDesc) {
 	for (uint32_t i = 0; i < shaderDesc.ConstantBuffers; i++) {
 		ID3D12ShaderReflectionConstantBuffer *cb = reflection->GetConstantBufferByIndex(i);
 		D3D12_SHADER_BUFFER_DESC cbDesc;
 		cb->GetDesc(&cbDesc);
+		CBufferInfo &cbInfo = mCBufferMap[cbDesc.Name];
+		cbInfo.size = cbDesc.Size;
 
-		std::cout << "buffer " << cbDesc.Name << " " << cbDesc.Size << " " <<std::endl;
 		for (int vari = 0; vari < cbDesc.Variables; vari++) {
 			ID3D12ShaderReflectionVariable *var = cb->GetVariableByIndex(vari);
 			D3D12_SHADER_VARIABLE_DESC varDesc;
 			var->GetDesc(&varDesc);
 
-			std::cout << varDesc.Name << " " << varDesc.StartOffset << " " << varDesc.Size << std::endl;
-
+			mVariableMap[varDesc.Name] = { cbInfo.index, varDesc.StartOffset, varDesc.Size };
 		}
-
 	}
 }
-
 
 void DX12Shader::ReflectBoundResource(ID3D12ShaderReflection* reflection, const D3D12_SHADER_DESC &shaderDesc) {
 	for (uint32_t i = 0; i < shaderDesc.BoundResources; i++) {
 		D3D12_SHADER_INPUT_BIND_DESC sibDesc;
 		reflection->GetResourceBindingDesc(i, &sibDesc);
-		std::cout << sibDesc.Name << " " << sibDesc.Dimension << " " << sibDesc.NumSamples << " "<< sibDesc.BindPoint << std::endl;
+		Log<LINFO>(sibDesc.Name, sibDesc.BindPoint, sibDesc.Type);
 
-
-	}
-}
-
-
-// DX12VertexLayout
-
-DX12VertexLayout::~DX12VertexLayout() {
-	for (int i = 0; i < mNames.size(); i++) {
-		delete[] mNames[i];
-	}
-	mNames.clear();
-	mLayout.clear();
-}
-
-void DX12VertexLayout::PushLayout(const std::string& name, ERHIPixelFormat format, EVertexLaytoutFlag flag) {
-	static std::unordered_map<EVertexLaytoutFlag, D3D12_INPUT_CLASSIFICATION> classicationMapping = {
-		{VERTEX_LAYOUT_PER_INSTANCE, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA},
-		{VERTEX_LAYOUT_PER_VERTEX, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA}
-	};
-	char *s = new char[name.length() + 1];
-	memcpy(s, name.data(), name.length());
-	s[name.length()] = 0; 
-	mNames.push_back(s);
-	D3D12_INPUT_ELEMENT_DESC desc{ s, 0, FromRHIFormat(format), 0, mSize, classicationMapping[flag], 0 };
-	mLayout.push_back(desc);
-	mSize += GetPixelSize(FromRHIFormat(format));
-}
-
-
-// DX12UniformLayout
-void DX12UniformLayout::PushLayout(std::string name, uint32_t registerNo, EUniformLayoutFlag flag) {
-	switch (flag) {
-	case EUniformLayoutFlag::UNIFORM_LAYOUT_CONSTANT_BUFFER:
-		if (mCBVs.size() <= registerNo) mCBVs.resize(registerNo + 1);
-		mCBVs[registerNo] = name;
-		break;
-	case EUniformLayoutFlag::UNIFORM_LAYOUT_TEXTURE:
-		if (mSRVs.size() <= registerNo) {
-			mSRVs.resize(registerNo + 1);
-			mSamplers.resize(registerNo + 1);
+		if (sibDesc.Type == D3D_SIT_CBUFFER) {
+			mCBufferMap[sibDesc.Name] = {sibDesc.BindPoint, 0};
+			continue;
+		} 
+		if (sibDesc.Type == D3D_SIT_TEXTURE) {
+			mTextureMap[sibDesc.Name] = { sibDesc.BindPoint };
+			continue;
 		}
-		mSRVs[registerNo] = name;
-		mSamplers[registerNo] = name;
-		break;
+		if (sibDesc.Type == D3D_SIT_SAMPLER) {
+			mSamplerMap[sibDesc.Name] = { sibDesc.BindPoint };
+			continue;
+		}
 	}
 }
 
+bool DX12Shader::Complete() {
+	Reflect();
+	if (Validate()) {
+		CreateRootSignature();
+	
+		return true;
+	}
+	return false;
+}
 
-ID3D12RootSignature *DX12UniformLayout::GetRootSignature() {
-	if (mRootSignature) {
-		return mRootSignature;
+bool DX12Shader::Validate() {
+	// check sampler index equel texture index
+	std::vector<int> samplerIndexs;
+	std::vector<int> textureIndexs;
+	for (auto& iter : mTextureMap) {
+		textureIndexs.push_back(iter.second.index);
+	}
+	for (auto& iter : mSamplerMap) {
+		samplerIndexs.push_back(iter.second.index);
+	}
+	std::sort(samplerIndexs.begin(), samplerIndexs.end());
+	std::sort(textureIndexs.begin(), textureIndexs.end());
+
+	if (samplerIndexs.size() != textureIndexs.size()) {
+		return false;
+	}
+	for (int i = 0; i < samplerIndexs.size(); i++) {
+		if (samplerIndexs[i] != textureIndexs[i]) {
+			return false;
+		}
 	}
 
+	return true;
+}
+
+
+std::vector<RHIInputDesc> DX12Shader::GetRHIInputsDesc() {
+	std::vector<RHIInputDesc> descs;
+	for (int i = 0; i < mInputELementsDesc.size(); i++) {
+		descs.push_back(RHIInputDesc{
+			mInputELementsDesc[i].SemanticName,
+			mInputELementsDesc[i].SemanticIndex,
+			FromDXGIFormat(mInputELementsDesc[i].Format)
+		});
+	}
+	return descs;
+}
+
+D3D12_INPUT_LAYOUT_DESC DX12Shader::GetInputLayoutDesc() {
+	return { mInputELementsDesc.data(), (uint32_t)mInputELementsDesc.size() };
+}
+
+ID3D12RootSignature* DX12Shader::GetIRootSignature() const {
+	return mRootSignature;
+}
+
+void DX12Shader::CreateRootSignature() {
 	CD3DX12_ROOT_PARAMETER rootParam[MAX_SIGNATURE_NUM];
 	CD3DX12_DESCRIPTOR_RANGE cbvTable[MAX_SIGNATURE_NUM];
 	uint32_t count = 0;
-	for (int i = 0; i < mCBVs.size(); i++) {
-		cbvTable[count].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, i);
+	for (auto &iter: mCBufferMap) {
+		cbvTable[count].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, iter.second.index);
 		rootParam[count].InitAsDescriptorTable(1, &cbvTable[count]);
 		count++;
 	}
-	for (int i = 0; i < mSRVs.size(); i++) {
-		cbvTable[count].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, i);
+	for (auto& iter : mTextureMap) {
+		cbvTable[count].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, iter.second.index);
 		rootParam[count].InitAsDescriptorTable(1, &cbvTable[count]);
 		count++;
 	}
-	for (int i = 0; i < mSRVs.size(); i++) {
-		cbvTable[count].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 1, i);
+	for (auto &iter : mSamplerMap) {
+		cbvTable[count].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 1, iter.second.index);
 		rootParam[count].InitAsDescriptorTable(1, &cbvTable[count]);
 		count++;
 	}
-
 
 	CD3DX12_ROOT_SIGNATURE_DESC rootSignDesc(count, rootParam, 0, nullptr,
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-	
+
 	RefCountPtr<ID3DBlob> serialzed, error;
 	HRESULT hr = D3D12SerializeRootSignature(&rootSignDesc, D3D_ROOT_SIGNATURE_VERSION_1, serialzed.GetComRef(), error.GetComRef());
 	DX12_CHECK(hr, (char*)error->GetBufferPointer());
 
 	auto device = GDX12Device->GetIDevice();
-	DX12_CHECK(device->CreateRootSignature(0, serialzed->GetBufferPointer(), 
+	DX12_CHECK(device->CreateRootSignature(0, serialzed->GetBufferPointer(),
 		serialzed->GetBufferSize(), IID_PPV_ARGS(mRootSignature.GetComRef())));
-
-	return mRootSignature;
 }
+
 
 }
 

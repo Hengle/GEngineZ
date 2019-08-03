@@ -14,7 +14,7 @@ Image* Image::Load(std::string path) {
 		return nullptr;
 	}
 
-	ERHIPixelFormat format = PIXEL_FORMAT_INVALID;
+	ERHIPixelFormat format = PF_INVALID;
 	switch (comp) {
 	case STBI_grey:
 		CHECK(0, "not support");
@@ -26,10 +26,10 @@ Image* Image::Load(std::string path) {
 		// do convert because direct x not support r8g8b8
 		data = stbi__convert_format(data, comp, STBI_rgb_alpha, x, y);
 		comp = STBI_rgb_alpha;
-		format = PIXEL_FORMAT_R8G8B8A8_UNORM;
+		format = PF_R8G8B8A8;
 		break;
 	case STBI_rgb_alpha:
-		format = PIXEL_FORMAT_R8G8B8A8_UNORM;
+		format = PF_R8G8B8A8;
 		break;
 	}
 

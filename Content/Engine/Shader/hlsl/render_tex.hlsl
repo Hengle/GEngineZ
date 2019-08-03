@@ -2,9 +2,6 @@
 Texture2D  gDiffuseMap : register(t0);
 SamplerState gSampler  : register(s0);
 
-Texture2D  gDiffuseMap2 : register(t1);
-SamplerState gSampler2  : register(s1);
-
 struct VertexIn {
 	float3 pos : POSITION;
 	float2 uv : TEXCOORD;
@@ -18,7 +15,7 @@ struct VertexOut {
 
 VertexOut VS(VertexIn vin) {
 	VertexOut vout;
-	vout.pos = gDiffuseMap2.SampleLevel(gSampler2, vin.uv, 0);
+	vout.pos = float4(vin.pos, 1.0);
 	vout.uv = vin.uv;
 	return vout;
 }

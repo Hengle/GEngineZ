@@ -2,6 +2,7 @@
 #include "DX12Device.h"
 #include "DX12Texture.h"
 #include "DX12View.h"
+#include "DX12Shader.h"
 #include "DX12PipelineState.h"
 
 namespace z {
@@ -13,8 +14,8 @@ DX12Executor::DX12Executor(DX12Device* device) :
 	mDevice(device),
 	mList(device),
 	mFlag(0),
-	mCurRootSignature(nullptr),
-	mCurPipelineState(nullptr) {
+	mPSO{nullptr},
+	mCurPSO{nullptr}{
 
 }
 
@@ -25,14 +26,10 @@ DX12Executor::~DX12Executor() {
 void DX12Executor::Reset() {
 	mVertexBuffer.Reset();
 	mIndexBuffer.Reset();
-	mConstantBufferViews.clear();
-	mTextureViews.clear();
-	mSamplerViews.clear();
 	mDepthStencil.Reset();
 	mRenderTargets.clear();
-	mPSO.Reset();
-	mCurRootSignature = nullptr;
-	mCurPipelineState = nullptr;
+	mPSO = nullptr;
+	mCurPSO = nullptr;
 	mFlag = 0;
 	mList.Reset();
 }
@@ -42,9 +39,6 @@ void DX12Executor::Flush() {
 
 void DX12Executor::SetPipelineState(DX12PipelineState* pso) {
 	mPSO = pso;
-	mConstantBufferViews.clear();
-	mTextureViews.clear();
-	mSamplerViews.clear();
 	mFlag |= DX12EXE_FLAG_PSO_DIRTY;
 }
 
@@ -71,41 +65,15 @@ void DX12Executor::SetIndexBuffer(DX12IndexBuffer* ib) {
 	mFlag |= DX12EXE_FLAG_IB_DIRTY;
 }
 
-
-void DX12Executor::SetConstantBuffer(int idx, DX12ConstantBuffer* cb) {
-	if (mConstantBufferViews.size() <= idx) {
-		mConstantBufferViews.resize(idx + 1);
-	}
-	mConstantBufferViews[idx] = cb->GetView();
-	mFlag |= DX12EXE_FLAG_CB_DIRTY;
-}
-
-void DX12Executor::SetTexture(int idx, DX12Texture* tex) {
-	if (mTextureViews.size() <= idx) {
-		mTextureViews.resize(idx + 1);
-		mSamplerViews.resize(idx + 1);
-	}
-	mTextureViews[idx] = tex->GetSRView();
-	mSamplerViews[idx] = tex->GetSamplerView();
-	tex->SetReadable();
-	mFlag |= DX12EXE_FLAG_TEX_DIRTY;
-}
-
-
 void DX12Executor::ApplyState() {
 	if (mFlag & DX12EXE_FLAG_PSO_DIRTY) {
-		// set root signature
-		if (mPSO->GetIRootSignature() != mCurRootSignature) {
+		if (mPSO != mCurPSO) {
 			GetCommandList()->SetGraphicsRootSignature(mPSO->GetIRootSignature());
-			mCurRootSignature = mPSO->GetIRootSignature();
+			GetCommandList()->SetPipelineState(mPSO->GetIPipelineState());
+			
+			mCurPSO = mPSO;
 		}
 
-		// set pipelinestate
-		if (mPSO->GetIPipelineState() != mCurPipelineState) {
-			GetCommandList()->SetPipelineState(mPSO->GetIPipelineState());
-			mCurPipelineState = mPSO->GetIPipelineState();
-		}
-		
 		mFlag &= ~DX12EXE_FLAG_PSO_DIRTY;
 	}
 	
@@ -139,68 +107,40 @@ void DX12Executor::ApplyState() {
 		GetCommandList()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		mFlag &= ~DX12EXE_FLAG_IB_DIRTY;
 	}
-
-	// set descriptor heap first..
-	if (mPSO) {
-		std::vector<ID3D12DescriptorHeap*> usedHeap;
-		auto CheckInUsed = [&usedHeap](const ID3D12DescriptorHeap* heap) {
-			for (int i = 0; i < usedHeap.size(); i++) {
-				if (usedHeap[i] == heap) return true;
-			}
-			return false;
-		};
-
-		if (mFlag & (DX12EXE_FLAG_CB_DIRTY|DX12EXE_FLAG_TEX_DIRTY)) {
-			for (int i = 0; i < mConstantBufferViews.size(); i++) {
-				const ID3D12DescriptorHeap* heap = mConstantBufferViews[i]->GetHeap();
-				if (!CheckInUsed(heap)) {
- 					usedHeap.emplace_back(const_cast<ID3D12DescriptorHeap*>(heap));
-				}
-			}
-			for (int i = 0; i < mTextureViews.size(); i++) {
-				const ID3D12DescriptorHeap* heap = mTextureViews[i]->GetHeap();
-				if (!CheckInUsed(heap)) {
-					usedHeap.emplace_back(const_cast<ID3D12DescriptorHeap*>(heap));
-				}
-			}
-			for (int i = 0; i < mSamplerViews.size(); i++) {
-				const ID3D12DescriptorHeap* heap = mSamplerViews[i]->GetHeap();
-				if (!CheckInUsed(heap)) {
-					usedHeap.emplace_back(const_cast<ID3D12DescriptorHeap*>(heap));
-				}
-			}
-
-		}
-		if (usedHeap.size() > 0) {
-			GetCommandList()->SetDescriptorHeaps(usedHeap.size(), usedHeap.data());
-		}
-	}
-
-	// constant buffer
-	if (mFlag & DX12EXE_FLAG_CB_DIRTY) {
-		for (int i = 0; i < mConstantBufferViews.size(); i++) {
-			GetCommandList()->SetGraphicsRootDescriptorTable(i, mConstantBufferViews[i]->GetGPUHandle());
-		}
-		mFlag &= ~DX12EXE_FLAG_CB_DIRTY;
-	}
-	// texture
-	if (mFlag & DX12EXE_FLAG_TEX_DIRTY) {
-		int srvBase = mPSO->GetUniformLayout()->GetSRVStart();
-		int samplerBase = mPSO->GetUniformLayout()->GetSamplerStart();
-		for (int i = 0; i < mTextureViews.size(); i++) {
-			GetCommandList()->SetGraphicsRootDescriptorTable(srvBase + i, mTextureViews[i]->GetGPUHandle());
-			GetCommandList()->SetGraphicsRootDescriptorTable(samplerBase + i, mSamplerViews[i]->GetGPUHandle());
-		}
-		mFlag &= ~DX12EXE_FLAG_TEX_DIRTY;
-	}
 }
 
-void DX12Executor::Draw() {
+void DX12Executor::DrawShaderInstance(DX12ShaderInstance *shaderInst) {
 	ApplyState();
+
+	std::vector<ID3D12DescriptorHeap*> &heap = shaderInst->GetUsedHeap();
+	GetCommandList()->SetDescriptorHeaps(heap.size(), heap.data());
+
+	std::vector<D3D12_GPU_DESCRIPTOR_HANDLE> &descTable = shaderInst->GetDescriptorTable();
+	for (int i = 0; i < descTable.size(); i++) {
+		if (descTable[i].ptr != 0) {
+			GetCommandList()->SetGraphicsRootDescriptorTable(i, descTable[i]);
+		}
+	}
 
 	GetCommandList()->DrawIndexedInstanced(mIndexBuffer->GetSize(), 1, 0, 0, 0);
 
 }
+
+std::vector<DXGI_FORMAT> DX12Executor::GetCurRenderTargetsFormat() const {
+	std::vector<DXGI_FORMAT> formats;
+	formats.reserve(mRenderTargets.size());
+	for (DX12RenderTarget* rt : mRenderTargets) {
+		formats.push_back(rt->Format);
+	}
+	return formats;
+}
+
+DXGI_FORMAT DX12Executor::GetCurDepthStencilFormat() const {
+	if (mDepthStencil) {
+		return mDepthStencil->Format;
+	}
+}
+
 
 
 // DX12CommandList

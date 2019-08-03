@@ -7,13 +7,12 @@
 
 namespace z {
 
-// Shader(VS, PS...)
-// VertexLayout
-// UniformLayout
-// RenderTargetDesc
-// DepthStencilDesc
+class DX12Shader;
+class DX12Executor;
+class DX12Texture;
+class DX12Sampler;
 
-
+// DX12ShaderStage
 class DX12ShaderStage : public RHIShaderStage {
 public:
 	static DX12ShaderStage* FromCompile(const char* data, size_t datalen, ERHIShaderStage stage);
@@ -26,16 +25,46 @@ public:
 		return mStage;
 	}
 
-
 private:
 	DX12ShaderStage(ERHIShaderStage stage, ID3D10Blob* blob);
+
 	RefCountPtr<ID3D10Blob> mBlob{ nullptr };
 	ERHIShaderStage mStage;
 };
 
+
+// DX12ShaderInstance
+class DX12ShaderInstance : public RHIShaderInstance {
+public:
+	DX12ShaderInstance(DX12Shader* shader);
+
+	void SetParameter(const std::string& key, const float* value, int size) override;
+	void SetParameter(const std::string& key, RHITexture*, uint32_t sampler = SAMPLER_FILTER_LINEAR | SAMPLER_ADDRESS_WRAP) override;
+
+	DX12Shader* GetShader() {
+		return mShader;
+	}
+
+
+	std::vector<ID3D12DescriptorHeap*> GetUsedHeap() const;
+	std::vector<D3D12_GPU_DESCRIPTOR_HANDLE> GetDescriptorTable() const;
+	
+
+private:
+	RefCountPtr<DX12Shader> mShader;
+	
+	std::vector<RefCountPtr<DX12ConstantBuffer>> mCBuffers;
+	std::vector<RefCountPtr<DX12Texture>> mTextures;
+	std::vector<RefCountPtr<DX12Sampler>> mSamplers;
+};
+
+
+// DX12Shader
 class DX12Shader : public RHIShader {
 public:
-	DX12Shader() {}
+	friend class DX12ShaderInstance;
+	DX12Shader();
+	~DX12Shader();
 
 	void CombineStage(RHIShaderStage* rhiStage) override {
 		DX12ShaderStage* stage = static_cast<DX12ShaderStage*>(rhiStage);
@@ -46,17 +75,40 @@ public:
 		}
 	}
 
-	template<typename targetStage>
+	bool Complete() override;
+	std::vector<RHIInputDesc> GetRHIInputsDesc() override;
+
+	template<ERHIShaderStage targetStage>
 	DX12ShaderStage* GetStage() {
-		if (constexpr SHADER_STAGE_VERTEX == targetStage) {
+		if constexpr (SHADER_STAGE_VERTEX == targetStage) {
 			return mStageVS;
 		} 
-		if (constexpr SHADER_STAGE_PIXEL == targetStage) {
+		if constexpr (SHADER_STAGE_PIXEL == targetStage) {
 			return mStagePS;
 		}
 	}
 
-	void Complete() override;
+	struct CBufferInfo {
+		uint32_t index;
+		uint32_t size;
+	};
+
+	struct TextureInfo {
+		uint32_t index;
+	};
+
+	struct SamplerInfo {
+		uint32_t index;
+	};
+
+	struct VariableInfo{
+		uint32_t index;	// cbuffer index
+		uint32_t offset;
+		uint32_t size;
+	};
+
+	D3D12_INPUT_LAYOUT_DESC GetInputLayoutDesc();
+	ID3D12RootSignature* GetIRootSignature() const;
 
 private:
 	void Reflect();
@@ -64,84 +116,21 @@ private:
 	void ReflectConstantBuffer(ID3D12ShaderReflection*, const D3D12_SHADER_DESC&);
 	void ReflectBoundResource(ID3D12ShaderReflection*, const D3D12_SHADER_DESC&);
 
+	bool Validate();
+	void CreateRootSignature();
+
 	RefCountPtr<DX12ShaderStage> mStageVS;
 	RefCountPtr<DX12ShaderStage> mStagePS;
 
-	std::vector<D3D12_INPUT_ELEMENT_DESC> mInputDescs;
-	std::unordered_map<std::string, std::vector<D3D12_SHADER_BUFFER_DESC>> mCBuffersDesc;
-	std::unordered_map<std::string, size_t> mCBuffersSize;
-
-};
-
-
-class DX12VertexLayout : public RHIVertexLayout {
-public:
-	// todo, use common type
-	DX12VertexLayout() : mSize(0) {}
-
-	~DX12VertexLayout();
-
-	void PushLayout(const std::string& semanticName, ERHIPixelFormat format, EVertexLaytoutFlag flag) override;
-	
-	D3D12_INPUT_LAYOUT_DESC GetDesc() {
-		return { mLayout.data(), (uint32_t)mLayout.size() };
-	}
-
-private:
-	std::vector<char*> mNames;
-	std::vector<D3D12_INPUT_ELEMENT_DESC> mLayout;
-	uint32_t mSize{ 0 };
-};
-
-class DX12UniformLayout : public RHIUniformLayout {
-public:
-	void PushLayout(std::string name, uint32_t registerNo, EUniformLayoutFlag flag) override;
-
-	ID3D12RootSignature* GetRootSignature();
-
-	size_t GetCBVNum() {
-		return mCBVs.size();
-	}
-
-	size_t GetSRVNum() {
-		return mSRVs.size();
-	}
-
-	size_t GetSamplerNum() {
-		return mSamplers.size();
-	}
-
-	size_t GetCBVStart() {
-		return 0;
-	}
-
-	size_t GetSRVStart() {
-		return GetCBVNum();
-	}
-
-	size_t GetSamplerStart() {
-		return GetSRVStart() + GetSRVNum();
-	}
-
-private:
-	std::vector<std::string> mCBVs;
-	std::vector<std::string> mSRVs;
-	std::vector<std::string> mUAVs;
-	std::vector<std::string> mSamplers;
-
-	// CBV...|SRV...|Sampler...|UAV
-
+	std::vector<D3D12_INPUT_ELEMENT_DESC> mInputELementsDesc;
 	RefCountPtr<ID3D12RootSignature> mRootSignature;
 
+	std::unordered_map<std::string, CBufferInfo> mCBufferMap;
+	std::unordered_map<std::string, TextureInfo> mTextureMap;
+	std::unordered_map<std::string, VariableInfo> mVariableMap;
+	std::unordered_map<std::string, SamplerInfo> mSamplerMap;
+
+	std::vector<char*> mInputNameMem;
 };
-
-
-class DX12BlendStateDesc {
-
-};
-
-
-
-
 
 }

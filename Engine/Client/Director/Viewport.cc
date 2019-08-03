@@ -3,7 +3,7 @@
 #include <Core/CoreHeader.h>
 #include <Client/Scene/Scene.h>
 #include <Render/RenderScene.h>
-#include <Render/Shader.h>
+#include <Render/Material.h>
 
 #include <RHI/RHIDevice.h>
 #include <Util/Image/Image.h>
@@ -45,53 +45,27 @@ void Viewport::DrawTex() {
 	RHIVertexBuffer *vb = GDevice->CreateVertexBuffer(4, 20, vertexs);
 	RHIIndexBuffer* ib = GDevice->CreateIndexBuffer(6, 2, indices);
 
-	std::string s = FileReader(GDirector->GetRootPath() / "Content/Engine/Shader/hlsl/render_tex.hlsl").ReadAll();
-	RHIShaderStage* vs = GDevice->CreateShaderStage(s.c_str(), s.length(), SHADER_STAGE_VERTEX);
-	RHIShaderStage* ps = GDevice->CreateShaderStage(s.c_str(), s.length(), SHADER_STAGE_PIXEL);
 
-	RHIShader* shader = GDevice->CreateShader();
-	shader->CombineStage(vs);
-	shader->CombineStage(ps);
+	MaterialInstance* mi = MaterialManager::GetMaterialInstance("render_tex");
+	mi->mRHIShaderInstance->SetParameter("gDiffuseMap", ds);
 
-	RHIVertexLayout* vl = GDevice->CreateVertexLayout();
-	vl->PushLayout("POSITION", PIXEL_FORMAT_R32G32B32_FLOAT, VERTEX_LAYOUT_PER_VERTEX);
-	vl->PushLayout("TEXCOORD", PIXEL_FORMAT_R32G32_FLOAT, VERTEX_LAYOUT_PER_VERTEX);
 	
-	RHIUniformLayout* ul = GDevice->CreateUniformLayout();
-	ul->PushLayout("texture0", 0, UNIFORM_LAYOUT_TEXTURE);
+	viewport->SetRenderRect(ScreenRenderRect{ 0, 0, 200, 150 });
 
-
-	RHIPipelineStateDesc psoDesc;
-	psoDesc.vs = vs;
-	psoDesc.ps = ps;
-	psoDesc.ulayout = ul;
-	psoDesc.vlayout = vl;
-	psoDesc.rtsFormat = std::vector<ERHIPixelFormat>{ PIXEL_FORMAT_R8G8B8A8_UNORM };
-	psoDesc.dsFormat = PIXEL_FORMAT_INVALID;
-	RHIPipelineState *state = GDevice->CreatePipelineState(psoDesc);
-
-	GDevice->SetPipelineState(state);
-	GDevice->SetRenderTargets({ viewport->GetBackBuffer() });
-	GDevice->SetDepthStencil(nullptr);
-
+	GDevice->SetOutputs({ viewport->GetBackBuffer() }, nullptr);
 	GDevice->SetVertexBuffer(vb);
 	GDevice->SetIndexBuffer(ib);
-	GDevice->SetTexture(0, rt);
-
-	viewport->SetRenderRect(ScreenRenderRect{ 0, 0, 200, 150 });
-	GDevice->DrawIndexed();
-
+	GDevice->DrawIndexed(mi->mRHIShaderInstance, 0);
 
 
 }
 
 Viewport::Viewport(uint32_t width, uint32_t height) {
-	ShaderManager::LoadShaders(GDirector->GetRootPath() / "Content"/ "Engine" / "Shader" / "hlsl");
-	assert(0);
+	MaterialManager::LoadShaders(GDirector->GetRootPath() / "Content"/ "Engine" / "Shader" / "hlsl");
 	
 	mRenderScene = new RenderScene();
 
-	viewport = GDevice->CreateViewport(width, height, PIXEL_FORMAT_R8G8B8A8_UNORM);
+	viewport = GDevice->CreateViewport(width, height, PF_R8G8B8A8);
 
 	// vertex and indices
 	GeometryGenerator geoGen;
@@ -100,40 +74,7 @@ Viewport::Viewport(uint32_t width, uint32_t height) {
 	ib = GDevice->CreateIndexBuffer(box.GetIndices16().size(), 2, box.GetIndices16().data());
 
 	// pipeline
-	std::string s = FileReader(GDirector->GetRootPath() / "Content/Engine/Shader/hlsl/test.hlsl").ReadAll();
-	RHIShaderStage*vs = GDevice->CreateShaderStage(s.c_str(), s.length(), SHADER_STAGE_VERTEX);
-	RHIShaderStage*ps = GDevice->CreateShaderStage(s.c_str(), s.length(), SHADER_STAGE_PIXEL);
-
-	RHIShader* shader = GDevice->CreateShader();
-	shader->CombineStage(vs);
-	shader->CombineStage(ps);
-
-	RHIVertexLayout* vl = GDevice->CreateVertexLayout();
-	vl->PushLayout("POSITION", PIXEL_FORMAT_R32G32B32_FLOAT, VERTEX_LAYOUT_PER_VERTEX);
-	vl->PushLayout("NORMAL",  PIXEL_FORMAT_R32G32B32_FLOAT, VERTEX_LAYOUT_PER_VERTEX);
-	vl->PushLayout("TANGENT",  PIXEL_FORMAT_R32G32B32_FLOAT, VERTEX_LAYOUT_PER_VERTEX);
-	vl->PushLayout("TEXCOORD",  PIXEL_FORMAT_R32G32_FLOAT, VERTEX_LAYOUT_PER_VERTEX);
-
-	RHIUniformLayout* ul = GDevice->CreateUniformLayout();
-	ul->PushLayout("globalcb", 0, UNIFORM_LAYOUT_CONSTANT_BUFFER);
-	ul->PushLayout("privatecb", 1, UNIFORM_LAYOUT_CONSTANT_BUFFER);
-	ul->PushLayout("texture0", 0, UNIFORM_LAYOUT_TEXTURE);
-
-
-	RHIPipelineStateDesc psoDesc;
-	psoDesc.vs = vs;
-	psoDesc.ps = ps;
-	psoDesc.ulayout = ul;
-	psoDesc.vlayout = vl;
-	psoDesc.rtsFormat = std::vector<ERHIPixelFormat>{ PIXEL_FORMAT_R8G8B8A8_UNORM };
-	psoDesc.dsFormat = PIXEL_FORMAT_D24_UNORM_S8_UINT;
-	psoDesc.fillMode = FILL_MODE_WIREFRAME;
-	state = GDevice->CreatePipelineState(psoDesc);
-
-	// constant buffer
-	cb1 = GDevice->CreateConstantBuffer(sizeof(PassConstants));
-	cb0 = GDevice->CreateConstantBuffer(sizeof(PerObjectConstants));
-	cb2 = GDevice->CreateConstantBuffer(sizeof(PerObjectConstants));
+	si = MaterialManager::GetMaterialInstance("test")->mRHIShaderInstance;
 
 	// texture
 	Image* image = Image::Load(GDirector->GetRootPath() / "Content/Test/WoodCrate01.tga");
@@ -143,12 +84,11 @@ Viewport::Viewport(uint32_t width, uint32_t height) {
 	desc.sizeZ = 0;
 	desc.numMips = 1;
 	desc.format = image->GetFormat();
-	desc.samplerDesc = RHISamplerDesc(SAMPLER_FILTER_POINT, SAMPLER_ADDRESS_MODE_CLAMP);
 	tex = GDevice->CreateTexture(desc, image->GetData());
 
 	// depth stencil
-	ds = GDevice->CreateDepthStencil(width, height, PIXEL_FORMAT_D24_UNORM_S8_UINT);
-	rt = GDevice->CreateRenderTarget(width, height, PIXEL_FORMAT_R8G8B8A8_UNORM);
+	ds = GDevice->CreateDepthStencil(width, height, PF_D24S8);
+	rt = GDevice->CreateRenderTarget(width, height, PF_R8G8B8A8);
 	rt->Clear(RHIClearValue(0.2f, 0.3f, 0.3f, 1.0f));
 }
 
@@ -188,36 +128,26 @@ void Viewport::Render() {
 
 	PassConstants passConstans;
 	XMStoreFloat4x4(&passConstans.ViewProj, DirectX::XMMatrixTranspose(view_ * proj));
-	cb1->CopyData(&passConstans, sizeof(PassConstants));
 
+	si->SetParameter("gViewProj", (const float*)&passConstans.ViewProj, 16);
+	
 	// world matrix for each object
 	PerObjectConstants objConstants;
 	DirectX::XMMATRIX world = DirectX::XMMatrixIdentity();
 	XMStoreFloat4x4(&objConstants.World, DirectX::XMMatrixTranspose(world));
-	cb0->CopyData(&objConstants, sizeof(PerObjectConstants));
-
-	DirectX::XMMATRIX world2 = DirectX::XMMatrixTranslation(-3.0f, -1.5f, 0.0f);
-	XMStoreFloat4x4(&objConstants.World, DirectX::XMMatrixTranspose(world2));
-	cb2->CopyData(&objConstants, sizeof(PerObjectConstants));
+	
+	si->SetParameter("gWorld", (const float*)& objConstants.World, 16);
+	si->SetParameter("gDiffuseMap", tex);
 
 	ds->Clear(RHIClearValue(1.0, 0));
 	
-	GDevice->SetPipelineState(state);
-	GDevice->SetRenderTargets({ rt });
-	GDevice->SetDepthStencil(ds);
+	GDevice->SetOutputs({ viewport->GetBackBuffer() }, ds);
 	GDevice->SetVertexBuffer(vb);
 	GDevice->SetIndexBuffer(ib);
-	GDevice->SetIndexBuffer(ib);
-	GDevice->SetConstantBuffer(0, cb0);
-	GDevice->SetConstantBuffer(1, cb1);
-	GDevice->SetTexture(0, tex);
 
-	GDevice->DrawIndexed();
-
-	GDevice->SetConstantBuffer(0, cb2);
-	GDevice->DrawIndexed();
-
-	DrawTex();
+	GDevice->DrawIndexed(si, RS_FILL_SOLID);
+	
+	//DrawTex();
 
 
 	viewport->EndDraw();

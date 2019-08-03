@@ -78,46 +78,16 @@ RHIViewport* DX12Device::CreateViewport(uint32_t width, uint32_t height, ERHIPix
 	return new DX12Viewport(width, height, FromRHIFormat(format));
 }
 
-RHIShaderStage* DX12Device::CreateShaderStage(const char* data, size_t dataLen, ERHIShaderStage stage) {
-	return DX12ShaderStage::FromCompile(data, dataLen, stage);
-}
-
 RHIShader* DX12Device::CreateShader() {
 	return new DX12Shader();
 }
 
-RHIVertexLayout* DX12Device::CreateVertexLayout() {
-	return new DX12VertexLayout();
+RHIShaderStage* DX12Device::CreateShaderStage(const char* data, size_t dataLen, ERHIShaderStage stage) {
+	return DX12ShaderStage::FromCompile(data, dataLen, stage);
 }
 
-RHIUniformLayout* DX12Device::CreateUniformLayout() {
-	return new DX12UniformLayout();
-}
-
-RHIPipelineState* DX12Device::CreatePipelineState(const RHIPipelineStateDesc& desc) {
-	DX12PipelineState* state = new DX12PipelineState();
-	state->SetShaderVS(static_cast<DX12ShaderStage*>(desc.vs));
-	state->SetShaderPS(static_cast<DX12ShaderStage*>(desc.ps));
-	state->SetUniformLayout(static_cast<DX12UniformLayout*>(desc.ulayout));
-	state->SetVertexLayout(static_cast<DX12VertexLayout*>(desc.vlayout));
-	state->SetDepthStencilFormat(FromRHIFormat(desc.dsFormat));
-	std::vector<DXGI_FORMAT> rtsFormat;
-	for (int i = 0; i < desc.rtsFormat.size(); i++) {
-		rtsFormat.emplace_back(FromRHIFormat(desc.rtsFormat[i]));
-	}
-	state->SetRenderTargetsFormat(rtsFormat);
-
-	if (FromRHIFormat(desc.dsFormat) == DXGI_FORMAT_UNKNOWN) {
-		state->GetDepthStencilState().DepthEnable = false;
-	}
-	state->GetRasterizerState().CullMode = FromRHICullMode(desc.cullMode);
-	state->GetRasterizerState().FillMode = FromRHIFillMode(desc.fillMode);
-
-	return state;
-}
-
-RHIConstantBuffer* DX12Device::CreateConstantBuffer(uint32_t size) {
-	return new DX12ConstantBuffer(size);
+RHIShaderInstance* DX12Device::CreateShaderInstance(RHIShader* shader) {
+	return new DX12ShaderInstance(static_cast<DX12Shader*>(shader));
 }
 
 RHIIndexBuffer* DX12Device::CreateIndexBuffer(uint32_t num, uint32_t stride, const void* data) {
@@ -141,20 +111,6 @@ RHITexture* DX12Device::CreateDepthStencil(uint32_t width, uint32_t height, ERHI
 }
 
 
-void DX12Device::SetPipelineState(RHIPipelineState* state) {
-	mExecutor->SetPipelineState(static_cast<DX12PipelineState*>(state));
-}
-
-void DX12Device::SetRenderTargets(const std::vector<RHITexture*>& res) {
-	std::vector<DX12RenderTarget*> rts(res.size());
-	memcpy(rts.data(), res.data(), res.size() * sizeof(RHITexture*));
-	mExecutor->SetRenderTargets(rts);
-}
-
-void DX12Device::SetDepthStencil(RHITexture* res) {
-	mExecutor->SetDepthStencil(static_cast<DX12DepthStencil*>(res));
-}
-
 void DX12Device::SetVertexBuffer(RHIVertexBuffer* res) {
 	mExecutor->SetVertexBuffer(static_cast<DX12VertexBuffer*>(res));
 }
@@ -163,16 +119,27 @@ void DX12Device::SetIndexBuffer(RHIIndexBuffer* res) {
 	mExecutor->SetIndexBuffer(static_cast<DX12IndexBuffer*>(res));
 }
 
-void DX12Device::SetConstantBuffer(int idx, RHIConstantBuffer* res) {
-	mExecutor->SetConstantBuffer(idx, static_cast<DX12ConstantBuffer*>(res));
+void DX12Device::SetOutputs(const std::vector<RHITexture*>& rts, RHITexture* ds) {
+	std::vector<DX12RenderTarget*> res;
+	// no memcpy, ref count point used here 
+	for (int i = 0; i < rts.size(); i++) {
+		res.push_back(static_cast<DX12RenderTarget*>(rts[i]));
+	}
+	mExecutor->SetRenderTargets(res);
+	mExecutor->SetDepthStencil(static_cast<DX12DepthStencil*>(ds));
+
 }
 
-void DX12Device::SetTexture(int idx, RHITexture* res) {
-	mExecutor->SetTexture(idx, dynamic_cast<DX12Texture*>(res));
-}
+void DX12Device::DrawIndexed(RHIShaderInstance* shaderInst, uint64_t state) {
+	DX12ShaderInstance* inst = static_cast<DX12ShaderInstance*>(shaderInst);
+	// get pipeline, create if not exist
+	std::vector<DXGI_FORMAT> rtsFormat = mExecutor->GetCurRenderTargetsFormat();
+	DXGI_FORMAT dsFormat = mExecutor->GetCurDepthStencilFormat();
+	DX12PipelineState *ppState = DX12PipelineStateCache::Get(inst->GetShader(), rtsFormat, dsFormat, state);
+	mExecutor->SetPipelineState(ppState);
+	// draw
+	mExecutor->DrawShaderInstance(inst);
 
-void DX12Device::DrawIndexed() {
-	mExecutor->Draw();
 }
 
 }

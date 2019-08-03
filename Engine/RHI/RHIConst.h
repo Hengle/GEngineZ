@@ -17,48 +17,14 @@ enum ERHIShaderStage {
 };
 
 
-enum EVertexLaytoutFlag {
-	VERTEX_LAYOUT_INVALID = 0,
-	VERTEX_LAYOUT_PER_INSTANCE,
-	VERTEX_LAYOUT_PER_VERTEX,
-};
-
-
 enum ERHIPixelFormat {
-	PIXEL_FORMAT_INVALID = 0,
-	PIXEL_FORMAT_R32_F,
-	PIXEL_FORMAT_R32G32_FLOAT,
-	PIXEL_FORMAT_R32G32B32_FLOAT,
-	PIXEL_FORMAT_R32G32B32A32_FLOAT,
-	PIXEL_FORMAT_R8G8B8A8_UNORM,
-	PIXEL_FORMAT_D24_UNORM_S8_UINT,
-
-	PIXEL_FORMAT_MAX
-};
-
-
-enum EUniformLayoutFlag {
-	UNIFORM_LAYOUT_INVALID = 0,
-	UNIFORM_LAYOUT_CONSTANT_BUFFER = 1,
-	UNIFORM_LAYOUT_TEXTURE = 2,
-};
-
-
-enum ERHISamplerFitler {
-	SAMPLER_FILTER_UNKNOWN = 0,
-	SAMPLER_FILTER_POINT,
-	SAMPLER_FILTER_LINEAR,
-	SAMPLER_FILTER_ANISOTROPIC
-};
-
-
-enum ERHISamplerAddressMode {
-	SAMPLER_ADDRESS_MODE_UNKNOWN = 0,
-	SAMPLER_ADDRESS_MODE_WRAP,
-	SAMPLER_ADDRESS_MODE_MIRROR,
-	SAMPLER_ADDRESS_MODE_CLAMP,
-	SAMPLER_ADDRESS_MODE_BORDER,
-	SAMPLER_MODE_MIRROR_ONCE
+	PF_INVALID = 0,
+	PF_R32,
+	PF_R32G32,
+	PF_R32G32B32,
+	PF_R32G32B32A32,
+	PF_R8G8B8A8,
+	PF_D24S8
 };
 
 
@@ -74,18 +40,31 @@ enum ERHITexDimension {
 };
 
 
-enum ERHIFillMode {
-	FILL_MODE_WIREFRAME = 2,
-	FILL_MODE_SOLID = 3
+enum ERHISamplerFlag {
+	SAMPLER_FILTER_LINEAR		= 0x0001,	// default 0x00ff
+	SAMPLER_FILTER_POINT		= 0x0002,
+	SAMPLER_FILTER_ANISOTROPIC	= 0x0004,
+	SAMPLER_ADDRESS_WRAP		= 0x0100,	// default 0xff00
+	SAMPLER_ADDRESS_MIRROR		= 0x0200,
+	SAMPLER_ADDRESS_CLAMP		= 0x0400,
+	SAMPLER_ADDRESS_BORDER		= 0x0800,
+
 };
 
+enum ERHIRenderState {
+	// 2 bit, fill mode
+	RS_FILL_WIREFRAME = 0x01 << 0,
+	RS_FILL_SOLID	  = 0x02 << 0,
+	// 2 bit, cull mode
+	RS_CULL_NONE	  = 0x01 << 2,
+	RS_CULL_FRONT	  = 0x02 << 2,
+	RS_CULL_BACK	  = 0x03 << 2,
+	// blend
 
-enum ERHICullMode {
-	CULL_MODE_NONE = 1,
-	CULL_MODE_FRONT = 2,
-	CULL_MODE_BACK = 3
+	// stencil
+
+	// depth
 };
-
 
 
 
@@ -111,31 +90,6 @@ struct RHIClearValue {
 	};
 };
 
-class RHIShader;
-class RHIShaderStage;
-class RHIVertexLayout;
-class RHIUniformLayout;
-
-struct RHIPipelineStateDesc {
-	RHIPipelineStateDesc() :
-		vs(nullptr), 
-		ps(nullptr), 
-		vlayout(nullptr), 
-		ulayout(nullptr),
-		dsFormat(PIXEL_FORMAT_INVALID),
-		fillMode(FILL_MODE_SOLID),
-		cullMode(CULL_MODE_BACK) {
-	}
-
-	RHIShaderStage* vs;
-	RHIShaderStage* ps;
-	RHIVertexLayout* vlayout;
-	RHIUniformLayout* ulayout;
-	std::vector<ERHIPixelFormat> rtsFormat;
-	ERHIPixelFormat dsFormat;
-	ERHIFillMode fillMode;
-	ERHICullMode cullMode;
-};
 
 struct ScreenRenderRect {
 	float topLeftX;
@@ -144,32 +98,19 @@ struct ScreenRenderRect {
 	float height;
 };
 
-
-// Texture...
-
-
-struct RHISamplerDesc {
-	ERHISamplerFitler minFilter;
-	ERHISamplerFitler maxFilter;
-	ERHISamplerFitler mipFilter;
-	ERHISamplerAddressMode addressU;
-	ERHISamplerAddressMode addressV;
-	ERHISamplerAddressMode addressW;
-
-	RHISamplerDesc() : RHISamplerDesc(SAMPLER_FILTER_LINEAR, SAMPLER_ADDRESS_MODE_WRAP) {}
-	RHISamplerDesc(ERHISamplerFitler filter, ERHISamplerAddressMode mode) {
-		minFilter = maxFilter = mipFilter = filter;
-		addressU = addressV = addressW = mode;
-	}
-
+struct RHIInputDesc {
+	std::string SemanticName;
+	uint32_t SemanticIndex;
+	ERHIPixelFormat Format;
 };
+
+
 
 struct RHITextureDesc {
 	uint32_t sizeX;
 	uint32_t sizeY;
 	uint32_t sizeZ;
 	uint32_t flags;
-	RHISamplerDesc samplerDesc;
 	ERHIPixelFormat format;
 	ERHITexDimension dimension;
 	uint8_t numMips;

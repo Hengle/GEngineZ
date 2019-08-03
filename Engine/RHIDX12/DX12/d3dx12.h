@@ -2448,7 +2448,7 @@ struct CD3DX12_PIPELINE_STATE_STREAM_PARSE_HELPER : public ID3DX12PipelineParser
         // Adjust defaults to account for absent members.
         PipelineStream.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
-        // Depth disabled if no DSV format specified.
+        // Depth disabled if no DSV Format specified.
         static_cast<D3D12_DEPTH_STENCIL_DESC1&>(PipelineStream.DepthStencilState).DepthEnable = false;
     }
 

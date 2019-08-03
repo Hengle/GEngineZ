@@ -35,26 +35,20 @@ public:
 
 	// ====  begin device method ====
 	RHIViewport* CreateViewport(uint32_t width, uint32_t height, ERHIPixelFormat format) override;
-	RHIShaderStage* CreateShaderStage(const char* data, size_t dataLen, ERHIShaderStage stype) override;
 	RHIShader* CreateShader() override;
-	RHIVertexLayout* CreateVertexLayout() override;
-	RHIUniformLayout* CreateUniformLayout() override;
-	RHIPipelineState* CreatePipelineState(const RHIPipelineStateDesc&) override;
-	RHIConstantBuffer* CreateConstantBuffer(uint32_t size) override;
+	RHIShaderStage* CreateShaderStage(const char* data, size_t dataLen, ERHIShaderStage stype) override;
+	RHIShaderInstance* CreateShaderInstance(RHIShader*) override;
 	RHIIndexBuffer* CreateIndexBuffer(uint32_t num, uint32_t stride, const void* data) override;
 	RHIVertexBuffer* CreateVertexBuffer(uint32_t num, uint32_t stride, const void* data) override;
 	RHITexture* CreateTexture(const RHITextureDesc& desc, const uint8_t* data) override;
 	RHITexture* CreateDepthStencil(uint32_t width, uint32_t height, ERHIPixelFormat format) override;
 	RHITexture* CreateRenderTarget(uint32_t width, uint32_t height, ERHIPixelFormat format) override;
 
-	void SetPipelineState(RHIPipelineState*) override;
-	void SetRenderTargets(const std::vector<RHITexture*>&) override;
-	void SetDepthStencil(RHITexture* res) override;
 	void SetVertexBuffer(RHIVertexBuffer*) override;
 	void SetIndexBuffer(RHIIndexBuffer*) override;
-	void SetConstantBuffer(int, RHIConstantBuffer*) override;
-	void SetTexture(int, RHITexture*) override;
-	void DrawIndexed() override;
+
+	void SetOutputs(const std::vector<RHITexture*>& rts, RHITexture *ds=nullptr) override;
+	void DrawIndexed(RHIShaderInstance* shaderInst, uint64_t state) override;
 	// ==== end device method ====
 
 

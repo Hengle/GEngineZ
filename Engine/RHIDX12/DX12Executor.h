@@ -10,11 +10,8 @@ class DX12CommandList;
 class DX12Device;
 class DX12VertexBuffer;
 class DX12IndexBuffer;
-class DX12Texture;
-class DX12ConstantBuffer;
-class DX12ConstantBufferView;
-class DX12ShaderResourceView;
-class DX12SamplerView;
+class DX12ShaderInstance;
+
 
 enum ExecutorStateFlag {
 	DX12EXE_FLAG_PSO_DIRTY = 0x0001,
@@ -82,11 +79,14 @@ public:
 	void SetDepthStencil(DX12DepthStencil*);
 	void SetVertexBuffer(DX12VertexBuffer*);
 	void SetIndexBuffer(DX12IndexBuffer*);
-	void SetConstantBuffer(int idx, DX12ConstantBuffer*);
-	void SetTexture(int idx, DX12Texture*);
 	void ApplyState();
 
-	void Draw();
+	void DrawShaderInstance(DX12ShaderInstance*);
+
+	std::vector<DXGI_FORMAT> GetCurRenderTargetsFormat() const;
+	DXGI_FORMAT GetCurDepthStencilFormat() const;
+
+
 
 	// CommandList
 	ID3D12CommandQueue* GetCommandQueue() {
@@ -110,18 +110,16 @@ public:
 	}
 
 private:
-	RefCountPtr<DX12PipelineState> mPSO;
+	RefCountPtr<DX12ShaderInstance> mShaderInst;
+
 	std::vector<RefCountPtr<DX12RenderTarget>> mRenderTargets;
 	RefCountPtr<DX12DepthStencil> mDepthStencil;
 	RefCountPtr<DX12VertexBuffer> mVertexBuffer;
 	RefCountPtr<DX12IndexBuffer> mIndexBuffer;
 
-	std::vector<RefCountPtr<DX12ConstantBufferView>> mConstantBufferViews;
-	std::vector<RefCountPtr<DX12ShaderResourceView>> mTextureViews;
-	std::vector<RefCountPtr<DX12SamplerView>> mSamplerViews;
 
-	ID3D12RootSignature* mCurRootSignature;
-	ID3D12PipelineState* mCurPipelineState;
+	DX12PipelineState* mPSO;
+	DX12PipelineState* mCurPSO;
 
 	int mFlag;
 

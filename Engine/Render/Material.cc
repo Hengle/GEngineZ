@@ -1,4 +1,4 @@
-#include "Shader.h"
+#include "Material.h"
 #include <RHI/RHIResource.h>
 #include <RHI/RHIDevice.h>
 #include <filesystem>
@@ -6,9 +6,32 @@
 
 namespace z {
 
-std::unordered_map<std::string, Shader*> ShaderManager::gShaders;
+std::unordered_map<std::string, Material*> MaterialManager::gMaterials;
 
-void ShaderManager::LoadShaders(FilePath rootPath) {
+// Material
+Material::Material(RHIShader* rhiShader) :
+	mRHIShader(rhiShader) {
+}
+
+
+// MaterialInstance
+MaterialInstance::MaterialInstance(Material* material) :
+	mParent(material),
+	mRHIShaderInstance(nullptr) {
+	mRHIShaderInstance = GDevice->CreateShaderInstance(material->GetShader());
+}
+
+MaterialInstance* MaterialManager::GetMaterialInstance(std::string name) {
+	Material* m = GetMaterial(name);
+	if (m == nullptr) {
+		return nullptr;
+	}
+	return new MaterialInstance(m);
+
+}
+
+
+void MaterialManager::LoadShaders(FilePath rootPath) {
 	for (auto const& entry : std::filesystem::directory_iterator(std::string(rootPath))) {
 		if (entry.is_directory()) {
 			continue;
@@ -21,13 +44,13 @@ void ShaderManager::LoadShaders(FilePath rootPath) {
 		}
 		RHIShader *rhiShader = CompileShader(path);
 		if (rhiShader) {
-			gShaders[name] = new Shader(rhiShader);
+			gMaterials[name] = new Material(rhiShader);
 		}
 	}
 }
 
 
-std::string ShaderManager::PreProcessingHLSL(const FilePath& codePath) {
+std::string MaterialManager::PreProcessingHLSL(const FilePath& codePath) {
 	std::string lines = FileReader(codePath).ReadAll();
 	std::vector<std::string> strArray;
 
@@ -58,11 +81,7 @@ std::string ShaderManager::PreProcessingHLSL(const FilePath& codePath) {
 	return shaderStr;
 }
 
-ShaderInstance* ShaderManager::GetInstance(std::string name) {
-	return nullptr;
-}
-
-RHIShader* ShaderManager::CompileShader(const std::string &path) {
+RHIShader* MaterialManager::CompileShader(const std::string &path) {
 	Log<LINFO>("Compile Shader", path.c_str());
 	std::string shaderStr = PreProcessingHLSL(path);
 

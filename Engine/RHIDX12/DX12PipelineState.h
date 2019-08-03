@@ -1,47 +1,56 @@
 #pragma once
 
 #include "DX12Header.h"
-#include "DX12Device.h"
-#include "DX12Shader.h"
-#include "DX12Texture.h"
 #include <Core/CoreHeader.h>
 
 namespace z {
 
+class DX12Shader;
+class DX12PipelineState;
 
-
-class DX12PipelineState : public RHIPipelineState {
+class DX12PipelineStateCache {
 public:
-	DX12PipelineState();
+	static DX12PipelineState* Get(DX12Shader* shader, const std::vector<DXGI_FORMAT>&, const DXGI_FORMAT, const uint64_t);
 
-	void SetShaderVS(DX12ShaderStage* shader) {
-		mShaderVS = shader;
-	}
+	struct DX12PipelineStateHash {
+		uint64_t State;
+		DX12Shader* Shader;;
+		DXGI_FORMAT RTs[MAX_SIGNATURE_NUM];
+		DXGI_FORMAT DS;
 
-	void SetShaderPS(DX12ShaderStage* shader) {
-		mShaderPS = shader;
-	}
+		DX12PipelineStateHash(DX12Shader* shader, const std::vector<DXGI_FORMAT>& rtsFormat,
+			const DXGI_FORMAT dsFormat, const uint64_t state) {
+			Shader = shader;
+			memset(RTs, 0, MAX_SIGNATURE_NUM * sizeof(DXGI_FORMAT));
+			memcpy(RTs, rtsFormat.data(), rtsFormat.size() * sizeof(DXGI_FORMAT));
+			DS = DXGI_FORMAT_UNKNOWN;
+			State = state;
+		}
 
-	void SetVertexLayout(DX12VertexLayout* layout) {
-		mVertexLayout = layout;
-	}
+		bool operator == (const DX12PipelineStateHash& state) const {
+			return 0 == memcmp(this, &state, sizeof(DX12PipelineStateHash));
+		}
+	};
 
-	void SetUniformLayout(DX12UniformLayout* layout) {
-		mUniformLayout = layout;
-	}
+	struct DX12PipelineStateHashFN {
+		std::size_t operator() (const DX12PipelineStateHash& node) const {
+			size_t hv = (uint64_t)node.DS ^ node.State;
+			for (int i = 0; i < MAX_SIGNATURE_NUM; i++) {
+				hv ^= (uint64_t)node.RTs[i];
+			}
+			hv += (uint64_t)node.Shader;
+			return hv;
+		}
+	};
 
-	DX12UniformLayout* GetUniformLayout() {
-		return mUniformLayout.GetRef();
-	}
+private:
+	static std::unordered_map<DX12PipelineStateHash, DX12PipelineState*, DX12PipelineStateHashFN> gPipelineStates;
+};
 
-	void SetDepthStencilFormat(DXGI_FORMAT format) {
-		mDepthStencilFormat = format;
-	}
 
-	void SetRenderTargetsFormat(const std::vector<DXGI_FORMAT> &format) {
-		mRenderTargetsFormat = format;
-	}
-
+class DX12PipelineState {
+public:
+	friend class DX12PipelineStateCache;
 
 	D3D12_RASTERIZER_DESC& GetRasterizerState() {
 		return mRasterizerState;
@@ -55,22 +64,17 @@ public:
 		return mDepthStencilState;
 	}
 
-	void Create();
-
 	ID3D12PipelineState* GetIPipelineState();
 	ID3D12RootSignature* GetIRootSignature();
 
 private:
-	RefCountPtr<DX12ShaderStage> mShaderVS;
-	RefCountPtr<DX12ShaderStage> mShaderPS;
-	RefCountPtr<DX12VertexLayout> mVertexLayout;
-	RefCountPtr<DX12UniformLayout> mUniformLayout;
+	DX12PipelineState(DX12Shader* shader, const std::vector<DXGI_FORMAT>&, const DXGI_FORMAT, const uint64_t);
+
+	RefCountPtr<DX12Shader> mShader;
+	RefCountPtr<ID3D12PipelineState> mState;
 
 	std::vector<DXGI_FORMAT> mRenderTargetsFormat;
 	DXGI_FORMAT mDepthStencilFormat;
-
-	RefCountPtr<ID3D12PipelineState> mState;
-
 	D3D12_RASTERIZER_DESC mRasterizerState;
 	D3D12_BLEND_DESC mBlendState;
 	D3D12_DEPTH_STENCIL_DESC mDepthStencilState;

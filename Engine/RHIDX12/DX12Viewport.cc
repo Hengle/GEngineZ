@@ -101,8 +101,7 @@ void DX12Viewport::BeginDraw(const RHIClearValue& clearValue) {
 
 	// transition state to render target
 	DX12RenderTarget* backBuffer = GetCurBackBuffer();
-	DX12RenderTargetView* view = backBuffer->GetRTView();
-	view->GetResource()->Transition(D3D12_RESOURCE_STATE_RENDER_TARGET);
+	backBuffer->SetWritable();
 
 	backBuffer->Clear(FromRHIClearVale(clearValue));
 	GDX12Device->GetExecutor()->SetRenderTargets({ backBuffer });
@@ -111,6 +110,7 @@ void DX12Viewport::BeginDraw(const RHIClearValue& clearValue) {
 
 void DX12Viewport::EndDraw() {
 	Present();
+	DX12BufferUploader::Clear();
 	GDX12Device->GetExecutor()->Reset();
 }
 

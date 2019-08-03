@@ -32,12 +32,12 @@ private:
 	RenderScene* mRenderScene;
 
 	RHIViewport* viewport;
-	RefCountPtr<RHIPipelineState> state;
 	RefCountPtr<RHIVertexBuffer> vb;
 	RefCountPtr<RHIIndexBuffer> ib;
-	RefCountPtr<RHIConstantBuffer> cb1, cb0, cb2;
 	RefCountPtr<RHITexture> ds, rt;
 	RefCountPtr<RHITexture> tex;
+
+	RefCountPtr<RHIShaderInstance> si;
 };
 
 
