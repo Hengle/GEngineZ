@@ -1,28 +1,48 @@
 #pragma once
 #include <Core/CoreHeader.h>
+#include <RHI/RHIConst.h>
+#include <Render/RenderConst.h>
 
 namespace z {
 class RHIShader;
+class RHITexture;
+class RHIInputDesc;
 class RHIShaderInstance;
 
-
+// memory manage by material manager
 class Material {
 public:
-	Material(RHIShader*);
+	Material(RHIShader*, const std::vector<EFVFormat>&);
 
 	RHIShader* GetShader() {
 		return mRHIShader;
 	}
 
-//private:
+	std::vector<EFVFormat> GetFVFs() {
+		return mFVFs;
+	}
+
+private:
 	RefCountPtr<RHIShader> mRHIShader;
+	std::vector<EFVFormat> mFVFs;
 };
 
-class MaterialInstance {
+
+class MaterialInstance : public RefCounter{
 public:
 	MaterialInstance(Material*);
 
-//private:
+	void SetParameter(const std::string& key, const float* value, int size);
+	void SetParameter(const std::string& key, RHITexture*, uint32_t sampler = SAMPLER_FILTER_LINEAR | SAMPLER_ADDRESS_WRAP);
+
+	Material* GetMaterial() {
+		return mParent;
+	}
+
+	void DrawIndexed();
+
+
+public:
 	Material* mParent;
 	RefCountPtr<RHIShaderInstance> mRHIShaderInstance;
 };
@@ -36,6 +56,8 @@ public:
 	static std::string PreProcessingHLSL(const FilePath& codePath);
 
 	static MaterialInstance* GetMaterialInstance(std::string name);
+
+	static bool ParseInputFVF(const std::vector<RHIInputDesc>& inputs, std::vector<EFVFormat>& formats);
 
 	static Material* GetMaterial(const std::string& name) {
 		return gMaterials[name];

@@ -1,13 +1,17 @@
 #pragma once
 #include <Core/CoreHeader.h>
 #include <Render/RenderConst.h>
-
+#include <Render/Material.h>
+#include <Render/SubMesh.h>
 
 namespace z {
 
-struct RenderItem {
+struct RenderItem : RefCounter{
 	ERenderSet renderSet;
-	// MaterialInstance
+
+	RefCountPtr<SubMeshInstance> mesh;
+	RefCountPtr<MaterialInstance> material;
+
 
 };
 

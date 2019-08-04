@@ -5,12 +5,15 @@
 #include <Client/Scene/Scene.h>
 #include <Render/RenderScene.h>
 #include <Render/Material.h>
+#include <Render/RenderItem.h>
 
 #include <RHI/RHIDevice.h>
 #include <Util/Image/Image.h>
-
+#include <Util/Mesh/ZMeshLoader.h>
 #include <d2d1.h>
 #include "GeometryGenerator.h"
+
+
 
 namespace z {
 
@@ -31,9 +34,10 @@ struct PassConstants {
 
 
 void Viewport::Resize(int width, int height) {
+	mWidth = width;
+	mHeight = height;
+
 	mRHIViewport->Resize(width, height);
-
-
 	ds = GDevice->CreateDepthStencil(width, height, PF_D24S8);
 }
 
@@ -56,7 +60,7 @@ void Viewport::DrawTex() {
 
 
 	MaterialInstance* mi = MaterialManager::GetMaterialInstance("render_tex");
-	mi->mRHIShaderInstance->SetParameter("gDiffuseMap", ds);
+	mi->SetParameter("gDiffuseMap", ds);
 
 	
 	mRHIViewport->SetRenderRect(ScreenRenderRect{ 0, 0, 200, 150 });
@@ -64,27 +68,31 @@ void Viewport::DrawTex() {
 	GDevice->SetOutputs({ mRHIViewport->GetBackBuffer() }, nullptr);
 	GDevice->SetVertexBuffer(vb);
 	GDevice->SetIndexBuffer(ib);
-	GDevice->DrawIndexed(mi->mRHIShaderInstance, 0);
+	mi->DrawIndexed();
 
 
 }
 
-Viewport::Viewport(uint32_t width, uint32_t height) {
+Viewport::Viewport(uint32_t width, uint32_t height) :
+	mWidth(width), 
+	mHeight(height) {
 	MaterialManager::LoadShaders(GApp->GetRootPath() / "Content"/ "Engine" / "Shader" / "hlsl");
 	
 	mRenderScene = new RenderScene();
 
 	mRHIViewport = GDevice->CreateViewport(width, height, PF_R8G8B8A8);
 
-	// vertex and indices
-	GeometryGenerator geoGen;
-	GeometryGenerator::MeshData box = geoGen.CreateBox(2.0f, 2.0f, 2.0f, 3);
-	vb = GDevice->CreateVertexBuffer(box.Vertices.size(), sizeof(VertexIn), box.Vertices.data());
-	ib = GDevice->CreateIndexBuffer(box.GetIndices16().size(), 2, box.GetIndices16().data());
+	mesh = ZMeshLoader::Load(GApp->GetRootPath() / "Content" / "Test" / "Mesh" / "nanosuit.zmesh");
+	for (int i = 0; i < mesh->GetSubMeshNum(); i++) {
+		RenderItem *item = new RenderItem();
 
-	// pipeline
-	si = MaterialManager::GetMaterialInstance("test")->mRHIShaderInstance;
+		item->material = MaterialManager::GetMaterialInstance("test");
+		item->mesh = mesh->GetSubMeshInstance(i, item->material->GetMaterial()->GetFVFs(), 2);
+		items.push_back(item);
+	}
+	
 
+	
 	// texture
 	Image* image = Image::Load(GApp->GetRootPath() / "Content/Test/WoodCrate01.tga");
 	RHITextureDesc desc;
@@ -125,37 +133,34 @@ void Viewport::Render() {
 
 	mRHIViewport->BeginDraw(RHIClearValue(0.3, 0.2, 0.5, 1.0));
 
-	DirectX::XMVECTOR pos = DirectX::XMVectorSet(6.f, 2.f, 10.f, 1.0f);
+	DirectX::XMVECTOR pos = DirectX::XMVectorSet(36.f, 16.f, 10.f, 1.0f);
 	DirectX::XMVECTOR target = DirectX::XMVectorZero();
 	DirectX::XMVECTOR up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 	DirectX::XMMATRIX view_ = DirectX::XMMatrixLookAtLH(pos, target, up);
 
-	float aspect = static_cast<float>(800) / 600;
+	float aspect = static_cast<float>(mWidth) / mHeight;
 	DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveFovLH(0.25f * DirectX::XM_PI, aspect, 1.0f, 1000.0f);
 
 	PassConstants passConstans;
 	XMStoreFloat4x4(&passConstans.ViewProj, DirectX::XMMatrixTranspose(view_ * proj));
 
-	si->SetParameter("gViewProj", (const float*)&passConstans.ViewProj, 16);
 	
 	// world matrix for each object
 	PerObjectConstants objConstants;
 	DirectX::XMMATRIX world = DirectX::XMMatrixIdentity();
 	XMStoreFloat4x4(&objConstants.World, DirectX::XMMatrixTranspose(world));
 	
-	si->SetParameter("gWorld", (const float*)& objConstants.World, 16);
-	si->SetParameter("gDiffuseMap", tex);
 
 	ds->Clear(RHIClearValue(1.0, 0));
-	
 	GDevice->SetOutputs({ mRHIViewport->GetBackBuffer() }, ds);
-	GDevice->SetVertexBuffer(vb);
-	GDevice->SetIndexBuffer(ib);
 
-	GDevice->DrawIndexed(si, RS_FILL_SOLID);
-	
+	for (auto item : items) {
+		item->mesh->Use();
+		item->material->SetParameter("gViewProj", (const float*)& passConstans.ViewProj, 16);
+		item->material->SetParameter("gWorld", (const float*)& objConstants.World, 16);
+		item->material->DrawIndexed();
+	}
 	//DrawTex();
-
 
 	mRHIViewport->EndDraw();
 }

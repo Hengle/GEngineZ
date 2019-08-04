@@ -105,6 +105,8 @@ void DX12Executor::ApplyState() {
 	if (mFlag & DX12EXE_FLAG_IB_DIRTY) {
 		GetCommandList()->IASetIndexBuffer(&mIndexBuffer->GetView());
 		GetCommandList()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		//GetCommandList()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+
 		mFlag &= ~DX12EXE_FLAG_IB_DIRTY;
 	}
 }
@@ -139,6 +141,7 @@ DXGI_FORMAT DX12Executor::GetCurDepthStencilFormat() const {
 	if (mDepthStencil) {
 		return mDepthStencil->Format;
 	}
+	return DXGI_FORMAT_UNKNOWN;
 }
 
 

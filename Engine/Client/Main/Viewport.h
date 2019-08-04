@@ -3,17 +3,14 @@
 #include <Core/CoreHeader.h>
 
 #include <RHI/RHIResource.h>
-
+#include <Render/Material.h>
+#include <Render/SubMesh.h>
+#include <Render/RenderItem.h>
 namespace z {
 class Scene;
 class RenderScene;
 
-class DX12Viewport;
-class DX12PipelineState;
-class DX12VertexBuffer;
-class DX12IndexBuffer;
-class DX12ConstantBuffer;
-class DX12DepthStencil;
+class MaterialInstance;
 
 class Viewport {
 public:
@@ -28,16 +25,24 @@ public:
 
 	
 private:
+	uint32_t mWidth;
+	uint32_t mHeight;
+
 	Scene* mScene;
 	RenderScene* mRenderScene;
 
 	RefCountPtr<RHIViewport> mRHIViewport;
-	RefCountPtr<RHIVertexBuffer> vb;
-	RefCountPtr<RHIIndexBuffer> ib;
 	RefCountPtr<RHITexture> ds, rt;
 	RefCountPtr<RHITexture> tex;
 
-	RefCountPtr<RHIShaderInstance> si;
+	RefCountPtr<MaterialInstance> si;
+
+
+	RefCountPtr<MaterialInstance> material;
+	Mesh* mesh;
+
+	std::vector<RefCountPtr<RenderItem>> items;
+
 };
 
 

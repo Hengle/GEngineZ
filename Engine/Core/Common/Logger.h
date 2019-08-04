@@ -1,8 +1,11 @@
 #pragma once
 
-#include <sstream>
-#include <iostream>
+
 #include <string>
+#include <fstream>
+#include <istream>
+#include <iostream>
+#include <sstream>
 
 namespace z {
 
@@ -52,19 +55,21 @@ public:
 
 	template<typename T, typename... Args>
 	void Print(const T& first, Args... args) {
- 		mStream << first << " ";
+		mStream << first << " ";
 		if constexpr (sizeof...(args) > 0) {
 			Print(args...);
 		}
 	}
 
+#pragma warning(disable: 4722)
 	~Log() {
 		mStream << std::endl;
-		std::wcout << mStream.str();
+		std::cout << mStream.str();
 		if constexpr (LEVEL == LFATAL) {
 			exit(-1);
 		}
 	}
+#pragma warning(default: 4722)
 
 #pragma warning(disable: 4227)
 	template<typename T>
@@ -75,7 +80,7 @@ public:
 #pragma warning(default: 4227)
 
 private:
-	std::wstringstream mStream;
+	std::stringstream mStream;
 };
 
 

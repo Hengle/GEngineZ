@@ -12,21 +12,22 @@ import BuildTool as BT
 class CMakeConfig(BT.CMake):
     def __init__(self):
         super(CMakeConfig, self).__init__("GameZ")
-        self.define["CMAKE_HELLO"] = True
-        
-        self.define["CMAKE_HELLDDO"] = True
+        self.define["HLSLCC_DYNLIB"] = True
+        self.define["COMPRESS_MESH_FILE"] = True
+
 
 
 build_cfg = CMakeConfig()
 
 
 # ================= Main Targets =================
+# Config
 class Config(BT.Module):
     def __init__(self):
         super(Config, self).__init__("Config", BT.CUSTOM)
         self.SOURCE = ["Config"]
 
-
+# Engine
 class Engine(BT.Module):
     def __init__(self):
         super(Engine, self).__init__("Engine", BT.STATIC_LIB)
@@ -35,17 +36,24 @@ class Engine(BT.Module):
         self.DEPS = ["TPLib_Stb"]
 
 
+# Program
 class Game(BT.Module):
     def __init__(self):
         super(Game, self).__init__("Game", BT.EXECUTABLE)
         self.SOURCE = ["Program/Game"]
-        self.DEPS = ["Engine"]
+        self.DEPS = ["Engine", "zlib"]
 
 class SLConverter(BT.Module):
     def __init__(self):
         super(SLConverter, self).__init__("SLConverter", BT.EXECUTABLE)
         self.SOURCE = ["Program/SLConverter"]
         self.DEPS = ["Engine", "hlslcc"]
+
+class MeshConverter(BT.Module):
+    def __init__(self):
+        super(MeshConverter, self).__init__("MeshConverter", BT.EXECUTABLE)
+        self.SOURCE = ["Program/MeshConverter"]
+        self.DEPS = ["Engine", "assimp-vc142-mt", "zlib"]
 
 # ================= Tests =================
 class TestSched(BT.Module):
@@ -67,6 +75,7 @@ build_targets = [
     # Progam
     Game(),
     SLConverter(),
+    MeshConverter(),
     # Tests
     TestSched(),
 

@@ -14,14 +14,13 @@ SamplerState gSampler  : register(s0);
 struct VertexIn {
 	float3 pos : POSITION;
 	float3 normal: NORMAL;
-	float3 tangent: TANGENT;
-	float4 uv : TEXCOORD;
+	float2 uv : TEXCOORD;
 };
 
 
 struct VertexOut {
 	float4 pos : SV_POSITION;
-	float4 uv : TEXCOORD;
+	float2 uv : TEXCOORD;
 };
 
 VertexOut VS(VertexIn vin) {
@@ -33,7 +32,7 @@ VertexOut VS(VertexIn vin) {
 }
 
 float4 PS(VertexOut vin) : SV_Target{
-	float4 color = gDiffuseMap.Sample(gSampler, vin.uv.xy);
+	float4 color = gDiffuseMap.Sample(gSampler, vin.uv);
 	return color;
 }
 
