@@ -10,7 +10,7 @@ namespace z {
 
 class Director {
 public:
-	Director(FilePath rootPath);
+	Director();
 	~Director();
 	
 	void Update();
@@ -23,20 +23,16 @@ public:
 		mFrameInterval = int(1000.0f / limit);
 	}
 
-	void AddViewport(Viewport*);
-	void DelViewport(Viewport*);
 
-	FilePath GetRootPath() {
-		return mRootPath;
+	Viewport* GetViewport() {
+		return mViewport;
 	}
 
-	void LoadShaders();
+
 
 private:
 	uint64_t mFrameInterval{ 0 };
-	std::vector<Viewport*> mViewports;
-
-	FilePath mRootPath;
+	Viewport* mViewport;
 	
 };
 

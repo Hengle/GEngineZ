@@ -54,6 +54,8 @@ DX12DescriptorHeapPos DX12DescriptorHeapAllocator::Allocate() {
 }
 
 void DX12DescriptorHeapAllocator::Free(DX12DescriptorHeapPos const& pos) {
+
+	Log<LDEBUG>("Free descriptor", mDesc.Type, pos.heap, pos.cpuHandle.ptr);
 	mFreeDescriptors.emplace_back(pos);
 }
 

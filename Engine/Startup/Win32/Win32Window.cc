@@ -1,10 +1,15 @@
 #include "Win32Window.h"
 #include <Core/CoreHeader.h>
 
+#include "imm.h"
+#pragma comment(lib, "imm32.lib")
+
 namespace z {
 Win32Window* GWindow = nullptr;
 
-Win32Window::Win32Window() {
+Win32Window::Win32Window(int width, int height) :
+	mWindowWidth(width), 
+	mWindowHeight(height) {
 	InitializeSingleton<Win32Window>(GWindow, this);
 }
 
@@ -38,7 +43,7 @@ bool Win32Window::InitWindow() {
 		Log<LFATAL>("RegisterClassEx failed.");
 		return false;
 	}
-	RECT R{ 0, 0, mWidth, mHeight };
+	RECT R{ 0, 0, mWindowWidth, mWindowHeight };
 	AdjustWindowRect(&R, WS_OVERLAPPEDWINDOW, false);
 
     mMainWnd = CreateWindow(
@@ -69,6 +74,12 @@ bool Win32Window::InitWindow() {
 bool Win32Window::UpdateWindow() {
 	MSG msg;
 	if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
+		if (msg.message == WM_KEYUP || msg.message == WM_KEYDOWN) {
+			// handle ime
+			if (msg.wParam == VK_PROCESSKEY) {
+				msg.wParam = ::ImmGetVirtualKey(mMainWnd);
+			}
+		}
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 		if (msg.message == WM_QUIT) {
@@ -87,20 +98,21 @@ LRESULT Win32Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 		}
 		return 0;
 	case WM_SIZE:
-		mWidth = LOWORD(lParam);
-		mHeight = HIWORD(lParam);
+		mWindowWidth = LOWORD(lParam);
+		mWindowHeight = HIWORD(lParam);
 		if (wParam == SIZE_MINIMIZED) {
 		} else if (wParam == SIZE_MAXIMIZED) {
-			OnResize();
+			OnResize(mWindowWidth, mWindowHeight);
 		} else if (wParam == SIZE_RESTORED) {
-			OnResize();
+			OnResize(mWindowWidth, mWindowHeight);
 		}
 		return 0;
 
 	case WM_ENTERSIZEMOVE:
+		// grab resize bar..
 		return 0;
 	case WM_EXITSIZEMOVE:
-		//OnResize();
+		// grab resize bar..
 		return 0;
 
 	case WM_DESTROY:
@@ -110,23 +122,26 @@ LRESULT Win32Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 	case WM_LBUTTONDOWN:
 	case WM_MBUTTONDOWN:
 	case WM_RBUTTONDOWN:
-		//OnMouseButtonEvent(wParam, 1);
+		OnMouseButtonEvent(wParam, true);
 		return 0;
 	case WM_LBUTTONUP:
 	case WM_MBUTTONUP:
 	case WM_RBUTTONUP:
-		//OnMouseButtonEvent(wParam, 0);
+		OnMouseButtonEvent(wParam, false);
 		return 0;
 	case WM_MOUSEMOVE:
-		//OnMouseMoveEvent(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		OnMouseMoveEvent(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
 	case WM_MOUSEWHEEL:
-		//OnMouseWheelEvent(GET_Y_LPARAM(wParam));
+		OnMouseWheelEvent(GET_Y_LPARAM(wParam));
 		return 0;
+	case WM_SYSKEYDOWN:
 	case WM_KEYDOWN:
-		//OnKeyEvent(wParam, 1);
+		OnKeyboardEvent(wParam, true);
+		return 0;
+	case WM_SYSKEYUP:
 	case WM_KEYUP:
-		//OnKeyEvent(wParam, 0);
+		OnKeyboardEvent(wParam, false);
 		return 0;
 	}
 

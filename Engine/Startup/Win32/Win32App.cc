@@ -1,10 +1,11 @@
 #include "Win32App.h"
 
-#include <Client/Director/Director.h>
-#include <Client/Director/ViewportMain.h>
+#include <Client/Main/App.h>
+#include <Client/Main/Input.h>
 #include <RHIDX12/DX12Device.h>
 
 #include <string.h>
+
 
 namespace z {
 
@@ -13,8 +14,6 @@ bool Win32App::Init() {
 
 	// device
 	new DX12Device(mMainWnd);
-
-	// director
 
 	// Get Root Path
 	char exePath[MAX_PATH];
@@ -29,23 +28,62 @@ bool Win32App::Init() {
 	exePath[begin] = 0;
 
 	// create director
-	new Director(exePath);
-	GDirector->SetFrameLimit(30);
+	App::OnInit(exePath);
 
-	// main view
-	ViewportMain* main = new ViewportMain(this);
-	GDirector->AddViewport(main);
 
 	return true;
 }
 
 void Win32App::Run() {
 	while (UpdateWindow()) {
-		GDirector->Update();
-	
-	
+		App::OnUpdate();
 	}
 }
+
+void Win32App::OnResize(int width, int height) {
+	App::OnResize(width, height);
+}
+
+void Win32App::OnMouseButtonEvent(UINT_PTR key, bool press) {
+	if (GInput == nullptr) {
+		return;
+	}
+
+	// windows mouse event keycode is all current pressed mouse key
+	if (press) {
+		std::vector<EInput> keys = mInputHandler.OnMouseDown(key);
+		for (EInput& key : keys) {
+			GInput->OnMouseKey(key, EI_ACT_DOWN);
+		}
+	} else {
+		std::vector<EInput> keys = mInputHandler.OnMouseUp(key);
+		for (EInput& key : keys) {
+			GInput->OnMouseKey(key, EI_ACT_UP);
+		}
+	}
+	
+}
+
+void Win32App::OnMouseWheelEvent(int wheel) {
+	if (GInput) {
+		GInput->OnMouseWheel((float)wheel);
+	}
+}
+
+void Win32App::OnMouseMoveEvent(int x, int y) {
+	if (GInput) {
+		GInput->OnMouseMove((float)x, (float(y)));
+	}
+}
+
+
+void Win32App::OnKeyboardEvent(UINT_PTR key, bool press) {
+	EInput ikey = mInputHandler.EncodeKey(key);
+
+	if (ikey > 0 && GInput) {
+		GInput->OnKeyboard(ikey, press ? EI_ACT_DOWN : EI_ACT_UP);
+	}
+};
 
 
 }

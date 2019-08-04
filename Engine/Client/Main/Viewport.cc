@@ -1,5 +1,6 @@
 #include "Viewport.h"
 #include "Director.h"
+#include "App.h"
 #include <Core/CoreHeader.h>
 #include <Client/Scene/Scene.h>
 #include <Render/RenderScene.h>
@@ -28,6 +29,14 @@ struct PassConstants {
 	DirectX::XMFLOAT4X4 ViewProj;
 };
 
+
+void Viewport::Resize(int width, int height) {
+	mRHIViewport->Resize(width, height);
+
+
+	ds = GDevice->CreateDepthStencil(width, height, PF_D24S8);
+}
+
 void Viewport::DrawTex() {
 	float vertexs[] = {
 		-1.0f, -1.0f, 0.1f, 0.0f, 1.0f,
@@ -50,9 +59,9 @@ void Viewport::DrawTex() {
 	mi->mRHIShaderInstance->SetParameter("gDiffuseMap", ds);
 
 	
-	viewport->SetRenderRect(ScreenRenderRect{ 0, 0, 200, 150 });
+	mRHIViewport->SetRenderRect(ScreenRenderRect{ 0, 0, 200, 150 });
 
-	GDevice->SetOutputs({ viewport->GetBackBuffer() }, nullptr);
+	GDevice->SetOutputs({ mRHIViewport->GetBackBuffer() }, nullptr);
 	GDevice->SetVertexBuffer(vb);
 	GDevice->SetIndexBuffer(ib);
 	GDevice->DrawIndexed(mi->mRHIShaderInstance, 0);
@@ -61,11 +70,11 @@ void Viewport::DrawTex() {
 }
 
 Viewport::Viewport(uint32_t width, uint32_t height) {
-	MaterialManager::LoadShaders(GDirector->GetRootPath() / "Content"/ "Engine" / "Shader" / "hlsl");
+	MaterialManager::LoadShaders(GApp->GetRootPath() / "Content"/ "Engine" / "Shader" / "hlsl");
 	
 	mRenderScene = new RenderScene();
 
-	viewport = GDevice->CreateViewport(width, height, PF_R8G8B8A8);
+	mRHIViewport = GDevice->CreateViewport(width, height, PF_R8G8B8A8);
 
 	// vertex and indices
 	GeometryGenerator geoGen;
@@ -77,7 +86,7 @@ Viewport::Viewport(uint32_t width, uint32_t height) {
 	si = MaterialManager::GetMaterialInstance("test")->mRHIShaderInstance;
 
 	// texture
-	Image* image = Image::Load(GDirector->GetRootPath() / "Content/Test/WoodCrate01.tga");
+	Image* image = Image::Load(GApp->GetRootPath() / "Content/Test/WoodCrate01.tga");
 	RHITextureDesc desc;
 	desc.sizeX = image->GetWidth();
 	desc.sizeY = image->GetHeight();
@@ -90,6 +99,7 @@ Viewport::Viewport(uint32_t width, uint32_t height) {
 	ds = GDevice->CreateDepthStencil(width, height, PF_D24S8);
 	rt = GDevice->CreateRenderTarget(width, height, PF_R8G8B8A8);
 	rt->Clear(RHIClearValue(0.2f, 0.3f, 0.3f, 1.0f));
+
 }
 
 Viewport::~Viewport() {
@@ -104,11 +114,8 @@ void Viewport::Tick() {
 
 	// culling
 
-}
-
-void Viewport::PostTick() {
 	// collect here
-	mScene->ColloectEnv(mRenderScene);
+
 }
 
 void Viewport::Render() {
@@ -116,7 +123,7 @@ void Viewport::Render() {
 
 	mRenderScene->Render();
 
-	viewport->BeginDraw(RHIClearValue(0.3, 0.2, 0.5, 1.0));
+	mRHIViewport->BeginDraw(RHIClearValue(0.3, 0.2, 0.5, 1.0));
 
 	DirectX::XMVECTOR pos = DirectX::XMVectorSet(6.f, 2.f, 10.f, 1.0f);
 	DirectX::XMVECTOR target = DirectX::XMVectorZero();
@@ -141,7 +148,7 @@ void Viewport::Render() {
 
 	ds->Clear(RHIClearValue(1.0, 0));
 	
-	GDevice->SetOutputs({ viewport->GetBackBuffer() }, ds);
+	GDevice->SetOutputs({ mRHIViewport->GetBackBuffer() }, ds);
 	GDevice->SetVertexBuffer(vb);
 	GDevice->SetIndexBuffer(ib);
 
@@ -150,7 +157,7 @@ void Viewport::Render() {
 	//DrawTex();
 
 
-	viewport->EndDraw();
+	mRHIViewport->EndDraw();
 }
 
 }

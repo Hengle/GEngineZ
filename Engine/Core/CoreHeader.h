@@ -10,7 +10,7 @@
 #include <unordered_set>
 #include <algorithm>
 #include <type_traits>
-
+#include <functional>
 
 // common
 #include <Core/Common/Logger.h>

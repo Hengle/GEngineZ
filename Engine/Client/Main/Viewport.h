@@ -20,8 +20,8 @@ public:
 	Viewport(uint32_t width, uint32_t height);
 	virtual ~Viewport();
 
+	void Resize(int width, int height);
 	void Tick();
-	void PostTick();
 	void Render();
 
 	void DrawTex();
@@ -31,7 +31,7 @@ private:
 	Scene* mScene;
 	RenderScene* mRenderScene;
 
-	RHIViewport* viewport;
+	RefCountPtr<RHIViewport> mRHIViewport;
 	RefCountPtr<RHIVertexBuffer> vb;
 	RefCountPtr<RHIIndexBuffer> ib;
 	RefCountPtr<RHITexture> ds, rt;

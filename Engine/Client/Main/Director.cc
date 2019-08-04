@@ -1,13 +1,14 @@
 #include "Director.h"
-
+#include "Input.h"
 #include <Core/CoreHeader.h>
 
 namespace z {
 Director* GDirector = nullptr;
 
-Director::Director(FilePath rootPath) :
-	mRootPath(rootPath) {
+Director::Director() {
 	InitializeSingleton<Director>(GDirector, this);
+	// size will changed when on resize called later
+	mViewport = new Viewport(1, 1);
 	
 }
 
@@ -18,19 +19,15 @@ Director::~Director() {
 void Director::FrameTick() {
 	// begin
 	BeginFrame();
+	// handle input
+	GInput->Dispatch();
 
 	// object tick
 
 
 	// render tick
-	for (auto& vp : mViewports) {
-		vp->Tick();
-		vp->PostTick();
-
-	}
-	for (auto& vp : mViewports) {
-		vp->Render();
-	}
+	mViewport->Tick();
+	mViewport->Render();
 
 	// end
 	EndFrame();;
@@ -56,13 +53,6 @@ void Director::EndFrame() {
 }
 
 
-void Director::AddViewport(Viewport* vp) {
-	mViewports.push_back(vp);
-}
-
-void Director::DelViewport(Viewport*) {
-
-}
 
 
 }
