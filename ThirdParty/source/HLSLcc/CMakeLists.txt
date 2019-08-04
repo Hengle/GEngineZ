@@ -35,6 +35,8 @@ set(HLSLCC_SRC
 		src/cbstring/bstrlib.c)
 
 if(HLSLCC_LIBRARY_SHARED)
+	add_definitions(-DHLSLCC_DYNLIB)
+	add_definitions(-DlibHLSLcc_EXPORTS)
 	add_library(hlslcc SHARED ${HLSLCC_SRC})
 else(HLSLCC_LIBRARY_SHARED)
 	add_library(hlslcc STATIC ${HLSLCC_SRC})
@@ -60,5 +62,4 @@ install(TARGETS hlslcc
     RUNTIME DESTINATION bin
     PUBLIC_HEADER DESTINATION include/hlslcc)
 install(FILES ${HLSLCC_HDRS} DESTINATION include/hlslcc)
-install(EXPORT hlslccConfig DESTINATION share/hlslcc/cmake)
 export(TARGETS hlslcc FILE hlslccConfig.cmake)

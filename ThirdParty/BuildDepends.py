@@ -96,6 +96,8 @@ class Builder(object):
         
         if cmake_args:
             final_cmake_args.extend(cmake_args)
+        final_cmake_args.append("-DCMAKE_BUILD_TYPE=RelWithDebInfo")
+        
         final_cmake_args.append("-DCMAKE_INSTALL_PREFIX=%s"%(install_dir,))
         final_cmake_args.append("-DCMAKE_MAKE_PROGRAM=%s"%self.ninja)
         
@@ -109,8 +111,44 @@ class Builder(object):
 
         os.chdir(now_path)
 
+def SafeDo(do, *args):
+    try:
+        do(*args)
+    except Exception, e:
+        print "exception", str(do), e
+
+def PostProcess():
+    # copy dll
+    bin_dir = os.path.join(INSTALL_DIR, "bin")
+    target_bin_dir = os.path.join(INSTALL_DIR, "..", "Binary")
+    for _, _, dlls in os.walk(bin_dir):
+        dlls = [f for f in dlls if f[-3:] == "dll"]
+        [SafeDo(shutil.copy, os.path.join(bin_dir, d), os.path.join(target_bin_dir, d)) for d in dlls]
+    # clean
+    SafeDo(shutil.rmtree, bin_dir)
+    SafeDo(shutil.rmtree, os.path.join(INSTALL_DIR, "build"))
+    SafeDo(shutil.rmtree, os.path.join(INSTALL_DIR, "lib", "cmake"))
+    SafeDo(shutil.rmtree, os.path.join(INSTALL_DIR, "lib", "man"))
+    SafeDo(shutil.rmtree, os.path.join(INSTALL_DIR, "lib", "pkgconfig"))
+    #   shutil.rmtree(os.path.join(INSTALL_DIR, "share"))
+
 if __name__ == "__main__":
     builder = Builder()
     builder.build_ninja()
-    builder.build_lib("HLSLcc", ["-DHLSLCC_LIBRARY_SHARED=OFF"])
+    # hlslcc
+    builder.build_lib("HLSLcc", ["-DHLSLCC_LIBRARY_SHARED=ON"])
+    # zlib with zstr
+    builder.build_lib("zlibzstr", ["-DBUILD_SHARED_LIBS=ON"])
+    # assimp
+    builder.build_lib("assimp", [
+        "-DBUILD_SHARED_LIBS=ON",
+        "-DASSIMP_BUILD_ASSIMP_TOOLS=OFF", 
+        "-DASSIMP_BUILD_TESTS=OFF", 
+        "-DASSIMP_INSTALL_PDB=OFF",
+        "-DASSIMP_NO_EXPORT=ON",
+        "-DASSIMP_BUILD_SAMPLES=OFF"])
+
+
+    # === build libs end ====
+    PostProcess()
    
