@@ -110,6 +110,8 @@ public:
 	D3D12_INPUT_LAYOUT_DESC GetInputLayoutDesc();
 	ID3D12RootSignature* GetIRootSignature() const;
 
+	void UpdateInputLayoutsOffset(const int *semanticsOffset);
+
 private:
 	void Reflect();
 	void ReflectInput(ID3D12ShaderReflection*, const D3D12_SHADER_DESC&);
@@ -122,6 +124,8 @@ private:
 	RefCountPtr<DX12ShaderStage> mStageVS;
 	RefCountPtr<DX12ShaderStage> mStagePS;
 
+
+	std::vector<ERHIInputSemantic> mInputSemantics;
 	std::vector<D3D12_INPUT_ELEMENT_DESC> mInputELementsDesc;
 	RefCountPtr<ID3D12RootSignature> mRootSignature;
 

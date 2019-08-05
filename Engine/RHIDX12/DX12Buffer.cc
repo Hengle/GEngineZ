@@ -62,10 +62,16 @@ DX12IndexBuffer::DX12IndexBuffer(uint32_t num, uint32_t stride, const void* data
 
 
 // DX12 Vertex Buffer
-DX12VertexBuffer::DX12VertexBuffer(uint32_t num, uint32_t stride, const void* data) :
+DX12VertexBuffer::DX12VertexBuffer(uint32_t num, uint32_t stride, const void* data, std::vector<ERHIInputSemantic> &semantic) :
 	mNum(num),
 	mStride(stride) {
-
+	mSemantics = semantic;
+	memset(mSemanticsOffset, 0, sizeof(int) * MAX_INPUT_SEMANTIC);
+	int offset = 0;
+	for (size_t i = 0; i < semantic.size(); i++) {
+		mSemanticsOffset[semantic[i]] = offset;
+		offset += GetSemanticSize(semantic[i]);
+	}
 
 	uint32_t size = num * stride;
 	D3D12_RESOURCE_DESC destDesc = CD3DX12_RESOURCE_DESC::Buffer(size);

@@ -142,4 +142,17 @@ void DX12Device::DrawIndexed(RHIShaderInstance* shaderInst, uint64_t state) {
 
 }
 
+void DX12Device::DrawIndexed(RHIShaderInstance* shaderInst, RHIVertexBuffer* vb, RHIIndexBuffer* ib, uint64_t state) {
+	DX12ShaderInstance* inst = static_cast<DX12ShaderInstance*>(shaderInst);
+	DX12VertexBuffer* vbuffer = static_cast<DX12VertexBuffer*>(vb);
+
+	// update input layout desc...
+	inst->GetShader()->UpdateInputLayoutsOffset(vbuffer->GetSemanticsOffset());
+	// get pipeline, create if not exist
+	std::vector<DXGI_FORMAT> rtsFormat = mExecutor->GetCurRenderTargetsFormat();
+	DXGI_FORMAT dsFormat = mExecutor->GetCurDepthStencilFormat();
+	DX12PipelineState *ppState = DX12PipelineStateCache::Get(inst->GetShader(), rtsFormat, dsFormat, state);
+	mExecutor->SetPipelineState(ppState);
+}
+
 }

@@ -66,6 +66,19 @@ enum ERHIRenderState {
 	// depth
 };
 
+enum ERHIInputSemantic {
+	SEMANTIC_POSITION	= 0x01,
+	SEMANTIC_NORMAL,
+	SEMANTIC_TANGENT,
+	SEMANTIC_UV0,
+	SEMANTIC_UV1,
+
+	SEMANTIC_MAX = FVF_UV1
+};
+
+const int MAX_INPUT_SEMANTIC = 10;
+
+
 
 
 struct RHIClearValue {
@@ -115,13 +128,6 @@ struct RHITextureDesc {
 	ERHITexDimension dimension;
 	uint8_t numMips;
 };
-
-struct RHITextureData {
-	uint32_t datalen;
-	uint8_t* data;
-};
-
-
 
 
 

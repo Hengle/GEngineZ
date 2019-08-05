@@ -18,6 +18,7 @@
 
 #include <RHI/RHIConst.h>
 #include <RHI/RHIResource.h>
+#include <RHI/RHIUtil.h>
 
 #include <RHIDX12/DX12/d3dx12.h>
 #include <RHIDX12/DX12Const.h>

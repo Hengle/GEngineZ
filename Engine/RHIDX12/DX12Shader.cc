@@ -143,7 +143,10 @@ DX12Shader::DX12Shader() {
 }
 
 DX12Shader::~DX12Shader() {
-
+	for (char *name : mInputNameMem) {
+		delete name;
+	}
+	mInputNameMem.clear();
 }
 
 void DX12Shader::Reflect() {
@@ -275,7 +278,33 @@ bool DX12Shader::Validate() {
 		}
 	}
 
+	// check input Semantic
+#define CHECK_AND_APPEND_SEMNATIC(desc, name, index, sem)	\
+if (strcmp(desc.SemanticName, #name) == 0 && desc.SemanticIndex == index && GetPixelSize(desc.Format) == GetSemanticSize(sem)) {	\
+	mInputSemantics.push_back(sem);		\
+	continue;	\
+}
+
+	for (size_t i = 0; i < mInputELementsDesc.size(); i++) {
+		D3D12_INPUT_ELEMENT_DESC &desc = mInputELementsDesc[i];
+		CHECK_AND_APPEND_SEMNATIC(desc, POSITION, 0, SEMANTIC_POSITION);
+		CHECK_AND_APPEND_SEMNATIC(desc, NORMAL, 0, SEMANTIC_NORMAL);
+		CHECK_AND_APPEND_SEMNATIC(desc, TANGENT, 0, SEMANTIC_TANGENT);
+		CHECK_AND_APPEND_SEMNATIC(desc, TEXCOORD, 0, SEMANTIC_UV0);
+		CHECK_AND_APPEND_SEMNATIC(desc, TEXCOORD, 1, SEMANTIC_UV1);
+		// not matched...
+		return false;
+	}
+
+#undef CHECK_AND_APPEND_SEMNATIC
 	return true;
+}
+
+void DX12Shader::UpdateInputLayoutsOffset(const int *offsets) {
+	// update offset
+	for (size_t i = 0; i < mInputELementsDesc.size(); i++) {
+		mInputELementsDesc[i].AlignedByteOffset = offsets[mInputSemantics[i]];
+	}
 }
 
 

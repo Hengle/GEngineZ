@@ -19,4 +19,17 @@ inline int GetRHIPixelFormatSize(ERHIPixelFormat format) {
 	return 0;
 }
 
+inline int GetSemanticSize(ERHIInputSemantic format) {
+	switch (format) {
+	case SEMANTIC_POSITION:
+	case SEMANTIC_NORMAL:
+	case SEMANTIC_TANGENT:
+		return 12;
+	case SEMANTIC_UV0:
+	case SEMANTIC_UV1:
+		return 8;
+	}
+	return 0;
+}
+
 }

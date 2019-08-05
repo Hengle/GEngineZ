@@ -28,6 +28,7 @@ public:
 		}
 
 		bool operator == (const DX12PipelineStateHash& state) const {
+			// todo... compare shader's inputlayout
 			return 0 == memcmp(this, &state, sizeof(DX12PipelineStateHash));
 		}
 	};
