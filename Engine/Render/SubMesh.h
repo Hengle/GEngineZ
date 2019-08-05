@@ -6,13 +6,16 @@
 namespace z {
 
 class ZMeshLoader;
-class Mesh;
+struct Mesh;
 
-class SubMeshInstance : public RefCounter {
+typedef std::vector<EFVFormat> FVFs;
+
+
+class MeshInstance : public RefCounter {
 public:
 	friend class Mesh;
-
-	void Use();
+	void UseBuffer();
+	
 
 private:
 	void CreateBuffer();
@@ -28,34 +31,22 @@ private:
 
 };
 
-struct SubMesh {
-	int FVF;
-	int FVFSize;
-	uint32_t VertCount;
-	uint32_t FaceCount;
-	uint32_t IndexCount;
+
+struct Mesh : RefCounter{
+	uint32_t VertCount{ 0 };
+	uint32_t IndexCount{ 0 };
+	uint32_t FaceCount{ 0 };
+	uint32_t FVFStride{ 0 };
+	std::vector<EFVFormat> FVFOrder;
+	std::vector<uint32_t> FVFOffset;
 
 	std::vector<uint32_t> Indices;
 	std::vector<float> Vertexes;
+
+	MeshInstance* GetMeshInstance(const FVFs&, int indexstride);
+
 };
 
-class Mesh {
-public:
-	friend class ZMeshLoader;
-
-	SubMesh* GetSubMesh(int index) {
-		return mMeshes[index];
-	}
-
-	SubMeshInstance* GetSubMeshInstance(int index, const std::vector<EFVFormat>&, int indexstride);
-
-	int GetSubMeshNum() {
-		return mMeshes.size();
-	}
-
-private:
-	std::vector<SubMesh*> mMeshes;
-};
-
+typedef std::vector<RefCountPtr<Mesh>> MeshHub;
 
 }

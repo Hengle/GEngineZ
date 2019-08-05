@@ -25,10 +25,10 @@ public:
 			return false;
 		}
 
-		m_vs.clear();
-		m_is.clear();
-		m_total_vertex = 0;
-		m_total_face = 0;
+		mVS.clear();
+		mIS.clear();
+		mTotalVertex = 0;
+		mTotalFace = 0;
 
 		ProcessNode(scn, scn->mRootNode);
 
@@ -41,29 +41,29 @@ public:
 #else
 		std::ofstream ss_bin(tgt_file, std::ios_base::binary);
 #endif
-		int sz = static_cast<int>(m_is.size());
+		int sz = static_cast<int>(mIS.size());
 		ss_bin.write((char*)& sz, sizeof(int));
 
-		for (size_t i = 0; i < m_is.size(); i++) {
-			ss_bin.write((char*)& m_info[i], sizeof(z::SubMeshFileHeader));
-			ss_bin.write((char*)m_is[i].data(), m_is[i].size() * sizeof(uint32_t));
-			ss_bin.write((char*)m_vs[i].data(), m_vs[i].size() * sizeof(float));
-			auto l = m_info[i];
+		for (size_t i = 0; i < mIS.size(); i++) {
+			ss_bin.write((char*)& mInfo[i], sizeof(z::SubMeshFileHeader));
+			ss_bin.write((char*)mIS[i].data(), mIS[i].size() * sizeof(uint32_t));
+			ss_bin.write((char*)mVS[i].data(), mVS[i].size() * sizeof(float));
+			auto l = mInfo[i];
 		}
 
 		ss_bin.flush();
 
-		Log<LDEBUG>("Write mesh to", tgt_file, "Total Vertex", m_total_vertex, "Total face", m_total_face);
+		Log<LDEBUG>("Write mesh to", tgt_file, "Total Vertex", mTotalVertex, "Total face", mTotalFace);
 		return true;
 	}
 
 
 private:
-	std::vector<std::vector<float>> m_vs;
-	std::vector<std::vector<uint32_t>> m_is;
-	std::vector<z::SubMeshFileHeader> m_info;
-	int m_total_vertex;
-	int m_total_face;
+	std::vector<std::vector<float>> mVS;
+	std::vector<std::vector<uint32_t>> mIS;
+	std::vector<z::SubMeshFileHeader> mInfo;
+	int mTotalVertex{ 0 };
+	int mTotalFace{ 0 };
 
 	void ProcessNode(const aiScene* scn, aiNode* root) {
 		for (size_t i = 0; i < root->mNumMeshes; i++) {
@@ -117,39 +117,36 @@ private:
 				is.push_back(face.mIndices[j]);
 			}
 		}
+		z::SubMeshFileHeader header;
+		header.VertCount = mesh->mNumVertices;
+		header.IndexCount = is.size();
+		header.FaceCount = mesh->mNumFaces;
 
-		int fvf_sz = 0;
-		int fvf = 0;
-
+		header.FVFNum = 0;
 		if (mesh->HasPositions()) {
-			fvf |= z::FVF_XYZ;
-			fvf_sz += 3;
+			header.FVFOrder[header.FVFNum++] = FVF_XYZ;
 		}
 
 		if (mesh->HasNormals()) {
-			fvf |= z::FVF_NORMAL;
-			fvf_sz += 3;
+			header.FVFOrder[header.FVFNum++] = FVF_NORMAL;
 		}
 
 		if (mesh->HasTextureCoords(0)) {
-			fvf |= z::FVF_UV0;
-			fvf_sz += 2;
+			header.FVFOrder[header.FVFNum++] = FVF_UV0;
 		}
 
 		if (mesh->HasTextureCoords(1)) {
-			fvf |= z::FVF_UV1;
-			fvf_sz += 2;
+			header.FVFOrder[header.FVFNum++] = FVF_UV1;
 		}
 
 		Log<LDEBUG>("Export mesh", mesh->HasPositions(), mesh->HasNormals(), mesh->HasTextureCoords(0), mesh->HasTextureCoords(1),
 			"Vertex count", mesh->mNumVertices, "Face count", mesh->mNumFaces);
 
-		m_vs.push_back(vs);
-		m_is.push_back(is);
-		m_info.push_back(z::SubMeshFileHeader{
-			fvf, fvf_sz, mesh->mNumVertices, mesh->mNumFaces, static_cast<uint32_t>(is.size())});
-		m_total_vertex += mesh->mNumVertices;
-		m_total_face += mesh->mNumFaces;
+		mVS.push_back(vs);
+		mIS.push_back(is);
+		mInfo.push_back(header);
+		mTotalVertex += mesh->mNumVertices;
+		mTotalFace += mesh->mNumFaces;
 	}
 
 };

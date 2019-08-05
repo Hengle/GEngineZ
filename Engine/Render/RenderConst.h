@@ -3,18 +3,22 @@
 namespace z {
 
 enum EFVFormat {
-	FVF_XYZ    = 0x01,
-	FVF_UV0    = 0x02,
-	FVF_UV1    = 0x04,
-	FVF_NORMAL = 0x08,
+	FVF_XYZ     = 0x01,
+	FVF_NORMAL,
+	FVF_TANGENT,
+	FVF_UV0,
+	FVF_UV1,
 
-	FVF_MAX = FVF_NORMAL
+	FVF_MAX     = FVF_UV1
 };
+
+const int MAX_FVF_NUM = 10;
 
 inline int GetFVFSize(EFVFormat format) {
 	switch (format) {
 	case FVF_XYZ:
 	case FVF_NORMAL:
+	case FVF_TANGENT:
 		return 12;
 	case FVF_UV0:
 	case FVF_UV1:

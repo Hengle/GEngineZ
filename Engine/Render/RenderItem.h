@@ -9,7 +9,7 @@ namespace z {
 struct RenderItem : RefCounter{
 	ERenderSet renderSet;
 
-	RefCountPtr<SubMeshInstance> mesh;
+	RefCountPtr<MeshInstance> mesh;
 	RefCountPtr<MaterialInstance> material;
 
 

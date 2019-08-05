@@ -11,7 +11,6 @@
 #include <Util/Image/Image.h>
 #include <Util/Mesh/ZMeshLoader.h>
 #include <d2d1.h>
-#include "GeometryGenerator.h"
 
 
 
@@ -82,12 +81,12 @@ Viewport::Viewport(uint32_t width, uint32_t height) :
 
 	mRHIViewport = GDevice->CreateViewport(width, height, PF_R8G8B8A8);
 
-	mesh = ZMeshLoader::Load(GApp->GetRootPath() / "Content" / "Test" / "Mesh" / "nanosuit.zmesh");
-	for (int i = 0; i < mesh->GetSubMeshNum(); i++) {
+	MeshHub meshhub = ZMeshLoader::Load(GApp->GetRootPath() / "Content" / "Test" / "Mesh" / "nanosuit.zmesh");
+	for (int i = 0; i < meshhub.size(); i++) {
 		RenderItem *item = new RenderItem();
 
 		item->material = MaterialManager::GetMaterialInstance("test");
-		item->mesh = mesh->GetSubMeshInstance(i, item->material->GetMaterial()->GetFVFs(), 2);
+		item->mesh = meshhub[i]->GetMeshInstance(item->material->GetMaterial()->GetFVFs(), 2);
 		items.push_back(item);
 	}
 	
@@ -155,7 +154,7 @@ void Viewport::Render() {
 	GDevice->SetOutputs({ mRHIViewport->GetBackBuffer() }, ds);
 
 	for (auto item : items) {
-		item->mesh->Use();
+		item->mesh->UseBuffer();
 		item->material->SetParameter("gViewProj", (const float*)& passConstans.ViewProj, 16);
 		item->material->SetParameter("gWorld", (const float*)& objConstants.World, 16);
 		item->material->DrawIndexed();
