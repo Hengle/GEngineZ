@@ -1,4 +1,5 @@
 #include <Core/CoreHeader.h>
+#include <RHI/RHIConst.h>
 #include <Util/Mesh/ZMeshLoader.h>
 
 #include <zlib/zstr.hpp>
@@ -122,21 +123,21 @@ private:
 		header.IndexCount = is.size();
 		header.FaceCount = mesh->mNumFaces;
 
-		header.FVFNum = 0;
+		header.SemnaticNum = 0;
 		if (mesh->HasPositions()) {
-			header.FVFOrder[header.FVFNum++] = FVF_XYZ;
+			header.Semanatics[header.SemnaticNum++] = SEMANTIC_POSITION;
 		}
 
 		if (mesh->HasNormals()) {
-			header.FVFOrder[header.FVFNum++] = FVF_NORMAL;
+			header.Semanatics[header.SemnaticNum++] = SEMANTIC_NORMAL;
 		}
 
 		if (mesh->HasTextureCoords(0)) {
-			header.FVFOrder[header.FVFNum++] = FVF_UV0;
+			header.Semanatics[header.SemnaticNum++] = SEMANTIC_UV0;
 		}
 
 		if (mesh->HasTextureCoords(1)) {
-			header.FVFOrder[header.FVFNum++] = FVF_UV1;
+			header.Semanatics[header.SemnaticNum++] = SEMANTIC_UV1;
 		}
 
 		Log<LDEBUG>("Export mesh", mesh->HasPositions(), mesh->HasNormals(), mesh->HasTextureCoords(0), mesh->HasTextureCoords(1),

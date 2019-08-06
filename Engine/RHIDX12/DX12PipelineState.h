@@ -10,26 +10,28 @@ class DX12PipelineState;
 
 class DX12PipelineStateCache {
 public:
-	static DX12PipelineState* Get(DX12Shader* shader, const std::vector<DXGI_FORMAT>&, const DXGI_FORMAT, const uint64_t);
+	static DX12PipelineState* Get(DX12Shader* shader, const uint8_t semoff[SEMANTIC_MAX], const std::vector<DXGI_FORMAT>&, const DXGI_FORMAT, const uint64_t);
 
 	struct DX12PipelineStateHash {
+		uint8_t Semoffs[SEMANTIC_MAX];
 		uint64_t State;
 		DX12Shader* Shader;;
 		DXGI_FORMAT RTs[MAX_SIGNATURE_NUM];
 		DXGI_FORMAT DS;
 
-		DX12PipelineStateHash(DX12Shader* shader, const std::vector<DXGI_FORMAT>& rtsFormat,
+		DX12PipelineStateHash(DX12Shader* shader, const uint8_t semoff[SEMANTIC_MAX], const std::vector<DXGI_FORMAT>& rtsFormat,
 			const DXGI_FORMAT dsFormat, const uint64_t state) {
 			Shader = shader;
 			memset(RTs, 0, MAX_SIGNATURE_NUM * sizeof(DXGI_FORMAT));
 			memcpy(RTs, rtsFormat.data(), rtsFormat.size() * sizeof(DXGI_FORMAT));
+			memcpy(Semoffs, semoff, sizeof(uint8_t) * SEMANTIC_MAX);
 			DS = DXGI_FORMAT_UNKNOWN;
 			State = state;
 		}
 
 		bool operator == (const DX12PipelineStateHash& state) const {
 			// todo... compare shader's inputlayout
-			return 0 == memcmp(this, &state, sizeof(DX12PipelineStateHash));
+			return  0 == memcmp(this, &state, sizeof(DX12PipelineStateHash));
 		}
 	};
 
@@ -38,6 +40,9 @@ public:
 			size_t hv = (uint64_t)node.DS ^ node.State;
 			for (int i = 0; i < MAX_SIGNATURE_NUM; i++) {
 				hv ^= (uint64_t)node.RTs[i];
+			}
+			for (int i = 0; i < SEMANTIC_MAX; i++) {
+				hv ^= (uint64_t)node.Semoffs[i];
 			}
 			hv += (uint64_t)node.Shader;
 			return hv;
@@ -69,7 +74,7 @@ public:
 	ID3D12RootSignature* GetIRootSignature();
 
 private:
-	DX12PipelineState(DX12Shader* shader, const std::vector<DXGI_FORMAT>&, const DXGI_FORMAT, const uint64_t);
+	DX12PipelineState(DX12Shader* shader, const uint8_t semoff[MAX_INPUT_SEMANTIC], const std::vector<DXGI_FORMAT>&, const DXGI_FORMAT, const uint64_t);
 
 	RefCountPtr<DX12Shader> mShader;
 	RefCountPtr<ID3D12PipelineState> mState;

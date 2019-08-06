@@ -8,20 +8,20 @@ namespace z {
 std::unordered_map<DX12PipelineStateCache::DX12PipelineStateHash, DX12PipelineState*, 
 	DX12PipelineStateCache::DX12PipelineStateHashFN> DX12PipelineStateCache::gPipelineStates;
 
-DX12PipelineState* DX12PipelineStateCache::Get(DX12Shader* shader, const std::vector<DXGI_FORMAT>& rtsFormat,
+DX12PipelineState* DX12PipelineStateCache::Get(DX12Shader* shader, const uint8_t semoff[SEMANTIC_MAX], const std::vector<DXGI_FORMAT>& rtsFormat,
 	const DXGI_FORMAT dsFormat, const uint64_t state) {
-	DX12PipelineStateHash hash{shader, rtsFormat, dsFormat, state};
+	DX12PipelineStateHash hash{shader, semoff, rtsFormat, dsFormat, state};
 	auto iter = gPipelineStates.find(hash);
 	if (iter != gPipelineStates.end()) {
 		return iter->second;
 	}
 	Log<LDEBUG>("create new pipeline state....");
-	DX12PipelineState* ppState = new DX12PipelineState(shader, rtsFormat, dsFormat, state);
+	DX12PipelineState* ppState = new DX12PipelineState(shader, semoff, rtsFormat, dsFormat, state);
 	gPipelineStates[hash] = ppState;
 	return ppState;
 }
 
-DX12PipelineState::DX12PipelineState(DX12Shader* shader, const std::vector<DXGI_FORMAT>& rtsFormat,
+DX12PipelineState::DX12PipelineState(DX12Shader* shader, const uint8_t semoff[SEMANTIC_MAX], const std::vector<DXGI_FORMAT>& rtsFormat,
 	const DXGI_FORMAT dsFormat, const uint64_t state) :
 	mRasterizerState(CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT)),
 	mBlendState(CD3DX12_BLEND_DESC(D3D12_DEFAULT)),
@@ -60,6 +60,15 @@ DX12PipelineState::DX12PipelineState(DX12Shader* shader, const std::vector<DXGI_
 	if (mDepthStencilFormat == DXGI_FORMAT_UNKNOWN)
 		mDepthStencilState.DepthEnable = false;
 
+	// get layout with vertex
+	D3D12_INPUT_LAYOUT_DESC layout = mShader->GetInputLayoutDesc();
+	const std::vector< ERHIInputSemantic>& inputSemantics = mShader->GetInputSemantics();
+	std::vector< D3D12_INPUT_ELEMENT_DESC> descs;
+	for (int i = 0; i < layout.NumElements; i++) {
+		descs.push_back(layout.pInputElementDescs[i]);
+		descs.back().AlignedByteOffset = semoff[inputSemantics[i]];
+	}
+	layout = { descs.data(), (uint32_t)descs.size() };
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC desc;
 	ZeroMemory(&desc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
@@ -71,7 +80,7 @@ DX12PipelineState::DX12PipelineState(DX12Shader* shader, const std::vector<DXGI_
 	desc.SampleMask            = UINT_MAX;
 	desc.RasterizerState       = mRasterizerState;
 	desc.DepthStencilState     = mDepthStencilState;
-	desc.InputLayout           = mShader->GetInputLayoutDesc();
+	desc.InputLayout           = layout;
 	desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	desc.NumRenderTargets      = mRenderTargetsFormat.size();
 	memcpy(&desc.RTVFormats[0], mRenderTargetsFormat.data(), mRenderTargetsFormat.size() * sizeof(DXGI_FORMAT));

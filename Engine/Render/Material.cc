@@ -12,9 +12,8 @@ namespace z {
 std::unordered_map<std::string, Material*> MaterialManager::gMaterials;
 
 // Material
-Material::Material(RHIShader* rhiShader, const std::vector<EFVFormat>& fvfs) :
+Material::Material(RHIShader* rhiShader) :
 	mRHIShader(rhiShader) {
-	mFVFs = fvfs;
 }
 
 
@@ -35,8 +34,8 @@ void MaterialInstance::SetParameter(const std::string& key, RHITexture* tex, uin
 }
 
 
-void MaterialInstance::DrawIndexed() {
-	GDevice->DrawIndexed(mRHIShaderInstance, 0);
+void MaterialInstance::DrawIndexed(RHIVertexBuffer* vb, RHIIndexBuffer *ib) {
+	GDevice->DrawIndexed(mRHIShaderInstance, vb, ib, 0);
 }
 
 // MaterialManager
@@ -46,27 +45,6 @@ MaterialInstance* MaterialManager::GetMaterialInstance(std::string name) {
 		return nullptr;
 	}
 	return new MaterialInstance(m);
-}
-
-
-bool MaterialManager::ParseInputFVF(const std::vector<RHIInputDesc>& inputs, std::vector<EFVFormat>& formats) {
-
-#define CHECK_AND_APPEND_FVF(input, name, index, fvf) {						\
-if (input.SemanticName == #name && input.SemanticIndex == index && GetRHIPixelFormatSize(input.Format) == GetFVFSize(fvf)) { \
-	formats.push_back(fvf);												\
-	continue;															\
-}}
-
-	for (const RHIInputDesc& input : inputs) {
-		CHECK_AND_APPEND_FVF(input, POSITION, 0, FVF_XYZ);
-		CHECK_AND_APPEND_FVF(input, NORMAL, 0, FVF_NORMAL);
-		CHECK_AND_APPEND_FVF(input, TEXCOORD, 0, FVF_UV0);
-		CHECK_AND_APPEND_FVF(input, TEXCOORD, 1, FVF_UV1);
-		return false;
-	}
-#undef CHECK_AND_APPEND_FVF
-
-	return true;
 }
 
 
@@ -84,13 +62,8 @@ void MaterialManager::LoadShaders(FilePath rootPath) {
 		RHIShader *rhiShader = CompileShader(path);
 		if (rhiShader) {
 			// check input
-			std::vector<RHIInputDesc>& inputs = rhiShader->GetRHIInputsDesc();
-			std::vector<EFVFormat> fvfs;
-			if (ParseInputFVF(inputs, fvfs)) {
-				gMaterials[name] = new Material(rhiShader, fvfs);
-			} else {
-				Log<LERROR>("Shader input format not supported.....");
-			}
+			gMaterials[name] = new Material(rhiShader);
+			
 		}
 	}
 }

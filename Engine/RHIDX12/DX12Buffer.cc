@@ -62,11 +62,11 @@ DX12IndexBuffer::DX12IndexBuffer(uint32_t num, uint32_t stride, const void* data
 
 
 // DX12 Vertex Buffer
-DX12VertexBuffer::DX12VertexBuffer(uint32_t num, uint32_t stride, const void* data, std::vector<ERHIInputSemantic> &semantic) :
+DX12VertexBuffer::DX12VertexBuffer(uint32_t num, uint32_t stride, const void* data, const std::vector<ERHIInputSemantic> &semantic) :
 	mNum(num),
 	mStride(stride) {
 	mSemantics = semantic;
-	memset(mSemanticsOffset, 0, sizeof(int) * MAX_INPUT_SEMANTIC);
+	memset(mSemanticsOffset, 0, sizeof(uint8_t) * MAX_INPUT_SEMANTIC);
 	int offset = 0;
 	for (size_t i = 0; i < semantic.size(); i++) {
 		mSemanticsOffset[semantic[i]] = offset;

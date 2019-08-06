@@ -40,7 +40,9 @@ private:
 
 class DX12VertexBuffer : public DX12ShaderResource, public RHIVertexBuffer {
 public:
-	DX12VertexBuffer(uint32_t num, uint32_t stride, const void* data, std::vector<ERHIInputSemantic> &semantic);
+	friend class DX12Device;
+
+	DX12VertexBuffer(uint32_t num, uint32_t stride, const void* data, const std::vector<ERHIInputSemantic> &semantic);
 
 	D3D12_VERTEX_BUFFER_VIEW GetView() {
 		D3D12_VERTEX_BUFFER_VIEW view;
@@ -50,12 +52,8 @@ public:
 		return view;
 	}
 
-	const int* GetSemanticsOffset() {
-		return mSemanticsOffset;
-	}
-
 private:
-	int mSemanticsOffset[MAX_INPUT_SEMANTIC];
+	uint8_t mSemanticsOffset[SEMANTIC_MAX];
 	std::vector<ERHIInputSemantic> mSemantics;
 	uint32_t mStride;
 	uint32_t mNum;

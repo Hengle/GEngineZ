@@ -76,7 +76,6 @@ public:
 	}
 
 	bool Complete() override;
-	std::vector<RHIInputDesc> GetRHIInputsDesc() override;
 
 	template<ERHIShaderStage targetStage>
 	DX12ShaderStage* GetStage() {
@@ -108,10 +107,11 @@ public:
 	};
 
 	D3D12_INPUT_LAYOUT_DESC GetInputLayoutDesc();
+	const std::vector<ERHIInputSemantic>& GetInputSemantics() const;
+
 	ID3D12RootSignature* GetIRootSignature() const;
 
-	void UpdateInputLayoutsOffset(const int *semanticsOffset);
-
+	
 private:
 	void Reflect();
 	void ReflectInput(ID3D12ShaderReflection*, const D3D12_SHADER_DESC&);

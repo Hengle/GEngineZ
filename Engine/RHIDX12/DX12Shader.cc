@@ -300,32 +300,16 @@ if (strcmp(desc.SemanticName, #name) == 0 && desc.SemanticIndex == index && GetP
 	return true;
 }
 
-void DX12Shader::UpdateInputLayoutsOffset(const int *offsets) {
-	// update offset
-	for (size_t i = 0; i < mInputELementsDesc.size(); i++) {
-		mInputELementsDesc[i].AlignedByteOffset = offsets[mInputSemantics[i]];
-	}
-}
-
-
-std::vector<RHIInputDesc> DX12Shader::GetRHIInputsDesc() {
-	std::vector<RHIInputDesc> descs;
-	for (int i = 0; i < mInputELementsDesc.size(); i++) {
-		descs.push_back(RHIInputDesc{
-			mInputELementsDesc[i].SemanticName,
-			mInputELementsDesc[i].SemanticIndex,
-			FromDXGIFormat(mInputELementsDesc[i].Format)
-		});
-	}
-	return descs;
-}
-
 D3D12_INPUT_LAYOUT_DESC DX12Shader::GetInputLayoutDesc() {
 	return { mInputELementsDesc.data(), (uint32_t)mInputELementsDesc.size() };
 }
 
 ID3D12RootSignature* DX12Shader::GetIRootSignature() const {
 	return mRootSignature;
+}
+
+const std::vector<ERHIInputSemantic>& DX12Shader::GetInputSemantics() const {
+	return mInputSemantics;
 }
 
 void DX12Shader::CreateRootSignature() {

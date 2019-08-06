@@ -7,24 +7,21 @@ namespace z {
 class RHIShader;
 class RHITexture;
 class RHIInputDesc;
+class RHIVertexBuffer;
+class RHIIndexBuffer;
 class RHIShaderInstance;
 
 // memory manage by material manager
 class Material {
 public:
-	Material(RHIShader*, const std::vector<EFVFormat>&);
+	Material(RHIShader*);
 
 	RHIShader* GetShader() {
 		return mRHIShader;
 	}
 
-	std::vector<EFVFormat> GetFVFs() {
-		return mFVFs;
-	}
-
 private:
 	RefCountPtr<RHIShader> mRHIShader;
-	std::vector<EFVFormat> mFVFs;
 };
 
 
@@ -39,7 +36,7 @@ public:
 		return mParent;
 	}
 
-	void DrawIndexed();
+	void DrawIndexed(RHIVertexBuffer* vb, RHIIndexBuffer* ib);
 
 
 public:

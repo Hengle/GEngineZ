@@ -1,5 +1,6 @@
 #pragma once
 #include <Core/CoreHeader.h>
+#include <RHI/RHIUtil.h>
 #include <Render/RenderConst.h>
 #include <Render/SubMesh.h>
 #include <zlib/zstr.hpp>
@@ -7,8 +8,8 @@
 namespace z {
 
 struct SubMeshFileHeader {
-	int FVFNum;
-	int FVFOrder[MAX_FVF_NUM];
+	uint8_t Semanatics[SEMANTIC_MAX];
+	int SemnaticNum;
 	uint32_t VertCount;
 	uint32_t FaceCount;
 	uint32_t IndexCount;
@@ -45,21 +46,21 @@ public:
 			mesh->VertCount = meshHeader.VertCount;
 			mesh->FaceCount = meshHeader.FaceCount;
 			mesh->IndexCount = meshHeader.IndexCount;
-			mesh->FVFStride = 0;
-			for (int i = 0; i < meshHeader.FVFNum; i++) {
-				EFVFormat f = (EFVFormat)meshHeader.FVFOrder[i];
-				mesh->FVFOrder.push_back(f);
-				mesh->FVFOffset.push_back(mesh->FVFStride);
-				mesh->FVFStride += GetFVFSize(f);
+			mesh->Stride = 0;
+			for (int i = 0; i < meshHeader.SemnaticNum; i++) {
+				ERHIInputSemantic f = (ERHIInputSemantic)meshHeader.Semanatics[i];
+				mesh->Semantics.push_back(f);
+				mesh->Stride += GetSemanticSize(f);
 			}
 
 			std::vector<uint32_t>& indices = mesh->Indices;
 			std::vector<float>& vertexes = mesh->Vertexes;
 			indices.resize(meshHeader.IndexCount);
-			vertexes.resize(mesh->FVFStride * meshHeader.VertCount / 4);
+			vertexes.resize(mesh->Stride * meshHeader.VertCount / 4);
 			os.read((char*)indices.data(), indices.size() * sizeof(uint32_t));
 			os.read((char*)vertexes.data(), vertexes.size() * sizeof(float));
-
+			
+			mesh->CreateBuffer();
 			meshHub.push_back(mesh);
 		}
 		return meshHub;

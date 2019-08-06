@@ -44,7 +44,6 @@ class RHIShader : public RHIResource {
 public:
 	virtual void CombineStage(RHIShaderStage* stage) = 0;
 	virtual bool Complete() = 0;
-	virtual std::vector<RHIInputDesc> GetRHIInputsDesc() = 0;
 };
 
 class RHIShaderInstance : public RHIResource {

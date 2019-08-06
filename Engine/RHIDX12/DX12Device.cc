@@ -94,8 +94,8 @@ RHIIndexBuffer* DX12Device::CreateIndexBuffer(uint32_t num, uint32_t stride, con
 	return new DX12IndexBuffer(num, stride, data);
 }
 
-RHIVertexBuffer* DX12Device::CreateVertexBuffer(uint32_t num, uint32_t stride, const void* data) {
-	return new DX12VertexBuffer(num, stride, data);
+RHIVertexBuffer* DX12Device::CreateVertexBuffer(uint32_t num, uint32_t stride, const void* data, const std::vector<ERHIInputSemantic> sems) {
+	return new DX12VertexBuffer(num, stride, data, sems);
 }
 
 RHITexture* DX12Device::CreateTexture(const RHITextureDesc& desc, const uint8_t* data) {
@@ -130,29 +130,20 @@ void DX12Device::SetOutputs(const std::vector<RHITexture*>& rts, RHITexture* ds)
 
 }
 
-void DX12Device::DrawIndexed(RHIShaderInstance* shaderInst, uint64_t state) {
-	DX12ShaderInstance* inst = static_cast<DX12ShaderInstance*>(shaderInst);
-	// get pipeline, create if not exist
-	std::vector<DXGI_FORMAT> rtsFormat = mExecutor->GetCurRenderTargetsFormat();
-	DXGI_FORMAT dsFormat = mExecutor->GetCurDepthStencilFormat();
-	DX12PipelineState *ppState = DX12PipelineStateCache::Get(inst->GetShader(), rtsFormat, dsFormat, state);
-	mExecutor->SetPipelineState(ppState);
-	// draw
-	mExecutor->DrawShaderInstance(inst);
-
-}
-
 void DX12Device::DrawIndexed(RHIShaderInstance* shaderInst, RHIVertexBuffer* vb, RHIIndexBuffer* ib, uint64_t state) {
 	DX12ShaderInstance* inst = static_cast<DX12ShaderInstance*>(shaderInst);
 	DX12VertexBuffer* vbuffer = static_cast<DX12VertexBuffer*>(vb);
+	DX12IndexBuffer* ibuffer = static_cast<DX12IndexBuffer*>(ib);
 
-	// update input layout desc...
-	inst->GetShader()->UpdateInputLayoutsOffset(vbuffer->GetSemanticsOffset());
 	// get pipeline, create if not exist
 	std::vector<DXGI_FORMAT> rtsFormat = mExecutor->GetCurRenderTargetsFormat();
 	DXGI_FORMAT dsFormat = mExecutor->GetCurDepthStencilFormat();
-	DX12PipelineState *ppState = DX12PipelineStateCache::Get(inst->GetShader(), rtsFormat, dsFormat, state);
+	
+	DX12PipelineState *ppState = DX12PipelineStateCache::Get(inst->GetShader(), vbuffer->mSemanticsOffset, rtsFormat, dsFormat, state);
 	mExecutor->SetPipelineState(ppState);
+	mExecutor->SetVertexBuffer(static_cast<DX12VertexBuffer*>(vbuffer));
+	mExecutor->SetIndexBuffer(static_cast<DX12IndexBuffer*>(ibuffer));
+	mExecutor->DrawShaderInstance(inst);
 }
 
 }

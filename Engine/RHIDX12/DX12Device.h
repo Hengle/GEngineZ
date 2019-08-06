@@ -39,7 +39,7 @@ public:
 	RHIShaderStage* CreateShaderStage(const char* data, size_t dataLen, ERHIShaderStage stype) override;
 	RHIShaderInstance* CreateShaderInstance(RHIShader*) override;
 	RHIIndexBuffer* CreateIndexBuffer(uint32_t num, uint32_t stride, const void* data) override;
-	RHIVertexBuffer* CreateVertexBuffer(uint32_t num, uint32_t stride, const void* data) override;
+	RHIVertexBuffer* CreateVertexBuffer(uint32_t num, uint32_t stride, const void* data, const std::vector<ERHIInputSemantic>) override;
 	RHITexture* CreateTexture(const RHITextureDesc& desc, const uint8_t* data) override;
 	RHITexture* CreateDepthStencil(uint32_t width, uint32_t height, ERHIPixelFormat format) override;
 	RHITexture* CreateRenderTarget(uint32_t width, uint32_t height, ERHIPixelFormat format) override;
@@ -48,7 +48,6 @@ public:
 	void SetIndexBuffer(RHIIndexBuffer*) override;
 
 	void SetOutputs(const std::vector<RHITexture*>& rts, RHITexture *ds=nullptr) override;
-	void DrawIndexed(RHIShaderInstance* shaderInst, uint64_t state) override;
 	void DrawIndexed(RHIShaderInstance* si, RHIVertexBuffer* vb, RHIIndexBuffer* ib, uint64_t state) override;
 	// ==== end device method ====
 

@@ -54,20 +54,20 @@ void Viewport::DrawTex() {
 	};
 
 
-	RHIVertexBuffer *vb = GDevice->CreateVertexBuffer(4, 20, vertexs);
-	RHIIndexBuffer* ib = GDevice->CreateIndexBuffer(6, 2, indices);
+	//RHIVertexBuffer *vb = GDevice->CreateVertexBuffer(4, 20, vertexs, );
+	//RHIIndexBuffer* ib = GDevice->CreateIndexBuffer(6, 2, indices);
 
 
-	MaterialInstance* mi = MaterialManager::GetMaterialInstance("render_tex");
-	mi->SetParameter("gDiffuseMap", ds);
+	//MaterialInstance* mi = MaterialManager::GetMaterialInstance("render_tex");
+	//mi->SetParameter("gDiffuseMap", ds);
 
-	
-	mRHIViewport->SetRenderRect(ScreenRenderRect{ 0, 0, 200, 150 });
+	//
+	//mRHIViewport->SetRenderRect(ScreenRenderRect{ 0, 0, 200, 150 });
 
-	GDevice->SetOutputs({ mRHIViewport->GetBackBuffer() }, nullptr);
-	GDevice->SetVertexBuffer(vb);
-	GDevice->SetIndexBuffer(ib);
-	mi->DrawIndexed();
+	//GDevice->SetOutputs({ mRHIViewport->GetBackBuffer() }, nullptr);
+	//GDevice->SetVertexBuffer(vb);
+	//GDevice->SetIndexBuffer(ib);
+	//mi->DrawIndexed();
 
 
 }
@@ -86,7 +86,7 @@ Viewport::Viewport(uint32_t width, uint32_t height) :
 		RenderItem *item = new RenderItem();
 
 		item->material = MaterialManager::GetMaterialInstance("test");
-		item->mesh = meshhub[i]->GetMeshInstance(item->material->GetMaterial()->GetFVFs(), 2);
+		item->mesh = meshhub[i];
 		items.push_back(item);
 	}
 	
@@ -154,10 +154,9 @@ void Viewport::Render() {
 	GDevice->SetOutputs({ mRHIViewport->GetBackBuffer() }, ds);
 
 	for (auto item : items) {
-		item->mesh->UseBuffer();
 		item->material->SetParameter("gViewProj", (const float*)& passConstans.ViewProj, 16);
 		item->material->SetParameter("gWorld", (const float*)& objConstants.World, 16);
-		item->material->DrawIndexed();
+		item->material->DrawIndexed(item->mesh->mVBuffer, item->mesh->mIBuffer);
 	}
 	//DrawTex();
 
