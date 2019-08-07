@@ -132,6 +132,11 @@ void Viewport::Render() {
 
 	mRHIViewport->BeginDraw(RHIClearValue(0.3, 0.2, 0.5, 1.0));
 
+	//Vector4 pos(36.f, 16.f, 10.f, 1.f);
+	//Vector4 target = Vector4::Zero;
+	//Vector4 up(0.f, 1.f, 0.f, 0.f);
+	//Vector4 view_(36.f, 16.f, 10.f, 1.f);
+
 	DirectX::XMVECTOR pos = DirectX::XMVectorSet(36.f, 16.f, 10.f, 1.0f);
 	DirectX::XMVECTOR target = DirectX::XMVectorZero();
 	DirectX::XMVECTOR up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
@@ -146,8 +151,7 @@ void Viewport::Render() {
 	
 	// world matrix for each object
 	PerObjectConstants objConstants;
-	DirectX::XMMATRIX world = DirectX::XMMatrixIdentity();
-	XMStoreFloat4x4(&objConstants.World, DirectX::XMMatrixTranspose(world));
+	Matrix4 world(Identity{});
 	
 
 	ds->Clear(RHIClearValue(1.0, 0));
@@ -155,7 +159,7 @@ void Viewport::Render() {
 
 	for (auto item : items) {
 		item->material->SetParameter("gViewProj", (const float*)& passConstans.ViewProj, 16);
-		item->material->SetParameter("gWorld", (const float*)& objConstants.World, 16);
+		item->material->SetParameter("gWorld", (const float*)&world, 16);
 		item->material->DrawIndexed(item->mesh->mVBuffer, item->mesh->mIBuffer);
 	}
 	//DrawTex();

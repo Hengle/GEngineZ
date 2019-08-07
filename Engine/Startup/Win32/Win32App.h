@@ -9,7 +9,7 @@ namespace z {
 
 class Win32App : public App, public Win32Window {
 public:
-	Win32App() : Win32Window(800, 600) {}
+	Win32App() : Win32Window(1024, 768) {}
 	bool Init();
 	void Run();
 

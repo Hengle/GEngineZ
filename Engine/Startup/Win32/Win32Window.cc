@@ -48,7 +48,7 @@ bool Win32Window::InitWindow() {
 
     mMainWnd = CreateWindow(
 		_T("BasicWndClass"),
-		_T("BasicWindow"),
+		_T("GameZ"),
 		WS_OVERLAPPEDWINDOW,         // style
 		CW_USEDEFAULT, CW_USEDEFAULT,// x, y
 		R.right - R.left,            // w
