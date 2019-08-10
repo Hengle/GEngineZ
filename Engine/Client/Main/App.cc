@@ -1,5 +1,4 @@
 #include "App.h"
-#include "Viewport.h"
 #include "Director.h"
 
 namespace z {
@@ -29,15 +28,14 @@ void App::OnUpdate() {
 	GDirector->Update();
 }
 
-void App::OnResize(int width, int height) {
+void App::OnResize(uint32_t width, uint32_t height) {
 	// be careful, this method will called before oninit
 	Log<LINFO>("App On Resized....");
 	mWidth = width;
 	mHeight = height;
 
 	if (GDirector) {
-		Viewport* vp = GDirector->GetViewport();
-		vp->Resize(width, height);
+		GDirector->OnResize(width, height);
 	}
 }
 

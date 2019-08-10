@@ -8,8 +8,8 @@ Director* GDirector = nullptr;
 Director::Director() {
 	InitializeSingleton<Director>(GDirector, this);
 	// size will changed when on resize called later
-	mViewport = new Viewport(1, 1);
-	
+	mRenderer = new Renderer();
+	LoadScene(new Scene());
 }
 
 Director::~Director() {
@@ -23,10 +23,11 @@ void Director::FrameTick() {
 	GInput->Dispatch();
 
 	// object tick
+	mCurScene->Tick();
 
 	// render tick
-	mViewport->Tick();
-	mViewport->Render();
+	mRenderer->Tick();
+	mRenderer->Render();
 
 	// end
 	EndFrame();;

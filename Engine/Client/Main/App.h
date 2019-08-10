@@ -16,7 +16,7 @@ public:
 	void OnInit(FilePath rootPath);
 	void OnUpdate();
 
-	void OnResize(int width, int height);
+	void OnResize(uint32_t width, uint32_t height);
 
 
 protected:

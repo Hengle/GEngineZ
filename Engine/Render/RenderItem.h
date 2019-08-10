@@ -8,11 +8,12 @@ namespace z {
 
 struct RenderItem : RefCounter{
 	ERenderSet renderSet;
-
 	RefCountPtr<Mesh> mesh;
 	RefCountPtr<MaterialInstance> material;
 
+	//void CollectConstants(RenderScene *scn) {
 
+	//}
 };
 
 }

@@ -27,7 +27,8 @@
 #include <Core/Platform/OSHeader.h>
 
 // math
-#include <Core/Math/Consts.h>
+#include <Core/Math/Constant.h>
 #include <Core/Math/Vector.h>
 #include <Core/Math/Matrix.h>
 #include <Core/Math/Function.h>
+#include <Core/Math/Camera.h>

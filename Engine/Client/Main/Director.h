@@ -1,10 +1,8 @@
 #pragma once
-
-#include <vector>
 #include <Client/Scene/Scene.h>
 #include <Core/CoreHeader.h>
+#include <Render/Renderer.h>
 
-#include "Viewport.h"
 
 namespace z {
 
@@ -24,15 +22,34 @@ public:
 	}
 
 
-	Viewport* GetViewport() {
-		return mViewport;
+	void LoadScene(Scene* scn) {
+		mCurScene = scn;
+		scn->Load();
 	}
 
+	Scene* GetCurScene() {
+		return mCurScene;
+	}
+
+	Renderer* GetRenderer() {
+		return mRenderer;
+	}
+
+	void OnResize(uint32_t width, uint32_t height) {
+		if (mRenderer) {
+			mRenderer->Resize(width, height);
+		}
+		if (mCurScene) {
+			mCurScene->GetCamera()->SetAspect(float(width) / height);
+		}
+	}
 
 
 private:
 	uint64_t mFrameInterval{ 0 };
-	Viewport* mViewport;
+	
+	RefCountPtr<Scene> mCurScene;
+	RefCountPtr<Renderer> mRenderer;
 	
 };
 

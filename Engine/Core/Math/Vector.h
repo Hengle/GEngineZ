@@ -1,6 +1,7 @@
 #pragma once
 
 namespace z {
+namespace math {
 
 template<typename T>
 class TVector4;
@@ -106,4 +107,5 @@ typedef TVector4<float> Vector4;
 typedef TVector4<float> Vector4F;
 typedef TVector4<int> Vector4I;
 
+}
 }

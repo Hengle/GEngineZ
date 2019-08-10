@@ -1,35 +1,21 @@
 #pragma once
 
-#include <Client/Scene/Camera.h>
-#include <Client/Main/Viewport.h>
+#include <Core/CoreHeader.h>
+#include "RenderItem.h"
 
 namespace z {
 
 
-struct RenderSceneData {
-	Camera* camera;
+struct RenderScene : public RefCounter {
+public:;
 
-	void Reset() {
-		camera = nullptr;
-	}
+	void Reset() {}
 
-};
 
-class RenderScene {
-public:
-	RenderScene();
+	math::Matrix4F ViewMatrix;
+	math::Matrix4F ViewProjMatrix;
 
-	void Begin();
-	void End();
-
-	void Render();
-
-	RenderSceneData& Data() {
-		return mData;
-	}
-	
-protected:
-	RenderSceneData mData;
+	std::vector<RefCountPtr<RenderItem>> RenderItems;
 };
 
 }
