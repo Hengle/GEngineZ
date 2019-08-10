@@ -10,26 +10,11 @@
 #include <RHI/RHIDevice.h>
 #include <Util/Image/Image.h>
 #include <Util/Mesh/ZMeshLoader.h>
-#include <d2d1.h>
 
 
 
 namespace z {
 
-struct VertexIn{
-	DirectX::XMFLOAT3 pos;
-	DirectX::XMFLOAT3 normal;
-	DirectX::XMFLOAT3 tangent;
-	DirectX::XMFLOAT2 uv;
-};
-
-struct PerObjectConstants {
-	DirectX::XMFLOAT4X4 World;
-};
-
-struct PassConstants {
-	DirectX::XMFLOAT4X4 ViewProj;
-};
 
 
 void Viewport::Resize(int width, int height) {
@@ -132,34 +117,25 @@ void Viewport::Render() {
 
 	mRHIViewport->BeginDraw(RHIClearValue(0.3, 0.2, 0.5, 1.0));
 
-	//Vector4 pos(36.f, 16.f, 10.f, 1.f);
-	//Vector4 target = Vector4::Zero;
-	//Vector4 up(0.f, 1.f, 0.f, 0.f);
-	//Vector4 view_(36.f, 16.f, 10.f, 1.f);
-
-	DirectX::XMVECTOR pos = DirectX::XMVectorSet(36.f, 16.f, 10.f, 1.0f);
-	DirectX::XMVECTOR target = DirectX::XMVectorZero();
-	DirectX::XMVECTOR up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-	DirectX::XMMATRIX view_ = DirectX::XMMatrixLookAtLH(pos, target, up);
+	Vector3F pos(36.f, 16.f, 10.f);
+	Vector3F target = Vector3F::Zero;
+	Vector3F up(0.f, 1.f, 0.f);
+	Matrix4 view =  MatrixLookAtLH(pos, target, up);
 
 	float aspect = static_cast<float>(mWidth) / mHeight;
-	DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveFovLH(0.25f * DirectX::XM_PI, aspect, 1.0f, 1000.0f);
-
-	PassConstants passConstans;
-	XMStoreFloat4x4(&passConstans.ViewProj, DirectX::XMMatrixTranspose(view_ * proj));
-
+	Matrix4 proj = PerspectiveFovLH(0.25f * K_PI, aspect, 1.0f, 1000.0f);
+	Matrix4 vp = view * proj;
 	
-	// world matrix for each object
-	PerObjectConstants objConstants;
-	Matrix4 world(Identity{});
 	
+	Matrix4 world = Matrix4::Identity;
+
 
 	ds->Clear(RHIClearValue(1.0, 0));
 	GDevice->SetOutputs({ mRHIViewport->GetBackBuffer() }, ds);
 
 	for (auto item : items) {
-		item->material->SetParameter("gViewProj", (const float*)& passConstans.ViewProj, 16);
-		item->material->SetParameter("gWorld", (const float*)&world, 16);
+		item->material->SetParameter("gViewProj", (const float*)& vp, 16);
+		item->material->SetParameter("gWorld", (const float*)& world, 16);
 		item->material->DrawIndexed(item->mesh->mVBuffer, item->mesh->mIBuffer);
 	}
 	//DrawTex();

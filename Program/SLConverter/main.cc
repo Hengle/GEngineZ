@@ -33,7 +33,7 @@ void Process(const FilePath& path) {
 		if (FAILED(hr)) {
 			std::cout << (char*)error->GetBufferPointer() << std::endl;
 		}
-		assert(SUCCEEDED(hr));
+		CHECK(SUCCEEDED(hr));
 
 		uint32_t flags = 0;
 		const GlExtensions ext;

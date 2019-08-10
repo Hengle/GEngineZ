@@ -24,7 +24,6 @@ void Director::FrameTick() {
 
 	// object tick
 
-
 	// render tick
 	mViewport->Tick();
 	mViewport->Render();
