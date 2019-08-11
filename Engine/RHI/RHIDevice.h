@@ -27,6 +27,11 @@ public:
 	virtual void SetIndexBuffer(RHIIndexBuffer*) = 0;
 	virtual void SetOutputs(const std::vector<RHITexture*>& rts, RHITexture* ds = nullptr) = 0;
 	virtual void DrawIndexed(RHIShaderInstance* si, RHIVertexBuffer* vb, RHIIndexBuffer* ib, uint64_t state) = 0;
+
+	//
+	void EndDraw() {
+		RHIResource::FreeWaitDelResource();
+	}
 };
 
 extern RHIDevice* GDevice;

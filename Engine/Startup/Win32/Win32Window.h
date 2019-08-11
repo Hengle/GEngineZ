@@ -3,6 +3,7 @@
 #include <tchar.h>
 #include <windows.h>
 #include <windowsx.h>
+#include <string>
 
 namespace z {
 
@@ -28,6 +29,7 @@ protected:
 	bool UpdateWindow();
 
 	HWND mMainWnd{ nullptr };
+	std::wstring mWindowTitle;
 
 private:
 	int mWindowWidth;

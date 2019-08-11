@@ -8,13 +8,43 @@ namespace z {
 // rhi resource must be interface, and create by device
 class RHIResource : public RefCounter {
 public:
-	RHIResource() : RefCounter() {
+	RHIResource() : RefCounter(), mImmedDel(false){
 		//Log<LDEBUG>("create rhi resource", this);
 	}
 
-	virtual ~RHIResource() {
-		//Log<LDEBUG>("destroy rhi resource", this);
+	void MarkImmedDel() {
+		mImmedDel = true;
 	}
+
+	int32_t Release() const {
+		// override release. 
+		// free in next frame, because command list may use resource in this frame... 
+
+		int old = --mCntRef;
+		if (mCntRef == 0) {
+			if (mImmedDel) {
+				delete this;
+			} else {
+				gWaitDelReousrce.push_back(const_cast<RHIResource*>(this));
+			}
+		}
+		return old;
+	}
+
+	virtual ~RHIResource() {
+		// Log<LDEBUG>("destroy rhi resource", this);
+	}
+
+	static void FreeWaitDelResource() {
+		for (RHIResource* res : gWaitDelReousrce) {
+			delete res;
+		}
+		gWaitDelReousrce.clear();
+	}
+private:
+	bool mImmedDel;
+
+	static std::vector<RHIResource*> gWaitDelReousrce;
 };
 
 

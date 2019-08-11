@@ -12,17 +12,14 @@ public:
 
 	void SetAspect(float aspect) {
 		mAspect = aspect;
-		mMathCam.SetPerspective(mFov, mAspect, 1, 1000);
+		mMathCam.SetPerspective(mFov, mAspect, 1, 3000);
 	}
 
 	void SetFov(float fov) {
 		mFov = fov;
-		mMathCam.SetPerspective(mFov, mAspect, 1, 1000);
+		mMathCam.SetPerspective(mFov, mAspect, 1, 3000);
 	}
 
-	void RotateForward() {
-
-	}
  
 	math::Camera *GetCam() {
 		return &mMathCam;

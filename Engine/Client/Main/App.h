@@ -18,6 +18,8 @@ public:
 
 	void OnResize(uint32_t width, uint32_t height);
 
+	float GetFps();
+
 
 protected:
 	int mWidth{ 800 };

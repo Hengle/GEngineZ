@@ -22,6 +22,7 @@ protected:
 	void OnMouseMoveEvent(int, int) override;
 	void OnKeyboardEvent(UINT_PTR, bool) override;
 
+
 };
 
 

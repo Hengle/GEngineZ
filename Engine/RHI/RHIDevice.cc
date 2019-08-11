@@ -1,4 +1,5 @@
 #include "RHIDevice.h"
+#include "RHIResource.h"
 
 #include <RHIDX12/DX12Device.h>
 #include <Core/Common/Singleton.h>
@@ -15,6 +16,8 @@ RHIDevice::~RHIDevice() {
 	FinalizeSingleton<RHIDevice>(GDevice, this);
 }
 
+
+std::vector<RHIResource*> RHIResource::gWaitDelReousrce;
 
 
 

@@ -9,27 +9,27 @@ namespace z {
 template<typename CounterT>
 class RefCounterImpl {
 public:
-	RefCounterImpl(): mCnt(0) {}
-	virtual ~RefCounterImpl() { CHECK(!mCnt); }
+	RefCounterImpl(): mCntRef(0) {}
+	virtual ~RefCounterImpl() { CHECK(!mCntRef); }
 	
 	int32_t AddRef() const {
-		return ++mCnt;
+		return ++mCntRef;
 	}
 
 	int32_t Release() const {
-		int old = --mCnt;
-		if (mCnt == 0) {
+		int old = --mCntRef;
+		if (mCntRef == 0) {
 			delete this;
 		}
 		return old;
 	}
 
 	int32_t RefCount() const{
-		return mCnt;
+		return mCntRef;
 	}
 
-private:
-	mutable CounterT mCnt;
+protected:
+	mutable CounterT mCntRef;
 };
 
 typedef RefCounterImpl<int32_t> RefCounter;

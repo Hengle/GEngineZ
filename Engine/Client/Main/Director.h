@@ -45,10 +45,17 @@ public:
 		}
 	}
 
+	float GetCurFps() {
+		return mCurFps;
+	}
 
 private:
 	uint64_t mFrameInterval{ 0 };
 	
+	float mCurFps{ 0 };
+	int mFramesForStatFps{ 0 };
+	uint64_t mFpsStatTime{ 0 };
+
 	RefCountPtr<Scene> mCurScene;
 	RefCountPtr<Renderer> mRenderer;
 	RefCountPtr<CameraController> mCameraController;

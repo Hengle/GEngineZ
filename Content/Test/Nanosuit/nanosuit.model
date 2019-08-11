@@ -1,0 +1,38 @@
+conf = {
+    name = 'model',
+    mesh = "Test/Nanosuit/nanosuit.zmesh",
+    material = {
+		-- arm
+        {
+            idx =  4,
+            file = "Test/Nanosuit/nanosuit0.material"
+        },
+		-- body
+        {
+            idx = 6,
+            file = "Test/Nanosuit/nanosuit1.material"
+        },
+		-- glass
+        {
+            idx = 0, 
+            file = "Test/Nanosuit/nanosuit2.material"
+        },
+		-- hand
+        {
+            idx = 2,
+            file = "Test/Nanosuit/nanosuit3.material"
+        },
+		-- Helmet
+        {
+            idx = 5,
+            file = "Test/Nanosuit/nanosuit4.material"
+        },
+		-- leg
+        {
+            idx = 1,
+            file = "Test/Nanosuit/nanosuit5.material"
+        }
+    }
+}
+
+return conf

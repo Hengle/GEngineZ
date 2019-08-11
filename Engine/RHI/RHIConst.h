@@ -79,8 +79,6 @@ enum ERHIInputSemantic {
 	SEMANTIC_MAX = SEMANTIC_UV1 + 1
 };
 
-const int MAX_INPUT_SEMANTIC = 10;
-
 
 
 

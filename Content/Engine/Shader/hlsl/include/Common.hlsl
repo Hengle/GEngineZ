@@ -2,6 +2,7 @@
 cbuffer GlobalPerFrame : register(b0)
 {
 	float4x4 ViewProj;
+	// float4
 
 }
 

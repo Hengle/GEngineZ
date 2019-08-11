@@ -11,6 +11,8 @@
 #include <Util/Image/Image.h>
 #include <Util/Mesh/MeshGenerator.h>
 
+#include <Client/Component/Primitive.h>
+
 
 namespace z {
 
@@ -30,19 +32,17 @@ bool Scene::Load() {
 		item->material = MaterialManager::GetMaterialInstance("empty");
 		item->material->SetFillMode(RS_FILL_WIREFRAME);
 		item->mesh = mesh;
-		items.push_back(item);
-
+		mEditorItems.push_back(item);
 	}
 
 	// load sky
 	{
 		Mesh *mesh = MeshGenerator::CreateSphere(800, 100, 100);
-		RenderItem *item = new RenderItem();
-		item->material = MaterialManager::GetMaterialInstance("SphereSky");
-		item->material->SetCullMode(RS_CULL_FRONT);
+		mSkyItem = new RenderItem();
+		mSkyItem->material = MaterialManager::GetMaterialInstance("SphereSky");
+		mSkyItem->material->SetCullMode(RS_CULL_FRONT);
 		//item->material->SetFillMode(RS_FILL_WIREFRAME);
-		item->mesh = mesh;
-		items.push_back(item);
+		mSkyItem->mesh = mesh;
 
 		Image *img = Image::Load(GApp->GetRootPath() / "Content/Engine/Texture/Sky.jpg");
 		RHITextureDesc desc;
@@ -54,20 +54,15 @@ bool Scene::Load() {
 		desc.dimension = TEX_DIMENSION_2D;
 		desc.numMips = 1;
 		RHITexture* tex = GDevice->CreateTexture(desc, img->GetData());
-		item->material->SetParameter("tSkyTexture", tex);
+		mSkyItem->material->SetParameter("tSkyTexture", tex);
 	}
 
 	
-	MeshHub meshhub = ZMeshLoader::Load(GApp->GetRootPath() / "Content/Test/Mesh/nanosuit.zmesh");
-	for (int i = 0; i < meshhub.size(); i++) {
-		RenderItem *item = new RenderItem();
-
-		item->material = MaterialManager::GetMaterialInstance("empty");
-		item->mesh = meshhub[i];
-		items.push_back(item);
+	// load primitives
+	Primitive* p = new Primitive();
+	if (p->LoadFromFile(GApp->GetRootPath() / "Content/Test/Nanosuit/nanosuit.model")) {
+		mPrimitives.push_back(p);
 	}
-
-	// texture
 
 	return true;
 }
@@ -81,10 +76,18 @@ void Scene::ColloectEnv(RenderScene* renderScn) {
 
 
 void Scene::CollectItems(RenderScene* renderScn) {
-	for (auto item : items) {
+	// sky
+	renderScn->RenderItems.push_back(mSkyItem);
+
+	// editor items
+	for (RenderItem* item : mEditorItems) {
 		renderScn->RenderItems.push_back(item);
 	}
 
+	// primitives
+	for (Primitive *prim : mPrimitives) {
+		prim->CollectRenderItems(renderScn);
+	}
 }
 
 }

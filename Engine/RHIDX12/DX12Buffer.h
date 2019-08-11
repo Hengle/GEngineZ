@@ -43,6 +43,9 @@ public:
 	friend class DX12Device;
 
 	DX12VertexBuffer(uint32_t num, uint32_t stride, const void* data, const std::vector<ERHIInputSemantic> &semantic);
+	virtual ~DX12VertexBuffer() {
+		mSemantics.clear();
+	}
 
 	D3D12_VERTEX_BUFFER_VIEW GetView() {
 		D3D12_VERTEX_BUFFER_VIEW view;

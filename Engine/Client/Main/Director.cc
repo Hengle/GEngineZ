@@ -48,6 +48,15 @@ void Director::Update() {
 	if (last_update_ms + mFrameInterval < now) {
 		last_update_ms = now;
 		FrameTick();
+
+		mFramesForStatFps++;
+		if (now > mFpsStatTime + 1000) {
+			mCurFps = mFramesForStatFps * 1000.0 / (now - mFpsStatTime);
+			mFpsStatTime = now;
+			mFramesForStatFps = 0;
+		}
+
+
 	}
 }
 

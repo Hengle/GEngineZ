@@ -24,6 +24,14 @@ void App::OnInit(FilePath rootPath) {
 
 }
 
+
+float App::GetFps() {
+	if (GDirector) {
+		return GDirector->GetCurFps();
+	}
+	return 0.f;
+}
+
 void App::OnUpdate() {
 	GDirector->Update();
 }

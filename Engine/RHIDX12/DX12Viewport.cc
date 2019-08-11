@@ -50,8 +50,11 @@ void DX12Viewport::Resize(uint32_t width, uint32_t height) {
 	// flush commands first
 	GDX12Device->GetExecutor()->FlushAndReset();
 
-	// reset back buffer
+	// reset back buffers
 	for (uint32_t i = 0; i < BACK_BUFFER_COUNT; i++) {
+		if (mBackBuffers[i]) {
+			mBackBuffers[i]->MarkImmedDel();
+		}
 		mBackBuffers[i] = nullptr;
 	}
 

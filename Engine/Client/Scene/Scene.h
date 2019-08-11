@@ -5,6 +5,7 @@ namespace z {
 class RenderScene;
 class RenderItem;
 class Camera;
+class Primitive;
 
 class Scene : public RefCounter {
 public:
@@ -24,7 +25,9 @@ private:
 	bool mIsEditor;
 	RefCountPtr<Camera> mCamera;
 
-	std::vector<RefCountPtr<RenderItem>> items;
+	std::vector<RefCountPtr<RenderItem>> mEditorItems;
+	RefCountPtr<RenderItem> mSkyItem;
+	std::vector<RefCountPtr<Primitive>> mPrimitives;
 };
 
 }

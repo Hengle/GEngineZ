@@ -10,6 +10,10 @@ struct Mesh;
 
 
 struct Mesh : RefCounter{
+	Mesh() {}
+	virtual ~Mesh() {}
+
+
 	uint32_t VertCount{ 0 };
 	uint32_t IndexCount{ 0 };
 	uint32_t FaceCount{ 0 };

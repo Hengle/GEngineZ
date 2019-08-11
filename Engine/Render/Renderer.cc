@@ -71,6 +71,9 @@ void Renderer::Render() {
 	// === Post Process ===
 
 	mRHIViewport->EndDraw();
+
+	// free resoruce and so on..
+	GDevice->EndDraw();
 }
 
 

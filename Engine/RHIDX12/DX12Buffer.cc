@@ -66,7 +66,7 @@ DX12VertexBuffer::DX12VertexBuffer(uint32_t num, uint32_t stride, const void* da
 	mNum(num),
 	mStride(stride) {
 	mSemantics = semantic;
-	memset(mSemanticsOffset, 0, sizeof(uint8_t) * MAX_INPUT_SEMANTIC);
+	memset(mSemanticsOffset, 0, sizeof(uint8_t) * SEMANTIC_MAX);
 	int offset = 0;
 	for (size_t i = 0; i < semantic.size(); i++) {
 		mSemanticsOffset[semantic[i]] = offset;

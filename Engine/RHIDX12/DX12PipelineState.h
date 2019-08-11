@@ -74,7 +74,7 @@ public:
 	ID3D12RootSignature* GetIRootSignature();
 
 private:
-	DX12PipelineState(DX12Shader* shader, const uint8_t semoff[MAX_INPUT_SEMANTIC], const std::vector<DXGI_FORMAT>&, const DXGI_FORMAT, const uint64_t);
+	DX12PipelineState(DX12Shader* shader, const uint8_t semoff[SEMANTIC_MAX], const std::vector<DXGI_FORMAT>&, const DXGI_FORMAT, const uint64_t);
 
 	RefCountPtr<DX12Shader> mShader;
 	RefCountPtr<ID3D12PipelineState> mState;

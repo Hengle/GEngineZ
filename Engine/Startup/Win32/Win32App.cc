@@ -37,7 +37,18 @@ bool Win32App::Init() {
 void Win32App::Run() {
 	while (UpdateWindow()) {
 		App::OnUpdate();
+	
+		float fps = App::GetFps();
+
+		std::string fpsStr = std::to_string(fps);
+		fpsStr = fpsStr.substr(0, 5);
+		
+		std::string windowText = "GameZ FPS: " + fpsStr;
+
+		SetWindowText(mMainWnd, windowText.c_str());
 	}
+
+
 }
 
 void Win32App::OnResize(int width, int height) {
