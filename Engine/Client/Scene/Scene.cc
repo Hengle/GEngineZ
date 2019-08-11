@@ -33,6 +33,7 @@ bool Scene::Load() {
 		items.push_back(item);
 
 	}
+
 	// load sky
 	{
 		Mesh *mesh = MeshGenerator::CreateSphere(800, 100, 100);
@@ -43,7 +44,7 @@ bool Scene::Load() {
 		item->mesh = mesh;
 		items.push_back(item);
 
-		Image *img = Image::Load(GApp->GetRootPath() / "Content/Engine/Texture/Sky2.jpg");
+		Image *img = Image::Load(GApp->GetRootPath() / "Content/Engine/Texture/Sky.jpg");
 		RHITextureDesc desc;
 		desc.sizeX = img->GetWidth();
 		desc.sizeY = img->GetHeight();

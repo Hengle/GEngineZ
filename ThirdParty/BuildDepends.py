@@ -130,11 +130,13 @@ def PostProcess():
     SafeDo(shutil.rmtree, os.path.join(INSTALL_DIR, "lib", "cmake"))
     SafeDo(shutil.rmtree, os.path.join(INSTALL_DIR, "lib", "man"))
     SafeDo(shutil.rmtree, os.path.join(INSTALL_DIR, "lib", "pkgconfig"))
-    #   shutil.rmtree(os.path.join(INSTALL_DIR, "share"))
+    SafeDo(shutil.rmtree, os.path.join(INSTALL_DIR, "share"))
 
 if __name__ == "__main__":
     builder = Builder()
     builder.build_ninja()
+    # lua
+    builder.build_lib("lua", ["-DBUILD_SHARED_LIBS=ON"])
     # hlslcc
     builder.build_lib("HLSLcc", ["-DHLSLCC_LIBRARY_SHARED=ON"])
     # zlib with zstr

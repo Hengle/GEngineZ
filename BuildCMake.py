@@ -41,7 +41,7 @@ class Game(BT.Module):
     def __init__(self):
         super(Game, self).__init__("Game", BT.EXECUTABLE)
         self.SOURCE = ["Program/Game"]
-        self.DEPS = ["Engine", "zlib"]
+        self.DEPS = ["Engine", "zlib", "lua"]
 
 class SLConverter(BT.Module):
     def __init__(self):
