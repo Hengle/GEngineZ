@@ -1,8 +1,11 @@
 #include "include/Common.hlsl"
 
-cbuffer cbPerObject : register(b0) {
-	float4x4 gWorld;
-};
+
+
+cbuffer Shading : register(b0)
+{
+
+}
 
 
 
@@ -25,8 +28,8 @@ struct VertexOut {
 
 VertexOut VS(VertexIn vin) {
 	VertexOut vout;
-	float4 pos = mul(float4(vin.pos, 1.0f), gWorld);
-	vout.pos = mul(pos, gViewProj);
+	float4 pos = mul(float4(vin.pos, 1.0f), World);
+	vout.pos = mul(pos, ViewProj);
 	vout.uv = vin.uv;
 	return vout;
 }

@@ -1,6 +1,8 @@
 #include "Director.h"
 #include "Input.h"
 #include <Core/CoreHeader.h>
+#include <Client/Scene/Camera.h>
+#include <Client/Scene/CameraController.h>
 
 namespace z {
 Director* GDirector = nullptr;
@@ -10,6 +12,12 @@ Director::Director() {
 	// size will changed when on resize called later
 	mRenderer = new Renderer();
 	LoadScene(new Scene());
+
+	mCameraController = new CameraController();
+	mCameraController->SetCamera(mCurScene->GetCamera());
+
+
+
 }
 
 Director::~Director() {
@@ -21,8 +29,8 @@ void Director::FrameTick() {
 	BeginFrame();
 	// handle input
 	GInput->Dispatch();
-
 	// object tick
+	mCameraController->Apply();
 	mCurScene->Tick();
 
 	// render tick

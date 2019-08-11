@@ -51,7 +51,7 @@ void Renderer::Render() {
 		return;
 	}
 
-	mRHIViewport->BeginDraw(RHIClearValue(0.5, 0.5, 0.5, 1.0));
+	mRHIViewport->BeginDraw(RHIClearValue(1.0, 1.0, 1.0, 1.0));
 
 
 
@@ -76,9 +76,11 @@ void Renderer::Render() {
 
 void Renderer::CollectMaterialParametes(RenderItem* item) {
 	math::Matrix4 world = math::Matrix4::Identity;
+	// per frame
+	item->material->SetParameter("ViewProj", (const float*)& mRenderScene->ViewProjMatrix, 16);
 
-	item->material->SetParameter("gViewProj", (const float*)& mRenderScene->ViewProjMatrix, 16);
-	item->material->SetParameter("gWorld", (const float*)& world, 16);
+	// per object
+	item->material->SetParameter("World", (const float*)& world, 16);
 }
 
 }

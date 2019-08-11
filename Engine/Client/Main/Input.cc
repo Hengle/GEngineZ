@@ -11,9 +11,9 @@ Input::Input() :
 	mMouseKey(0),
 	mIsMouseMoved(false),
 	mIsMouseRolled(false),
-mCurX(0.f), mCurY(0.f),
-mLastX(0.f), mLastY(0.f),
-mWheelTotal(0.f) {
+	mCurX(0.f), mCurY(0.f),
+	mLastX(0.f), mLastY(0.f),
+	mWheelTotal(0.f) {
 	InitializeSingleton<Input>(GInput, this);
 }
 
@@ -48,12 +48,12 @@ void Input::OnMouseWheel(float delta) {
 void Input::OnKeyboard(EInput key, EInput act) {
 	if (act == EI_ACT_DOWN) {
 		mDownkeys.insert(key);
-		if (key & EI_MODIFY_BTN) {
+		if (key <= EI_MODIFY_BTN && (key & EI_MODIFY_BTN)) {
 			mModifyKey |= key;
 		}
 	} else if (act == EI_ACT_UP) {
 		mUpkeys.insert(key);
-		if (key & EI_MODIFY_BTN) {
+		if (key <= EI_MODIFY_BTN && (key & EI_MODIFY_BTN)) {
 			mModifyKey &= ~key;
 		}
 	}
@@ -61,21 +61,21 @@ void Input::OnKeyboard(EInput key, EInput act) {
 
 int Input::RegisterEvent(EInput key, EInput act, uint8_t modify, const InputMoveCallback& cb) {
 	InputEvent* e = new InputEvent(key, act, modify);
-	e->Callback.MoveCB = cb;
+	e->MoveCB = cb;
 	PushEvent(e);
 	return e->ID;
 }
 
 int Input::RegisterEvent(EInput key, EInput act, uint8_t modify, const InputRollCallback& cb) {
 	InputEvent* e = new InputEvent(key, act, modify);
-	e->Callback.RollCB = cb;
+	e->RollCB = cb;
 	PushEvent(e);
 	return e->ID;
 }
 
 int Input::RegisterEvent(EInput key, EInput act, uint8_t modify, const InputClickCallback& cb) {
 	InputEvent* e = new InputEvent(key, act, modify);
-	e->Callback.ClickCB = cb;
+	e->ClickCB = std::move(cb);
 	PushEvent(e);
 	return e->ID;
 }
@@ -104,13 +104,13 @@ void Input::UnRegisterEvent(int id) {
 void Input::Dispatch() {
 	// handle mouse move
 	if (mIsMouseMoved) {
-		// only zero one mouse key supported
+		// only zero or one mouse key supported
 		if (mMouseKey == 0 || (mMouseKey & (mMouseKey - 1)) == 0) {
 			auto iter = mEvents.find(std::make_pair((EInput)mMouseKey, EI_ACT_MOVE));
 			if (iter != mEvents.end()) {
 				for (auto* ev : iter->second) {
 					if (ev->Modify == mModifyKey) {
-						ev->Callback.MoveCB(mCurX, mCurY);
+						ev->MoveCB((EInput)mMouseKey, mCurX, mCurY);
 					}
 				}
 			}
@@ -124,7 +124,7 @@ void Input::Dispatch() {
 		if (iter != mEvents.end()) {
 			for (auto* ev : iter->second) {
 				if (ev->Modify == mModifyKey) {
-					ev->Callback.RollCB(mWheelTotal);
+					ev->RollCB((EInput)mMouseKey, mWheelTotal);
 				}
 			}
 		}
@@ -137,7 +137,7 @@ void Input::Dispatch() {
 		if (iter != mEvents.end()) {
 			for (auto* ev : iter->second) {
 				if (ev->Modify == mModifyKey) {
-					ev->Callback.ClickCB();
+					ev->ClickCB(downKey, EI_ACT_DOWN);
 				}
 			}
 		}
@@ -149,7 +149,7 @@ void Input::Dispatch() {
 		if (iter != mEvents.end()) {
 			for (auto* ev : iter->second) {
 				if (ev->Modify == mModifyKey) {
-					ev->Callback.ClickCB();
+					ev->ClickCB(upKey, EI_ACT_UP);
 				}
 			}
 		}

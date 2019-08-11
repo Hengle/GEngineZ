@@ -2,10 +2,11 @@
 #include <Client/Scene/Scene.h>
 #include <Core/CoreHeader.h>
 #include <Render/Renderer.h>
+#include <Client/Scene/Camera.h>
 
 
 namespace z {
-
+class CameraController;
 class Director {
 public:
 	Director();
@@ -50,6 +51,7 @@ private:
 	
 	RefCountPtr<Scene> mCurScene;
 	RefCountPtr<Renderer> mRenderer;
+	RefCountPtr<CameraController> mCameraController;
 	
 };
 

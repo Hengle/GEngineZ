@@ -1,24 +1,16 @@
 #pragma once
 
 #include "Matrix.h"
-#include "Function.h"
+#include "LinearAlg.h"
 
 namespace z { namespace math {
 
 class Camera {
 public:
 	Camera(const Vector3F& eye, const Vector3F& target, const Vector3F& worldUp = Vector3F(0, 1, 0)) {
-		mPostion = eye;
-		Vector3 forward = Normalize(target - eye);
-		Vector3 right = Normalize(Cross(worldUp, forward));
-		Vector3 up = Normalize(Cross(forward, right));
-
-		mViewMatrix = Matrix4(
-			{ right,   -Dot(right, eye) },
-			{ up,      -Dot(up, eye) },
-			{ forward, -Dot(forward, eye) },
-			{ 0, 0, 0, 1 }
-		);
+		mPosition = eye;
+		mWorldUp = worldUp;
+		UpdateForward(Normalize(target - eye));
 	}
 
 	void SetPerspective(float fov, float aspect, float nearZ, float farZ) {
@@ -33,17 +25,43 @@ public:
 		);
 	}
 
+	void UpdatePosition(const Vector3F& pos) {
+		mPosition = pos;
+		mViewMatrix[0][3] = -Dot(GetRight(), pos);
+		mViewMatrix[1][3] = -Dot(GetUp(), pos);
+		mViewMatrix[2][3] = -Dot(GetForward(), pos);
+	}
+
+	void UpdateForward(const Vector3F &forward) {
+		Vector3 right = Normalize(Cross(mWorldUp, forward));
+		Vector3 up = Normalize(Cross(forward, right));
+
+		mViewMatrix = Matrix4(
+			{ right,   -Dot(right, mPosition) },
+			{ up,      -Dot(up, mPosition) },
+			{ forward, -Dot(forward, mPosition) },
+			{ 0, 0, 0, 1 }
+		);
+	}
+
+	Vector3F GetPosition() {
+		return mPosition;
+	}
 	
 	Vector3F GetRight() {
 		return mViewMatrix[0];
 	}
 
 	Vector3F GetForward() {
-		return mViewMatrix[1];
+		return mViewMatrix[2];
 	}
 
 	Vector3F GetUp() {
-		return mViewMatrix[2];
+		return mViewMatrix[1];
+	}
+
+	Vector3F GetWorldUp() {
+		return mWorldUp;
 	}
 
 	Matrix4F GetViewMatrix() {
@@ -58,7 +76,8 @@ public:
 private:
 	Matrix4F mViewMatrix;
 	Matrix4F mProjMatrix;
-	Vector3F mPostion;
+	Vector3F mPosition;
+	Vector3F mWorldUp;
 };
 
 }

@@ -9,7 +9,9 @@ namespace z {
 struct RenderScene : public RefCounter {
 public:;
 
-	void Reset() {}
+	void Reset() {
+		RenderItems.clear();
+	}
 
 
 	math::Matrix4F ViewMatrix;

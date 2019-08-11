@@ -60,9 +60,9 @@ enum EInput {
 	EI_MAX = EI_BTN_END
 };
 
-typedef void(*InputMoveCallback)(float, float);
-typedef void(*InputRollCallback)(float);
-typedef void(*InputClickCallback)();
+typedef std::function<void(EInput key, float, float)> InputMoveCallback;
+typedef std::function<void(EInput key, float)> InputRollCallback;
+typedef std::function<void(EInput key, EInput act)> InputClickCallback;
 
 struct InputEvent {
 	static int KeyEventIdAdder;
@@ -71,18 +71,19 @@ struct InputEvent {
 		Modify(modify),
 		Act(act),
 		Key(key) {
-		Callback.MoveCB = nullptr;
+		//Callback.MoveCB = nullptr;
 	}
+	~InputEvent() {}
 
 	uint8_t Modify;
 	uint8_t Act;
 	EInput Key;
 	int ID;
-	union {
+	//union {
 		InputMoveCallback MoveCB;
 		InputClickCallback ClickCB;
 		InputRollCallback RollCB;
-	} Callback;
+	//};
 };
 
 class Input {
@@ -101,6 +102,9 @@ public:
 	int RegisterEvent(EInput key, EInput act, uint8_t modify, const InputRollCallback& cb);
 	int RegisterEvent(EInput key, EInput act, uint8_t modify, const InputClickCallback& cb);
 	void UnRegisterEvent(int id);
+
+	float GetLastX() { return mLastX; }
+	float GetLastY() { return mLastY; }
 
 private:
 	// <key, act> -> event list

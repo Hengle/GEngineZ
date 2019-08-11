@@ -64,6 +64,9 @@ enum ERHIRenderState {
 	// stencil
 
 	// depth
+
+	RS_FILL_MASK = RS_FILL_WIREFRAME| RS_FILL_SOLID,
+	RS_CULL_MASK = RS_CULL_BACK,
 };
 
 enum ERHIInputSemantic {
@@ -110,13 +113,6 @@ struct ScreenRenderRect {
 	float width;
 	float height;
 };
-
-struct RHIInputDesc {
-	std::string SemanticName;
-	uint32_t SemanticIndex;
-	ERHIPixelFormat Format;
-};
-
 
 
 struct RHITextureDesc {

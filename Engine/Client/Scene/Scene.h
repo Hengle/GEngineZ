@@ -1,10 +1,10 @@
 #pragma once
 #include <Core/CoreHeader.h>
-#include "Camera.h"
 
 namespace z {
 class RenderScene;
 class RenderItem;
+class Camera;
 
 class Scene : public RefCounter {
 public:
@@ -21,6 +21,7 @@ public:
 	}
 
 private:
+	bool mIsEditor;
 	RefCountPtr<Camera> mCamera;
 
 	std::vector<RefCountPtr<RenderItem>> items;

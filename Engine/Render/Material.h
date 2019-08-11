@@ -6,7 +6,6 @@
 namespace z {
 class RHIShader;
 class RHITexture;
-class RHIInputDesc;
 class RHIVertexBuffer;
 class RHIIndexBuffer;
 class RHIShaderInstance;
@@ -38,10 +37,20 @@ public:
 
 	void DrawIndexed(RHIVertexBuffer* vb, RHIIndexBuffer* ib);
 
+	void SetFillMode(ERHIRenderState rs) {
+		mRState &= ~RS_FILL_MASK;
+		mRState |= rs;
+	}
+
+	void SetCullMode(ERHIRenderState rs) {
+		mRState &= ~RS_CULL_MASK;
+		mRState |= rs;
+	}
 
 public:
 	Material* mParent;
 	RefCountPtr<RHIShaderInstance> mRHIShaderInstance;
+	uint64_t mRState;
 };
 
 
@@ -53,8 +62,6 @@ public:
 	static std::string PreProcessingHLSL(const FilePath& codePath);
 
 	static MaterialInstance* GetMaterialInstance(std::string name);
-
-	static bool ParseInputFVF(const std::vector<RHIInputDesc>& inputs, std::vector<EFVFormat>& formats);
 
 	static Material* GetMaterial(const std::string& name) {
 		return gMaterials[name];

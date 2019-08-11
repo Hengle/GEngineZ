@@ -20,7 +20,8 @@ Material::Material(RHIShader* rhiShader) :
 // MaterialInstance
 MaterialInstance::MaterialInstance(Material* material) :
 	mParent(material),
-	mRHIShaderInstance(nullptr) {
+	mRHIShaderInstance(nullptr),
+	mRState(RS_FILL_SOLID|RS_CULL_BACK) {
 	mRHIShaderInstance = GDevice->CreateShaderInstance(material->GetShader());
 }
 
@@ -35,7 +36,7 @@ void MaterialInstance::SetParameter(const std::string& key, RHITexture* tex, uin
 
 
 void MaterialInstance::DrawIndexed(RHIVertexBuffer* vb, RHIIndexBuffer *ib) {
-	GDevice->DrawIndexed(mRHIShaderInstance, vb, ib, 0);
+	GDevice->DrawIndexed(mRHIShaderInstance, vb, ib, mRState);
 }
 
 // MaterialManager

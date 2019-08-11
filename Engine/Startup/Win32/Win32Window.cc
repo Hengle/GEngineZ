@@ -72,8 +72,8 @@ bool Win32Window::InitWindow() {
 
 
 bool Win32Window::UpdateWindow() {
-	MSG msg;
-	if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
+	MSG msg = { 0 };
+	while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
 		if (msg.message == WM_KEYUP || msg.message == WM_KEYDOWN) {
 			// handle ime
 			if (msg.wParam == VK_PROCESSKEY) {
@@ -86,6 +86,7 @@ bool Win32Window::UpdateWindow() {
 			return false;
 		}
 	}
+	
 	return true;
 }
 
