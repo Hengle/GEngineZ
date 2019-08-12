@@ -1,0 +1,18 @@
+return {
+	env = {
+		sky = {
+			texture = "Engine/Texture/Sky.jpg",
+			shader = "SphereSky",
+		},
+		terrain = {
+		}
+	},
+	models = {
+		{
+			model = "Test/Nanosuit/nanosuit.model",
+			position = {0, -5, 0},
+
+		}
+	}
+
+};

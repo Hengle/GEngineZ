@@ -14,7 +14,7 @@ namespace detail {
 
 bool ParseValue(lua_State *L, int index, Value &value);
 
-bool ParseTable(lua_State *L, Value &table) {
+inline bool ParseTable(lua_State *L, Value &table) {
 	lua_pushnil(L); // nil | table
 	while (lua_next(L, -2)) {
 		// value | key | table
@@ -58,7 +58,7 @@ bool ParseTable(lua_State *L, Value &table) {
 	return true;
 }
 
-bool ParseValue(lua_State *L, int index, Value &value) {
+inline bool ParseValue(lua_State *L, int index, Value &value) {
 	int ltype = lua_type(L, index);
 	switch (ltype) {
 	case LUA_TTABLE:

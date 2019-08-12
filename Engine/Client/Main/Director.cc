@@ -1,6 +1,7 @@
 #include "Director.h"
 #include "Input.h"
 #include <Core/CoreHeader.h>
+#include <Client/Main/App.h>
 #include <Client/Scene/Camera.h>
 #include <Client/Scene/CameraController.h>
 
@@ -11,18 +12,25 @@ Director::Director() {
 	InitializeSingleton<Director>(GDirector, this);
 	// size will changed when on resize called later
 	mRenderer = new Renderer();
-	LoadScene(new Scene());
 
-	mCameraController = new CameraController();
-	mCameraController->SetCamera(mCurScene->GetCamera());
-
-
-
+	LoadScene(GApp->GetContentPath() / "Test/Scene/test.scene");
+	SetCameraController(new CameraController());
 }
 
 Director::~Director() {
 	FinalizeSingleton<Director>(GDirector, this);
 }
+
+void Director::SetCameraController(CameraController* controller) {
+	mCameraController = controller;
+	controller->SetCamera(mCurScene->GetCamera());
+}
+
+void Director::LoadScene(const std::string& scnFile) {
+	mCurScene = new Scene();
+	mCurScene->Load(scnFile);
+}
+
 
 void Director::FrameTick() {
 	// begin
@@ -68,6 +76,10 @@ void Director::BeginFrame() {
 void Director::EndFrame() {
 
 }
+
+
+
+
 
 
 

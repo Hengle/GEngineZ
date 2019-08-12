@@ -11,9 +11,6 @@ struct RenderItem : RefCounter{
 	RefCountPtr<Mesh> mesh;
 	RefCountPtr<MaterialInstance> material;
 
-	//void CollectConstants(RenderScene *scn) {
-
-	//}
 };
 
 }

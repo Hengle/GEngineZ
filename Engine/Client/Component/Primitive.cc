@@ -33,7 +33,7 @@ bool Primitive::LoadFromFile(std::string file) {
 
 		// load mesh
 		std::string meshname = model["mesh"].Get<lc::string_t>();
-		MeshHub meshhub = ZMeshLoader::Load(GApp->GetRootPath() / "Content" / meshname);
+		MeshHub meshhub = ZMeshLoader::Load(GApp->GetContentPath() / meshname);
 		if (meshhub.size() == 0) {
 			return false;
 		}
@@ -45,12 +45,12 @@ bool Primitive::LoadFromFile(std::string file) {
 
 			// Get Material
 			if (materials.count(meshIdx) == 0) {
-				item->material = MaterialManager::GetMaterialInstance("empty");
+				item->material = MaterialManager::GetMaterialInstance(EMPTY_MATERIAL);
 			} else {
-				std::string materialPath = GApp->GetRootPath() / "Content" / materials[meshIdx];
+				std::string materialPath = GApp->GetContentPath() / materials[meshIdx];
 				item->material = LoadMaterialFile(materialPath);
 				if (item->material == nullptr) {
-					item->material = MaterialManager::GetMaterialInstance("empty");
+					item->material = MaterialManager::GetMaterialInstance(EMPTY_MATERIAL);
 				}
 			}
 			// save render item

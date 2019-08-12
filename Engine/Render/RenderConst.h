@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 
 namespace z {
 
@@ -30,5 +31,7 @@ inline int GetFVFSize(EFVFormat format) {
 enum ERenderSet {
 
 };
+
+const std::string EMPTY_MATERIAL = "Empty";
 
 }

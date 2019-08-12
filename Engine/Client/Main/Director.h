@@ -6,8 +6,10 @@
 
 
 namespace z {
+
 class CameraController;
 class Director {
+
 public:
 	Director();
 	~Director();
@@ -22,11 +24,9 @@ public:
 		mFrameInterval = int(1000.0f / limit);
 	}
 
+	void SetCameraController(CameraController *);
 
-	void LoadScene(Scene* scn) {
-		mCurScene = scn;
-		scn->Load();
-	}
+	void LoadScene(const std::string& scnFile);
 
 	Scene* GetCurScene() {
 		return mCurScene;

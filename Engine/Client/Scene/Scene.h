@@ -10,7 +10,7 @@ class Primitive;
 class Scene : public RefCounter {
 public:
 	Scene();
-	bool Load();
+	bool Load(const std::string file);
 
 	void Tick() {}
 
@@ -22,6 +22,8 @@ public:
 	}
 
 private:
+	bool LoadFromFile(const std::string file);
+
 	bool mIsEditor;
 	RefCountPtr<Camera> mCamera;
 

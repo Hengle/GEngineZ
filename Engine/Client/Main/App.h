@@ -13,6 +13,10 @@ public:
 		return mRootPath;
 	}
 
+	FilePath GetContentPath() {
+		return mRootPath / "Content";
+	}
+
 	void OnInit(FilePath rootPath);
 	void OnUpdate();
 
