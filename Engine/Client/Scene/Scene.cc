@@ -106,7 +106,6 @@ void Scene::CollectItems(RenderScene* renderScn) {
 	// primitives
 	for (IEntity *ent : mEntities) {
 		std::vector<PrimitiveComp*> prims = ent->GetComponents<PrimitiveComp>();
-		Log<LINFO>(prims.size());
 		for (auto prim : prims) {
 			prim->CollectRenderItems(renderScn);
 		}

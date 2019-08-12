@@ -52,9 +52,9 @@ void DX12BufferUploader::Clear() {
 // DX12 Index Buffer
 DX12IndexBuffer::DX12IndexBuffer(uint32_t num, uint32_t stride, const void* data) :
 	mNum(num) {
-	assert(stride == 2);
+	assert(stride == 4);
 
-	uint32_t size = num * sizeof(uint16_t);
+	uint32_t size = num * sizeof(uint32_t);
 	D3D12_RESOURCE_DESC destDesc = CD3DX12_RESOURCE_DESC::Buffer(size);
 	mResource = new DX12Resource(D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_COMMON, destDesc);
 	DX12BufferUploader::UploadBuffer(mResource, data, size);

@@ -9,24 +9,24 @@ class ZMeshLoader;
 struct Mesh;
 
 
-struct Mesh : RefCounter{
-	uint32_t VertCount{ 0 };
-	uint32_t IndexCount{ 0 };
-	uint32_t FaceCount{ 0 };
-	uint32_t Stride{ 0 };
+struct Mesh : RefCounter {
+	Mesh() {}
+	virtual ~Mesh();
+
 	std::vector<ERHIInputSemantic> Semantics;
 
-	std::vector<uint16_t> Indices16;
-	std::vector<uint32_t> Indices;
+	uint32_t Stride{ 0 };
+	uint32_t VertCount{ 0 };
 	std::vector<float> Vertexes;
 
+	std::vector<uint32_t> IndicesCount;
+	std::vector<std::vector<uint32_t>> Indices;
 
-
-	void UseBuffer();
+	void UseBuffer(int idx);
 	void CreateBuffer();
 
 	RefCountPtr<RHIVertexBuffer> mVBuffer;
-	RefCountPtr<RHIIndexBuffer> mIBuffer;
+	std::vector<RefCountPtr<RHIIndexBuffer>> mIBuffer;
 
 };
 

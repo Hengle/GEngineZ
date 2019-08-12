@@ -65,7 +65,7 @@ void Renderer::Render() {
 	// just simple render everything now	
 	for (auto item : mRenderScene->RenderItems) {
 		CollectMaterialParametes(item);
-		item->material->DrawIndexed(item->mesh->mVBuffer, item->mesh->mIBuffer);
+		item->material->DrawIndexed(item->mesh->mVBuffer, item->mesh->mIBuffer[item->meshIdx]);
 	}
 
 	// === Post Process ===

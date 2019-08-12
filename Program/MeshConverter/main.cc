@@ -45,11 +45,20 @@ public:
 		int sz = static_cast<int>(mIS.size());
 		ss_bin.write((char*)& sz, sizeof(int));
 
+		int base = 0;
 		for (size_t i = 0; i < mIS.size(); i++) {
 			ss_bin.write((char*)& mInfo[i], sizeof(z::SubMeshFileHeader));
+			for (size_t j = 0; j < mIS[i].size(); j++) {
+				mIS[i][j] += base;
+			}
+			base += mInfo[i].VertCount;
+
 			ss_bin.write((char*)mIS[i].data(), mIS[i].size() * sizeof(uint32_t));
-			ss_bin.write((char*)mVS[i].data(), mVS[i].size() * sizeof(float));
 			auto l = mInfo[i];
+		}
+
+		for (size_t i = 0; i < mVS.size(); i++) {
+			ss_bin.write((char*)mVS[i].data(), mVS[i].size() * sizeof(float));
 		}
 
 		ss_bin.flush();
@@ -121,7 +130,6 @@ private:
 		z::SubMeshFileHeader header;
 		header.VertCount = mesh->mNumVertices;
 		header.IndexCount = is.size();
-		header.FaceCount = mesh->mNumFaces;
 
 		header.SemnaticNum = 0;
 		if (mesh->HasPositions()) {

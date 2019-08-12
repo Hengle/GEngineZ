@@ -33,15 +33,16 @@ bool PrimitiveComp::LoadFromFile(std::string file) {
 
 		// load mesh
 		std::string meshname = model["mesh"].Get<lc::string_t>();
-		MeshHub meshhub = ZMeshLoader::Load(GApp->GetContentPath() / meshname);
-		if (meshhub.size() == 0) {
+		RefCountPtr<Mesh> mesh = ZMeshLoader::Load(GApp->GetContentPath() / meshname);
+		if (mesh == nullptr) {
 			return false;
 		}
 
 		// create render items
-		for (size_t meshIdx = 0; meshIdx < meshhub.size(); meshIdx++) {
+		for (size_t meshIdx = 0; meshIdx < mesh->IndicesCount.size(); meshIdx++) {
 			RefCountPtr<RenderItem> item = new RenderItem();
-			item->mesh = meshhub[meshIdx];
+			item->mesh = mesh;
+			item->meshIdx = meshIdx;
 
 			// Get Material
 			if (materials.count(meshIdx) == 0) {

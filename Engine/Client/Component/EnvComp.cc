@@ -18,6 +18,7 @@ void EnvComp::SetSky(std::string shader, std::string texPath) {
 	mSkyItem->material = MaterialManager::GetMaterialInstance(shader);
 	mSkyItem->material->SetCullMode(RS_CULL_FRONT);
 	mSkyItem->mesh = mesh;
+	mSkyItem->meshIdx = 0;
 
 	Image* img = Image::Load(texPath);
 	RHITextureDesc desc;

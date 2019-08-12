@@ -25,8 +25,8 @@ public:
 	D3D12_INDEX_BUFFER_VIEW GetView() {
 		D3D12_INDEX_BUFFER_VIEW view;
 		view.BufferLocation = mResource->GetIResource()->GetGPUVirtualAddress();;
-		view.SizeInBytes = mNum * sizeof(std::uint16_t);
-		view.Format = DXGI_FORMAT_R16_UINT;
+		view.SizeInBytes = mNum * sizeof(std::uint32_t);
+		view.Format = DXGI_FORMAT_R32_UINT;
 		return view;
 	}
 

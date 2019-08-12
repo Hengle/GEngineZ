@@ -1,5 +1,5 @@
 #pragma once
-#include <Render/SubMesh.h>
+#include <Render/Mesh.h>
 
 namespace z {
 
@@ -22,10 +22,10 @@ public:
 	static Mesh* ConvertToMesh(const MeshData& data) {
 		Mesh* mesh = new Mesh;
 		mesh->VertCount = data.Vertices.size();
-		mesh->IndexCount = data.Indices32.size();
+		mesh->IndicesCount.push_back(data.Indices32.size());
 		mesh->Stride = 44;
 		mesh->Semantics = { SEMANTIC_POSITION, SEMANTIC_NORMAL, SEMANTIC_TANGENT, SEMANTIC_UV0 };
-		mesh->Indices = data.Indices32;
+		mesh->Indices.push_back(data.Indices32);
 		mesh->Vertexes.resize(data.Vertices.size() * 11);
 		memcpy(mesh->Vertexes.data(), data.Vertices.data(), data.Vertices.size() * 44);
 
