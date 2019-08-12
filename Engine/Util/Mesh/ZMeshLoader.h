@@ -11,7 +11,8 @@ struct SubMeshFileHeader {
 	uint8_t Semanatics[SEMANTIC_MAX];
 	int SemnaticNum;
 	uint32_t VertCount;
-	uint32_t IndexCount;
+	uint32_t IndexCount[20];
+	uint32_t IndexNum;
 };
 
 
@@ -33,30 +34,27 @@ public:
 #endif
 		Mesh* mesh = new Mesh();
 
-		int submeshCnt = 0, vertexCnt = 0;
-		os.read((char*)& submeshCnt, sizeof(int));
-		for (int i = 0; i < submeshCnt; i++) {
-			SubMeshFileHeader meshHeader;
-			os.read((char*)&meshHeader, sizeof(SubMeshFileHeader));
-
-			mesh->VertCount = meshHeader.VertCount;
-			mesh->IndicesCount.push_back(meshHeader.IndexCount);
-			mesh->Stride = 0;
-			for (int i = 0; i < meshHeader.SemnaticNum; i++) {
-				ERHIInputSemantic f = (ERHIInputSemantic)meshHeader.Semanatics[i];
-				mesh->Semantics.push_back(f);
-				mesh->Stride += GetSemanticSize(f);
-			}
-			mesh->Indices.push_back(std::vector<uint32_t>());
-			std::vector<uint32_t>& indices = mesh->Indices[i];
-			indices.resize(meshHeader.IndexCount);
-			os.read((char*)indices.data(), indices.size() * sizeof(uint32_t));
-		
-			vertexCnt += mesh->VertCount;
+		SubMeshFileHeader meshHeader;
+		os.read((char*)& meshHeader, sizeof(SubMeshFileHeader));
+		// semantic
+		mesh->Stride = 0;
+		mesh->Semantics.clear();
+		for (int i = 0; i < meshHeader.SemnaticNum; i++) {
+			ERHIInputSemantic f = (ERHIInputSemantic)meshHeader.Semanatics[i];
+			mesh->Semantics.push_back(f);
+			mesh->Stride += GetSemanticSize(f);
 		}
+		// index
+		mesh->Indices.resize(meshHeader.IndexNum);
+		for (int i = 0; i < meshHeader.IndexNum; i++) {
+			std::vector<uint32_t>& indices = mesh->Indices[i];
+			indices.resize(meshHeader.IndexCount[i]);
+			os.read((char*)indices.data(), indices.size() * sizeof(uint32_t));
+		}
+		mesh->VertCount = meshHeader.VertCount;
 
 		std::vector<float>& vertexes = mesh->Vertexes;
-		vertexes.resize(mesh->Stride * vertexCnt / 4);
+		vertexes.resize(mesh->Stride * mesh->VertCount / 4);
 		os.read((char*)vertexes.data(), vertexes.size() * sizeof(float));
 
 		mesh->CreateBuffer();

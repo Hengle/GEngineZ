@@ -22,7 +22,6 @@ public:
 	static Mesh* ConvertToMesh(const MeshData& data) {
 		Mesh* mesh = new Mesh;
 		mesh->VertCount = data.Vertices.size();
-		mesh->IndicesCount.push_back(data.Indices32.size());
 		mesh->Stride = 44;
 		mesh->Semantics = { SEMANTIC_POSITION, SEMANTIC_NORMAL, SEMANTIC_TANGENT, SEMANTIC_UV0 };
 		mesh->Indices.push_back(data.Indices32);

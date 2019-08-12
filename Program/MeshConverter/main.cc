@@ -26,6 +26,9 @@ public:
 			return false;
 		}
 
+		header.IndexNum = 0;
+		header.VertCount = 0;
+
 		mVS.clear();
 		mIS.clear();
 		mTotalVertex = 0;
@@ -42,19 +45,16 @@ public:
 #else
 		std::ofstream ss_bin(tgt_file, std::ios_base::binary);
 #endif
-		int sz = static_cast<int>(mIS.size());
-		ss_bin.write((char*)& sz, sizeof(int));
-
 		int base = 0;
+		ss_bin.write((char*)& header, sizeof(z::SubMeshFileHeader));
+
 		for (size_t i = 0; i < mIS.size(); i++) {
-			ss_bin.write((char*)& mInfo[i], sizeof(z::SubMeshFileHeader));
 			for (size_t j = 0; j < mIS[i].size(); j++) {
 				mIS[i][j] += base;
 			}
-			base += mInfo[i].VertCount;
+			base += mVSnum[i];
 
 			ss_bin.write((char*)mIS[i].data(), mIS[i].size() * sizeof(uint32_t));
-			auto l = mInfo[i];
 		}
 
 		for (size_t i = 0; i < mVS.size(); i++) {
@@ -70,10 +70,14 @@ public:
 
 private:
 	std::vector<std::vector<float>> mVS;
+	std::vector<uint32_t> mVSnum;
 	std::vector<std::vector<uint32_t>> mIS;
-	std::vector<z::SubMeshFileHeader> mInfo;
+	
+	z::SubMeshFileHeader header;
 	int mTotalVertex{ 0 };
 	int mTotalFace{ 0 };
+
+	bool SemanticAdded = false;
 
 	void ProcessNode(const aiScene* scn, aiNode* root) {
 		for (size_t i = 0; i < root->mNumMeshes; i++) {
@@ -127,33 +131,37 @@ private:
 				is.push_back(face.mIndices[j]);
 			}
 		}
-		z::SubMeshFileHeader header;
-		header.VertCount = mesh->mNumVertices;
-		header.IndexCount = is.size();
 
-		header.SemnaticNum = 0;
-		if (mesh->HasPositions()) {
-			header.Semanatics[header.SemnaticNum++] = SEMANTIC_POSITION;
-		}
+		header.IndexCount[header.IndexNum++] = is.size();
+		header.VertCount += mesh->mNumVertices;
+		mVSnum.push_back(mesh->mNumVertices);
+		
+		if (!SemanticAdded) {
+			SemanticAdded = true;
+			header.SemnaticNum = 0;
+			if (mesh->HasPositions()) {
+				header.Semanatics[header.SemnaticNum++] = SEMANTIC_POSITION;
+			}
 
-		if (mesh->HasNormals()) {
-			header.Semanatics[header.SemnaticNum++] = SEMANTIC_NORMAL;
-		}
+			if (mesh->HasNormals()) {
+				header.Semanatics[header.SemnaticNum++] = SEMANTIC_NORMAL;
+			}
 
-		if (mesh->HasTextureCoords(0)) {
-			header.Semanatics[header.SemnaticNum++] = SEMANTIC_UV0;
-		}
+			if (mesh->HasTextureCoords(0)) {
+				header.Semanatics[header.SemnaticNum++] = SEMANTIC_UV0;
+			}
 
-		if (mesh->HasTextureCoords(1)) {
-			header.Semanatics[header.SemnaticNum++] = SEMANTIC_UV1;
+			if (mesh->HasTextureCoords(1)) {
+				header.Semanatics[header.SemnaticNum++] = SEMANTIC_UV1;
+			}
 		}
+		
 
 		Log<LDEBUG>("Export mesh", mesh->HasPositions(), mesh->HasNormals(), mesh->HasTextureCoords(0), mesh->HasTextureCoords(1),
 			"Vertex count", mesh->mNumVertices, "Face count", mesh->mNumFaces);
 
 		mVS.push_back(vs);
 		mIS.push_back(is);
-		mInfo.push_back(header);
 		mTotalVertex += mesh->mNumVertices;
 		mTotalFace += mesh->mNumFaces;
 	}

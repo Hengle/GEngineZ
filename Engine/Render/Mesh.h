@@ -19,7 +19,6 @@ struct Mesh : RefCounter {
 	uint32_t VertCount{ 0 };
 	std::vector<float> Vertexes;
 
-	std::vector<uint32_t> IndicesCount;
 	std::vector<std::vector<uint32_t>> Indices;
 
 	void UseBuffer(int idx);
