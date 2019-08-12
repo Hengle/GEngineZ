@@ -74,12 +74,6 @@ bool Win32Window::InitWindow() {
 bool Win32Window::UpdateWindow() {
 	MSG msg = { 0 };
 	while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
-		if (msg.message == WM_KEYUP || msg.message == WM_KEYDOWN) {
-			// handle ime
-			if (msg.wParam == VK_PROCESSKEY) {
-				msg.wParam = ::ImmGetVirtualKey(mMainWnd);
-			}
-		}
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 		if (msg.message == WM_QUIT) {

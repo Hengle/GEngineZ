@@ -13,7 +13,6 @@ public:;
 		RenderItems.clear();
 	}
 
-
 	math::Matrix4F ViewMatrix;
 	math::Matrix4F ViewProjMatrix;
 

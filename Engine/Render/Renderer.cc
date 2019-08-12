@@ -83,7 +83,7 @@ void Renderer::CollectMaterialParametes(RenderItem* item) {
 	item->material->SetParameter("ViewProj", (const float*)& mRenderScene->ViewProjMatrix, 16);
 
 	// per object
-	item->material->SetParameter("World", (const float*)& world, 16);
+	item->material->SetParameter("World", (const float*)& item->WorldMatrix, 16);
 }
 
 }

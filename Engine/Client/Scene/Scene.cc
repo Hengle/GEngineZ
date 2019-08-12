@@ -11,8 +11,8 @@
 #include <Util/Image/Image.h>
 #include <Util/Mesh/MeshGenerator.h>
 #include <Util/Luaconf/Luaconf.h>
-#include <Client/Component/Primitive.h>
-
+#include <Client/Component/PrimitiveComp.h>
+#include <Client/Component/EnvComp.h>
 
 namespace z {
 
@@ -56,32 +56,31 @@ bool Scene::LoadFromFile(const std::string file) {
 
 	lc::Value skyData = envData["sky"];
 
-	// create sky
-	Mesh* mesh = MeshGenerator::CreateSphere(800, 100, 100);
-	mSkyItem = new RenderItem();
-	mSkyItem->material = MaterialManager::GetMaterialInstance(skyData["shader"].Get<lc::string_t>());
-	mSkyItem->material->SetCullMode(RS_CULL_FRONT);
-	mSkyItem->mesh = mesh;
+	// scene env
+	EnvComp *env = new EnvComp();
+	env->Attach(this);
 
-	Image* img = Image::Load(GApp->GetContentPath() / skyData["texture"].Get<lc::string_t>());
-	RHITextureDesc desc;
-	desc.sizeX = img->GetWidth();
-	desc.sizeY = img->GetHeight();
-	desc.sizeZ = 1;
-	desc.flags = 0;
-	desc.format = img->GetFormat();
-	desc.dimension = TEX_DIMENSION_2D;
-	desc.numMips = 1;
-	RHITexture* tex = GDevice->CreateTexture(desc, img->GetData());
-	mSkyItem->material->SetParameter("tSkyTexture", tex);
+	// create sky
+	std::string skyShader = skyData["shader"].Get<lc::string_t>();
+	std::string skyTexture = GApp->GetContentPath() / skyData["texture"].Get<lc::string_t>();
+
+	env->SetSky(skyShader, skyTexture);
 
 	// create models
 	int modelNum = sceneData["models"].Size();
 	for (int modelIdx = 0; modelIdx < modelNum; modelIdx++) {
 		lc::Value modelData = sceneData["models"][modelIdx];
-		RefCountPtr<Primitive> p = new Primitive();
+		RefCountPtr<IEntity> ent = new IEntity();
+		std::vector<float> entPos;
+		if (modelData["position"].GetValSafety(entPos)) {
+			ent->SetLocalPostion({ entPos[0], entPos[1], entPos[2] });
+		}
+
+
+		RefCountPtr<PrimitiveComp> p = new PrimitiveComp();
 		if (p->LoadFromFile(GApp->GetContentPath() / modelData["model"].Get<lc::string_t>())) {
-			mPrimitives.push_back(p);
+			p->Attach(ent);
+			mEntities.push_back(ent);
 		}
 	}
 
@@ -92,21 +91,25 @@ void Scene::ColloectEnv(RenderScene* renderScn) {
 	// camera info
 	renderScn->ViewMatrix = mCamera->GetCam()->GetViewMatrix();
 	renderScn->ViewProjMatrix = mCamera->GetCam()->GetViewProjectMatrix();
+
+	EnvComp *comp = GetComponent<EnvComp>();
+	comp->CollectRenderItems(renderScn);
 }
 
 
 void Scene::CollectItems(RenderScene* renderScn) {
-	// sky
-	renderScn->RenderItems.push_back(mSkyItem);
-
 	// editor items
 	for (RenderItem* item : mEditorItems) {
 		renderScn->RenderItems.push_back(item);
 	}
 
 	// primitives
-	for (Primitive *prim : mPrimitives) {
-		prim->CollectRenderItems(renderScn);
+	for (IEntity *ent : mEntities) {
+		std::vector<PrimitiveComp*> prims = ent->GetComponents<PrimitiveComp>();
+		Log<LINFO>(prims.size());
+		for (auto prim : prims) {
+			prim->CollectRenderItems(renderScn);
+		}
 	}
 }
 

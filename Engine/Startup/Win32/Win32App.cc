@@ -89,6 +89,12 @@ void Win32App::OnMouseMoveEvent(int x, int y) {
 
 
 void Win32App::OnKeyboardEvent(UINT_PTR key, bool press) {
+	// handle ime
+	if (key == VK_PROCESSKEY) {
+		key = VK_SHIFT;
+	}
+
+
 	EInput ikey = mInputHandler.EncodeKey(key);
 
 	if (ikey > 0 && GInput) {

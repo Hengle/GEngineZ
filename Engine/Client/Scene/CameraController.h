@@ -57,8 +57,8 @@ public:
 			return;
 		}
 		if (key == mCtrlMouseKey) {
-			float deltaX = (x - GInput->GetLastX()) * 0.1f * mSensityRotate;
-			float deltaY = (y - GInput->GetLastY()) * 0.3f * mSensityRotate;
+			float deltaX = (x - GInput->GetLastX()) * mSensityRotate * GDirector->GetFrameTime() * 3;
+			float deltaY = (y - GInput->GetLastY()) * mSensityRotate * GDirector->GetFrameTime() * 9;
 
 			math::Camera* cam = mCam->GetCam();
 			math::Matrix4F m1 = math::MatrixRotationAxis(cam->GetRight(), deltaY * math::ToRadian(1.0f));
@@ -67,8 +67,8 @@ public:
 			cam->UpdateForward(newF);
 
 		} else if (key == EI_BTN_MM) {
-			float deltaX = (x - GInput->GetLastX()) * 0.05f;
-			float deltaY = (GInput->GetLastY() - y) * 0.05f;
+			float deltaX = (x - GInput->GetLastX()) * 2 * GDirector->GetFrameTime();
+			float deltaY = (GInput->GetLastY() - y) * 2 * GDirector->GetFrameTime();
 
 			math::Camera* cam = mCam->GetCam();
 			math::Vector3F newP = cam->GetPosition() + cam->GetWorldUp() * deltaY + cam->GetRight() * deltaX;
@@ -77,7 +77,7 @@ public:
 	}
 
 	void OnMouseRoll(EInput key, float delta) {
-		delta = delta * 0.05f;
+		delta = delta * GDirector->GetFrameTime() * 1.5;
 		math::Camera* cam = mCam->GetCam();
 		math::Vector3F newP = cam->GetPosition() + cam->GetForward() * delta;
 		cam->UpdatePosition(newP);
@@ -87,7 +87,7 @@ public:
 		// more smoothly
 		if (mCam) {
 			math::Camera* cam = mCam->GetCam();
-			math::Vector3F delta = math::Vector3F(mKeyDirPressed.x, mKeyDirPressed.y, 0) * 0.5 * mSensityMove;
+			math::Vector3F delta = math::Vector3F(mKeyDirPressed.x, mKeyDirPressed.y, 0) * mSensityMove * GDirector->GetFrameTime() * 15;
 			math::Vector3F newP = cam->GetPosition() + cam->GetForward() * delta.y + cam->GetRight() * delta.x;
 			cam->UpdatePosition(newP);
 		}

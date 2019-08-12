@@ -49,8 +49,13 @@ public:
 		return mCurFps;
 	}
 
+	float GetFrameTime() {
+		return mFrameTime;
+	}
+
 private:
 	uint64_t mFrameInterval{ 0 };
+	float mFrameTime{ 0 };
 	
 	float mCurFps{ 0 };
 	int mFramesForStatFps{ 0 };

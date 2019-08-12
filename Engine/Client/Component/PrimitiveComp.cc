@@ -1,5 +1,5 @@
-#include "Primitive.h"
-#include <Core/CoreHeader.h>
+#include "PrimitiveComp.h"
+#include <Client/Entity/IEntity.h>
 #include <Client/Main/App.h>
 #include <Util/Luaconf/Luaconf.h>
 #include <Util/Mesh/ZMeshLoader.h>
@@ -12,9 +12,9 @@ namespace z {
 
 namespace lc = luaconf;
 
-Primitive::Primitive() {}
+PrimitiveComp::PrimitiveComp() {}
 
-bool Primitive::LoadFromFile(std::string file) {
+bool PrimitiveComp::LoadFromFile(std::string file) {
 		lc::Value model;
 		if (!lc::ParseFile(file, model)) {
 			return false;
@@ -59,7 +59,7 @@ bool Primitive::LoadFromFile(std::string file) {
 		return true;
 	}
 
-MaterialInstance* Primitive::LoadMaterialFile(std::string file) {
+MaterialInstance* PrimitiveComp::LoadMaterialFile(std::string file) {
 		lc::Value material;
 		if (!lc::ParseFile(file, material)) {
 			return nullptr;
@@ -97,7 +97,7 @@ MaterialInstance* Primitive::LoadMaterialFile(std::string file) {
 		return materialInst;
 	}
 
-RHITexture* Primitive::LoadTextureFile(std::string file) {
+RHITexture* PrimitiveComp::LoadTextureFile(std::string file) {
 		Image* img = Image::Load(file);
 		if (img == nullptr) {
 			return nullptr;
@@ -113,8 +113,9 @@ RHITexture* Primitive::LoadTextureFile(std::string file) {
 		return GDevice->CreateTexture(desc, img->GetData());
 	}
 
-void Primitive::CollectRenderItems(RenderScene* scn) {
+void PrimitiveComp::CollectRenderItems(RenderScene* scn) {
 		for (RenderItem* item : mRenderItems) {
+			item->WorldMatrix = mOwner->GetWorldTransform();
 			scn->RenderItems.push_back(item);
 		}
 	}

@@ -1,13 +1,14 @@
 #pragma once
 #include <Core/CoreHeader.h>
+#include <Client/Entity/IEntity.h>
 
 namespace z {
 class RenderScene;
 class RenderItem;
 class Camera;
-class Primitive;
+class PrimitiveComp;
 
-class Scene : public RefCounter {
+class Scene : public IEntity {
 public:
 	Scene();
 	bool Load(const std::string file);
@@ -29,7 +30,7 @@ private:
 
 	std::vector<RefCountPtr<RenderItem>> mEditorItems;
 	RefCountPtr<RenderItem> mSkyItem;
-	std::vector<RefCountPtr<Primitive>> mPrimitives;
+	std::vector<RefCountPtr<IEntity>> mEntities;
 };
 
 }

@@ -1,5 +1,6 @@
 #pragma once
 #include <Core/CoreHeader.h>
+#include <Client/Entity/IComponent.h>
 
 namespace z {
 
@@ -8,9 +9,11 @@ class RHITexture;
 class RenderScene;
 class RenderItem;
 
-class Primitive : public RefCounter {
+class PrimitiveComp : public IComponent {
 public:
-	Primitive();
+	EComponentType GetType() override { return COMP_PRIMITIVE; }
+
+	PrimitiveComp();
 
 	bool LoadFromFile(std::string file);
 
