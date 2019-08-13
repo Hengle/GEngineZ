@@ -139,7 +139,18 @@ set(MeshConverter_SRC Program/MeshConverter/main.cc)
 
 
 add_executable(MeshConverter ${MeshConverter_SRC})
-target_link_libraries(MeshConverter Engine assimp-vc142-mt zlib)
+target_link_libraries(MeshConverter Engine assimp-vc141-mt zlib)
+
+
+# ========== Executable HLSLLint ==========
+include_directories(Program/HLSLLint)
+
+set(HLSLLint_SRC Program/HLSLLint/main.cc)
+
+
+
+add_executable(HLSLLint ${HLSLLint_SRC})
+target_link_libraries(HLSLLint Engine)
 
 
 # ========== Custom Target Config ==========

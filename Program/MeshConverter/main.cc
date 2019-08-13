@@ -19,7 +19,7 @@ class MeshLoader {
 public:
 	bool LoadMesh(std::string const& mesh_path) {
 		Assimp::Importer importer;
-		const aiScene* scn = importer.ReadFile(mesh_path, aiProcess_Triangulate | aiProcess_FlipUVs);
+		const aiScene* scn = importer.ReadFile(mesh_path, aiProcess_Triangulate |  aiProcess_FlipUVs);
 
 		if (!scn || scn->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scn->mRootNode) {
 			Log<LERROR>("Load mesh failed");
@@ -80,6 +80,10 @@ private:
 	bool SemanticAdded = false;
 
 	void ProcessNode(const aiScene* scn, aiNode* root) {
+		aiMatrix4x4 m = root->mTransformation;
+		Log<LDEBUG>("transform", m.a1, m.a2, m.a3, m.a4, m.b1, m.b2, m.b3, m.b4, m.c1, m.c2, m.c3, m.c4, m.d1, m.d2, m.d3, m.d4);
+
+
 		for (size_t i = 0; i < root->mNumMeshes; i++) {
 			ProcessMesh(scn, scn->mMeshes[root->mMeshes[i]]);
 		}
@@ -96,18 +100,27 @@ private:
 		for (size_t i = 0; i < mesh->mNumVertices; i++) {
 			// position
 			if (mesh->HasPositions()) {
-				vs.push_back(mesh->mVertices[i].x);
-				vs.push_back(mesh->mVertices[i].y);
-				vs.push_back(mesh->mVertices[i].z);
+				vs.push_back(mesh->mVertices[i].x * 0.1);
+				vs.push_back(mesh->mVertices[i].y * 0.1);
+				vs.push_back(mesh->mVertices[i].z * 0.1);
 			}
-
-			// tangents
 
 			// normal
 			if (mesh->HasNormals()) {
 				vs.push_back(mesh->mNormals[i].x);
 				vs.push_back(mesh->mNormals[i].y);
 				vs.push_back(mesh->mNormals[i].z);
+			}
+
+			// tangents
+			if (mesh->HasTangentsAndBitangents()) {
+				vs.push_back(mesh->mTangents[i].x);
+				vs.push_back(mesh->mTangents[i].y);
+				vs.push_back(mesh->mTangents[i].z);
+
+				vs.push_back(mesh->mBitangents[i].x);
+				vs.push_back(mesh->mBitangents[i].y);
+				vs.push_back(mesh->mBitangents[i].z);
 			}
 
 			// uv1
@@ -145,6 +158,12 @@ private:
 
 			if (mesh->HasNormals()) {
 				header.Semanatics[header.SemnaticNum++] = SEMANTIC_NORMAL;
+			}
+
+			if (mesh->HasTangentsAndBitangents()) {
+
+				header.Semanatics[header.SemnaticNum++] = SEMANTIC_TANGENT;
+				header.Semanatics[header.SemnaticNum++] = SEMANTIC_BITANGENT;
 			}
 
 			if (mesh->HasTextureCoords(0)) {

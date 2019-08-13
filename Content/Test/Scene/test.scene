@@ -10,12 +10,12 @@ return {
 	models = {
 		{
 			model = "Test/Nanosuit/nanosuit.model",
-			position = {0, -5, 0},
+			position = {-20, -5, 0},
 
 		},
 		{
-			model = "Test/UE/chair.model",
-			position = {0, 5, 0},
+			model = "Test/Other/gundam.model",
+			position = {0, 0, 0},
 
 		}
 	}

@@ -1,0 +1,9 @@
+conf = {
+    name = 'model',
+    mesh = "Test/Other/gundam.zmesh",
+    material = {
+		
+    }
+}
+
+return conf

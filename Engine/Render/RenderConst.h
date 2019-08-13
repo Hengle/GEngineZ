@@ -32,6 +32,6 @@ enum ERenderSet {
 
 };
 
-const std::string EMPTY_MATERIAL = "Empty";
+const std::string EMPTY_MATERIAL = "Phong";
 
 }

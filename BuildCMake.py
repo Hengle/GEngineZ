@@ -49,11 +49,17 @@ class SLConverter(BT.Module):
         self.SOURCE = ["Program/SLConverter"]
         self.DEPS = ["Engine", "hlslcc"]
 
+class HLSLLint(BT.Module):
+    def __init__(self):
+        super(HLSLLint, self).__init__("HLSLLint", BT.EXECUTABLE)
+        self.SOURCE = ["Program/HLSLLint"]
+        self.DEPS = ["Engine"]
+
 class MeshConverter(BT.Module):
     def __init__(self):
         super(MeshConverter, self).__init__("MeshConverter", BT.EXECUTABLE)
         self.SOURCE = ["Program/MeshConverter"]
-        self.DEPS = ["Engine", "assimp-vc142-mt", "zlib"]
+        self.DEPS = ["Engine", "assimp-vc141-mt", "zlib"]
 
 # ================= Tests =================
 class TestSched(BT.Module):
@@ -76,6 +82,7 @@ build_targets = [
     Game(),
     SLConverter(),
     MeshConverter(),
+	HLSLLint(),
     # Tests
     TestSched(),
 

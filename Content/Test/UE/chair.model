@@ -2,10 +2,9 @@ conf = {
     name = 'model',
     mesh = "Test/UE/SM_Chair_2.zmesh",
     material = {
-		-- arm
         {
             idx =  0,
-            file = "Test/Nanosuit/nanosuit0.material"
+            file = "Test/UE/chair.material"
         },
 
     }

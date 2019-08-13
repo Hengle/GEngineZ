@@ -1,0 +1,26 @@
+return {
+	shader = "Phong",
+	params = {
+		{
+			name = "color",
+			type = "float4",
+			value = {0.3, 0.3, 0.3, 1},
+		},
+		{
+			name = "tBaseMap",
+			type = "texture",
+			value = "Test/UE/T_Chair_M.tga"
+		},
+		{
+			name = "tNormalMap",
+			type = "texture",
+			value = "Test/Nanosuit/arm_showroom_ddn.png"
+		},
+		{
+			name = "tSpecularMap",
+			type = "texture",
+			value = "Test/Nanosuit/arm_showroom_spec.png"
+		}
+	}
+
+};

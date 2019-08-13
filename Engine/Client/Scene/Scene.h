@@ -29,7 +29,6 @@ private:
 	RefCountPtr<Camera> mCamera;
 
 	std::vector<RefCountPtr<RenderItem>> mEditorItems;
-	RefCountPtr<RenderItem> mSkyItem;
 	std::vector<RefCountPtr<IEntity>> mEntities;
 };
 
