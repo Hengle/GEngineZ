@@ -4,7 +4,7 @@ struct a2v {
 	float3 Position : POSITION;
 	float3 Normal : NORMAL;
 	float3 Tangnent: TANGENT;
-	float3 Binormal: BITANGENT;
+	float3 Binormal: BINORMAL;
 	float2 UV : TEXCOORD;
 };
 

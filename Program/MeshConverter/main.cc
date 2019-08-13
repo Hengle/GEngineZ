@@ -163,7 +163,7 @@ private:
 			if (mesh->HasTangentsAndBitangents()) {
 
 				header.Semanatics[header.SemnaticNum++] = SEMANTIC_TANGENT;
-				header.Semanatics[header.SemnaticNum++] = SEMANTIC_BITANGENT;
+				header.Semanatics[header.SemnaticNum++] = SEMANTIC_BINORMAL;
 			}
 
 			if (mesh->HasTextureCoords(0)) {

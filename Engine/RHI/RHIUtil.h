@@ -24,7 +24,7 @@ inline int GetSemanticSize(ERHIInputSemantic format) {
 	case SEMANTIC_POSITION:
 	case SEMANTIC_NORMAL:
 	case SEMANTIC_TANGENT:
-	case SEMANTIC_BITANGENT:
+	case SEMANTIC_BINORMAL:
 		return 12;
 	case SEMANTIC_UV0:
 	case SEMANTIC_UV1:
