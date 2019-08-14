@@ -37,7 +37,7 @@ public:
 	static Mesh* CreateSphere(float radius, uint32_t sliceCount, uint32_t stackCount);
 
 	//MeshData CreateGeosphere(float radius, uint32 numSubdivisions);
-	//MeshData CreateCylinder(float bottomRadius, float topRadius, float height, uint32 sliceCount, uint32 stackCount);
+	static Mesh* CreateCylinder(float bottomRadius, float topRadius, float height, uint32_t sliceCount, uint32_t stackCount);
 
 	static Mesh* CreateGrid(float width, float depth, uint32_t m, uint32_t n);
 
@@ -49,8 +49,8 @@ public:
 private:
 	static void Subdivide(MeshData& meshData);
 	static Vertex MidPoint(const Vertex& v0, const Vertex& v1);
-	//void BuildCylinderTopCap(float bottomRadius, float topRadius, float height, uint32 sliceCount, uint32 stackCount, MeshData& meshData);
-	//void BuildCylinderBottomCap(float bottomRadius, float topRadius, float height, uint32 sliceCount, uint32 stackCount, MeshData& meshData);
+	static void BuildCylinderTopCap(float bottomRadius, float topRadius, float height, uint32_t sliceCount, uint32_t stackCount, MeshData& meshData);
+	static void BuildCylinderBottomCap(float bottomRadius, float topRadius, float height, uint32_t sliceCount, uint32_t stackCount, MeshData& meshData);
 };
 
 }

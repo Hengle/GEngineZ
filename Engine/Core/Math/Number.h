@@ -12,11 +12,11 @@ const float K_PIDIV4  = 0.785398163f;
 
 // degree
 inline float ToRadian(float degree) {
-	return degree / 180.0f * K_2PI;
+	return degree / 180.0f * K_PI;
 }
 
 inline float ToDegree(float radian) {
-	return radian * 180.0f / K_2PI;
+	return radian * 180.0f / K_PI;
 }
 
 // eps

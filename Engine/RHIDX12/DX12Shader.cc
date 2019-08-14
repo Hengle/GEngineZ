@@ -163,9 +163,10 @@ void DX12Shader::Reflect() {
 
 		ReflectBoundResource(reflection, shaderDesc);
 
+
+		ReflectConstantBuffer(reflection, shaderDesc);
 		if (stage->GetStage() == SHADER_STAGE_VERTEX) {
 			ReflectInput(reflection, shaderDesc);
-			ReflectConstantBuffer(reflection, shaderDesc);
 		}
 	}
 }
