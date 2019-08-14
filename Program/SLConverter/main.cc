@@ -51,9 +51,25 @@ void Process(const FilePath& path) {
 }
 
 int main(int argc, char* argv[]) {
-	Process("E:/Code/GameZ/Content/Engine/Shader/hlsl/test.hlsl");
+	const char* name = argv[1];
 
+	// Get Root Path
+	char exePath[MAX_PATH];
+	ZeroMemory(exePath, MAX_PATH);
+	::GetModuleFileName(NULL, exePath, MAX_PATH);
+	int blen = strlen("Binary");
+	int begin = strlen(exePath) - blen;
+	for (; begin >= 0; begin--) {
+		if (strncmp(exePath + begin, "Binary", blen) == 0)
+			break;
+	}
+	exePath[begin] = 0;
 
+	z::FilePath root(exePath);
+	std::string shaderFile = std::string(argv[1]) + ".hlsl";
+	z::FilePath shaderPath = root / "Content/Engine/Shader/hlsl" / shaderFile;
+
+	Process(shaderPath);
 
 	//std::cout << result << std::endl;
 	return 0;

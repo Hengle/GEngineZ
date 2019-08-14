@@ -89,6 +89,8 @@ void Renderer::CollectMaterialParametes(RenderItem* item) {
 	math::Matrix4 world = math::Matrix4::Identity;
 	// per frame
 	item->material->SetParameter("ViewProj", (const float*)& mRenderScene->ViewProjMatrix, 16);
+	math::Vector4F cameraPos = { mRenderScene->CameraPos, 0.0f };
+	item->material->SetParameter("CameraPos", (const float*)cameraPos.value, 4);
 
 	// per object
 	item->material->SetParameter("World", (const float*)& item->WorldMatrix, 16);

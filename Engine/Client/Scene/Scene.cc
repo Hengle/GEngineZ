@@ -32,6 +32,8 @@ bool Scene::Load(const std::string file) {
 		item->material = MaterialManager::GetMaterialInstance(EMPTY_MATERIAL);
 		item->material->SetFillMode(RS_FILL_WIREFRAME);
 		item->mesh = mesh;
+		item->meshIdx = 0;
+		item->WorldMatrix = math::Matrix4F::Identity;
 		mEditorItems.push_back(item);
 	}
 
@@ -91,12 +93,13 @@ void Scene::ColloectEnv(RenderScene* renderScn) {
 	// camera info
 	renderScn->ViewMatrix = mCamera->GetCam()->GetViewMatrix();
 	renderScn->ViewProjMatrix = mCamera->GetCam()->GetViewProjectMatrix();
+	renderScn->CameraPos = mCamera->GetCam()->GetPosition();
 
 	EnvComp *comp = GetComponent<EnvComp>();
 	comp->CollectRenderItems(renderScn);
 
 	gShaderParams[SP_SUN_COLOR] = math::Vector4F(1, 1, 1, 0.0);
-	gShaderParams[SP_SUN_DIRECTION] = { math::Normalize(math::Vector3F{-0.5, -0.5, -0.5}), 1.0 };
+	gShaderParams[SP_SUN_DIRECTION] = { math::Normalize(math::Vector3F{0, 0, 1}), 1.0 };
 }
 
 

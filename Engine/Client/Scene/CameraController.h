@@ -57,7 +57,7 @@ public:
 			return;
 		}
 		if (key == mCtrlMouseKey) {
-			float deltaX = (x - GInput->GetLastX()) * mSensityRotate * GDirector->GetFrameTime() * 3;
+			float deltaX = (x - GInput->GetLastX()) * mSensityRotate * GDirector->GetFrameTime() * 6;
 			float deltaY = (y - GInput->GetLastY()) * mSensityRotate * GDirector->GetFrameTime() * 9;
 
 			math::Camera* cam = mCam->GetCam();

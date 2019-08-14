@@ -44,6 +44,6 @@ enum EShaderParams {
 extern math::Vector4F gShaderParams[SP_MAX];
 
 // default material
-const std::string EMPTY_MATERIAL = "Phong";
+const std::string EMPTY_MATERIAL = "Empty";
 
 }

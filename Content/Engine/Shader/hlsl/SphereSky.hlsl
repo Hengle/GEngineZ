@@ -1,4 +1,4 @@
-#include "include/Common.hlsl"
+#include "include/CBuffer.hlsl"
 
 struct a2v {
 	float3 pos : POSITION;

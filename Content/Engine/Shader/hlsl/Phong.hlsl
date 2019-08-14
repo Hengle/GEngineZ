@@ -1,4 +1,4 @@
-#include "include/Common.hlsl"
+#include "include/CBuffer.hlsl"
 
 struct a2v {
 	float3 Position : POSITION;
@@ -13,6 +13,9 @@ SamplerState sBaseMap : register(s0);
 
 Texture2D tNormalMap : register(t1);
 SamplerState sNormalMap : register(s1);
+
+Texture2D tSpecularMap : register(t2);
+SamplerState sSpecularMap : register(s2);
 
 struct v2f {
 	float4 HPosition : SV_POSITION;
@@ -46,20 +49,26 @@ float4 PS(v2f IN) : SV_Target{
 	float3 N = tangentNormal.x * IN.WorldTangent + tangentNormal.y * IN.WorldBinormal + tangentNormal.z * IN.WorldNormal.xyz;
 
 	// calc V & R
+	float3 L = -normalize(SunDirection.xyz);
+	float3 V = -normalize(IN.ViewDirection);
+	float3 R = normalize(reflect(-L, N));
 
 	// base color
 	float4 baseColorAlpha = tBaseMap.Sample(sBaseMap, IN.UV);
 	float3 baseColor = baseColorAlpha.xyz;
 
-	// diffuse
-	float diff = max(dot(N, SunDirection.xyz), 0.0);
+	// lambert diffuse
+	float diff = max(dot(N, L), 0);;
 	float3 diffuse = baseColor * SunColor.xyz * diff;
 
-	// specular
-	float3 V = -normalize(IN.ViewDirection);
+	// phong specular
+	float3 halfDir = normalize(V + L);
+	float spec = pow(max(dot(V, R), 0.0), 64);
+	float3 specularColor = tSpecularMap.Sample(sSpecularMap, IN.UV).xyz;
+	float3 specular = specularColor * SunColor.xyz * spec;
 
 	//float3 lightDir = normalize(float3(10, 10, 10) - IN.WorldPosition.xyz);
 
-	float3 result = diffuse;
-	return float4(N, 1.0);
+	float3 result = diffuse + specular;
+	return float4(result, 1.0);
 }
