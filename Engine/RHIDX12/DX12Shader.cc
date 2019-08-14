@@ -231,7 +231,7 @@ void DX12Shader::ReflectBoundResource(ID3D12ShaderReflection* reflection, const 
 		reflection->GetResourceBindingDesc(i, &sibDesc);
 		Log<LINFO>(sibDesc.Name, sibDesc.BindPoint, sibDesc.Type);
 
-		if (sibDesc.Type == D3D_SIT_CBUFFER) {
+		if (sibDesc.Type == D3D_SIT_CBUFFER && mCBufferMap.count(sibDesc.Name) == 0) {
 			mCBufferMap[sibDesc.Name] = {sibDesc.BindPoint, 0};
 			continue;
 		} 

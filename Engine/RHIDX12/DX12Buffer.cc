@@ -103,7 +103,7 @@ DX12ConstantBuffer::DX12ConstantBuffer(uint32_t size) :
 
 void DX12ConstantBuffer::CopyData(const void* data, uint32_t offset, uint32_t size) {
 	CHECK(size <= mSize);
-	memcpy(mMappedBuffer, data, size);
+	memcpy(mMappedBuffer + offset, data, size);
 }
 
 

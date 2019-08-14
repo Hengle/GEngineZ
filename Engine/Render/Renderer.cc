@@ -6,6 +6,14 @@
 
 namespace z {
 
+math::Vector4F gShaderParams[SP_MAX];
+
+const char* ShaderParamKey[] = {
+	"SunColor",
+	"SunDirection",
+	"Ambient"
+};
+
 Renderer::Renderer() :
 	mViewportWidth(0),
 	mViewportHeight(0) {
@@ -84,6 +92,11 @@ void Renderer::CollectMaterialParametes(RenderItem* item) {
 
 	// per object
 	item->material->SetParameter("World", (const float*)& item->WorldMatrix, 16);
+
+
+	for (size_t i = 0; i < SP_MAX ; i++) {
+		item->material->SetParameter(ShaderParamKey[i], gShaderParams[i].value, 4);
+	}
 }
 
 }

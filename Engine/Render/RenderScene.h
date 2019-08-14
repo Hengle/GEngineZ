@@ -13,6 +13,7 @@ public:;
 		RenderItems.clear();
 	}
 
+	math::Vector3F CameraPos;
 	math::Matrix4F ViewMatrix;
 	math::Matrix4F ViewProjMatrix;
 

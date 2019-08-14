@@ -33,22 +33,33 @@ v2f VS(a2v IN) {
 	OUT.WorldNormal = mul(float4(IN.Normal, 0), World);
 	OUT.WorldTangent = normalize(mul(IN.Tangnent, (float3x3)World));
 	OUT.WorldBinormal = normalize(mul(IN.Binormal, (float3x3)World));
-	OUT.ViewDirection = pos.xyz - CameraPos;
+	OUT.ViewDirection = pos.xyz - CameraPos.xyz;
 	OUT.UV = IN.UV;
 	return OUT;
 
 }
 
 float4 PS(v2f IN) : SV_Target{
-
 	// calc world normal N
 	float3 tangentNormal = tNormalMap.Sample(sNormalMap, IN.UV).xyz;
 	tangentNormal = tangentNormal * 2 - 1;
 	float3 N = tangentNormal.x * IN.WorldTangent + tangentNormal.y * IN.WorldBinormal + tangentNormal.z * IN.WorldNormal.xyz;
 
-	float3 lightDir = normalize(float3(10, 10, 10) - IN.WorldPosition.xyz);
+	// calc V & R
 
-	float3 diffuse = float3(0.5, 0.5, 0.5) * max(dot(N, lightDir), 0.0) + float3(0.1, 0.1, 0.1);
+	// base color
+	float4 baseColorAlpha = tBaseMap.Sample(sBaseMap, IN.UV);
+	float3 baseColor = baseColorAlpha.xyz;
 
+	// diffuse
+	float diff = max(dot(N, SunDirection.xyz), 0.0);
+	float3 diffuse = baseColor * SunColor.xyz * diff;
+
+	// specular
+	float3 V = -normalize(IN.ViewDirection);
+
+	//float3 lightDir = normalize(float3(10, 10, 10) - IN.WorldPosition.xyz);
+
+	float3 result = diffuse;
 	return float4(N, 1.0);
 }

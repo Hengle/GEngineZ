@@ -1,8 +1,10 @@
 // Global buffer
-cbuffer GlobalPerFrame : register(b0)
+cbuffer GlobalPerFrame : register(b1)
 {
 	float4x4 ViewProj;
-	float3   CameraPos;
+	float4   CameraPos;
+	float4   SunColor;
+	float4   SunDirection;
 }
 
 

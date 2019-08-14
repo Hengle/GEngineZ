@@ -22,6 +22,9 @@ public:
 private:
 	RefCountPtr<RenderItem> mSkyItem;
 
+	math::Vector3F mSunDirection;
+	math::Vector3F mSunColor;
+
 };
 
 

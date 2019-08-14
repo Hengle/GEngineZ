@@ -94,6 +94,9 @@ void Scene::ColloectEnv(RenderScene* renderScn) {
 
 	EnvComp *comp = GetComponent<EnvComp>();
 	comp->CollectRenderItems(renderScn);
+
+	gShaderParams[SP_SUN_COLOR] = math::Vector4F(1, 1, 1, 0.0);
+	gShaderParams[SP_SUN_DIRECTION] = { math::Normalize(math::Vector3F{-0.5, -0.5, -0.5}), 1.0 };
 }
 
 
