@@ -95,7 +95,9 @@ bool Scene::LoadFromFile(const std::string file) {
 		std::vector<float> entPos;
 		if (modelData["position"].GetValSafety(entPos)) {
 			ent->SetLocalPostion({ entPos[0], entPos[1], entPos[2] });
-			ent->SetLocalScale({ 2, 1, 2 });
+			ent->SetLocalScale({ 1, 1, 1 });
+			ent->SetLocalRotator({ math::ToRadian(180), math::ToRadian(45), math::ToRadian(90) });
+			std::cout << ent->GetLocalRotation() << std::endl;
 		}
 
 

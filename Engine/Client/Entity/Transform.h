@@ -9,8 +9,8 @@ scaleY * R01 sacleY * R11 scaleY * R21 0
 scaleZ * R02 scaleZ * R12 scaleZ * R22 0
 Px           Py           pz           1
 
-Rotation Vector (Pitch(X), Yaw(Y), Roll(Z))
-Rotate Order : YZX
+Rotator (Pitch(X), Yaw(Y), Roll(Z))
+Rotate Order : YXZ (Yaw->Pitch->Roll)
 
 */
 
@@ -55,16 +55,33 @@ public:
 		mScale = scale;
 	}
 
-	void SetRotation(math::Vector3F rotation) {
+	void SetRotator(math::Vector3F rotator) {
+		mRotation = math::Matrix4F::Identity;
+		std::cout << mRotation << std::endl;
+		std::cout << math::MatrixRotationY(rotator.y) << std::endl;
+		std::cout << math::MatrixRotationZ(rotator.z) << std::endl;
+		std::cout << math::MatrixRotationX(rotator.x) << std::endl;
 
+		mRotation = mRotation * math::MatrixRotationY(rotator.y) * math::MatrixRotationX(rotator.x) * math::MatrixRotationZ(rotator.z);
+
+		std::cout << mRotation << std::endl;
 	}
 
 	math::Vector3F GetPosition() {
 		return mPosition;
 	}
 
-	math::Vector3F GetRotation() {
-		
+	math::Vector3F GetRotator() {
+		math::Vector3F euler;
+		euler.x = std::asinf(mRotation[2][1]);
+		if (std::cosf(euler.x) > 0.0001) {
+			euler.y = -std::atan2f(mRotation[2][0], mRotation[2][2]);
+			euler.z = -std::atan2f(mRotation[0][1], mRotation[1][1]);
+		} else {
+			euler.y = 0.0f;
+			euler.z = std::atan2f(mRotation[0][1], mRotation[0][0]);
+		}
+		return euler;
 	}
 
 	math::Vector3F GetScale() {

@@ -175,9 +175,15 @@ public:
 		return r;
 	}
 
+	TMatrix4& operator *= (TMatrix4 v2) { *this = *this * v2; return *this; }
 
 	TVector& operator [](int idx) { return m[idx]; }
 	const TVector operator [](int idx) const { return m[idx]; }
+
+	friend std::ostream& operator<<(std::ostream& out, const TMatrix4& v) {
+		out << "(" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ")";
+		return out;
+	}
 
 	operator TMatrix3<T>() { return TMatrix3<T>{x, y, z}; }
 

@@ -66,7 +66,42 @@ inline Matrix4F MatrixRotationAxis(Vector3F axis, float radian) {
 		{R2.y, R1.x, R0.z, 0},
 		{0,    0,    0,    1}
 	};
+}
 
+inline Matrix4F MatrixRotationX(float radian) {
+	float sinv = std::sin(radian);
+	float cosv = std::cos(radian);
+
+	Matrix4F r = Matrix4F::Identity;
+	r[1][1] = cosv;
+	r[1][2] = -sinv;
+	r[2][1] = sinv;
+	r[2][2] = cosv;
+	return r;
+}
+
+inline Matrix4F MatrixRotationY(float radian) {
+	float sinv = std::sin(radian);
+	float cosv = std::cos(radian);
+
+	Matrix4F r = Matrix4F::Identity;
+	r[0][0] = cosv;
+	r[0][2] = sinv;
+	r[2][0] = -sinv;
+	r[2][2] = cosv;
+	return r;
+}
+
+inline Matrix4F MatrixRotationZ(float radian) {
+	float sinv = std::sin(radian);
+	float cosv = std::cos(radian);
+
+	Matrix4F r = Matrix4F::Identity;
+	r[0][0] = cosv;
+	r[0][1] = -sinv;
+	r[1][0] = sinv;
+	r[1][1] = cosv;
+	return r;
 }
 
 

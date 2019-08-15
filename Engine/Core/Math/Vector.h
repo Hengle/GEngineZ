@@ -83,6 +83,11 @@ public:
 
 	T& operator [](int idx) { return value[idx]; }
 	const T operator [](int idx) const { return value[idx]; }
+
+	friend std::ostream& operator<<(std::ostream& out, const TVector3& v) {
+		out << "(" << v.x << ", " << v.y << ", " << v.z << ")";
+		return out;
+	}
 	 
 	// data
 	union {

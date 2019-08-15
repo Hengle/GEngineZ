@@ -5,7 +5,7 @@ namespace z {
 
 
 enum ERenderSet {
-
+	RSet_Editor
 };
 
 // shader params

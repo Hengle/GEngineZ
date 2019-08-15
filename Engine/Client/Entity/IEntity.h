@@ -25,8 +25,8 @@ public:
 		mLocalTransform.SetScale(scale);
 	}
 
-	void SetLocalRotation(math::Vector3F rotation) {
-
+	void SetLocalRotator(const math::Vector3F rotator) {
+		mLocalTransform.SetRotator(rotator);
 	}
 
 	math::Matrix4F GetLocalTransform() {
@@ -38,7 +38,7 @@ public:
 	}
 
 	math::Vector3F GetLocalRotation() {
-		
+		return mLocalTransform.GetRotator();
 	}
 
 	math::Vector3F GetLocalScale() {
