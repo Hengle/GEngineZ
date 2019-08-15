@@ -27,7 +27,7 @@ bool Scene::Load(const std::string file) {
 
 	if (mIsEditor) {
 		// grid, 10m*10m
-		Mesh *mesh = MeshGenerator::CreateGrid(790, 790, 79, 79);
+		Mesh *mesh = MeshGenerator::CreateGrid(1580, 1580, 79, 79);
 		RenderItem* item = new RenderItem();
 		item->material = MaterialManager::GetMaterialInstance(EMPTY_MATERIAL);
 		item->material->SetFillMode(RS_FILL_WIREFRAME);
@@ -95,6 +95,7 @@ bool Scene::LoadFromFile(const std::string file) {
 		std::vector<float> entPos;
 		if (modelData["position"].GetValSafety(entPos)) {
 			ent->SetLocalPostion({ entPos[0], entPos[1], entPos[2] });
+			ent->SetLocalScale({ 2, 1, 2 });
 		}
 
 

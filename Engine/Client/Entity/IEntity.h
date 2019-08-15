@@ -1,6 +1,7 @@
 #pragma once
 #include <Core/CoreHeader.h>
 #include "IComponent.h"
+#include "Transform.h"
 
 namespace z {
 
@@ -9,18 +10,45 @@ public:
 	friend class IComponent;
 
 	IEntity() {
-		mLocalTransform = math::Matrix4F::Identity;
 	}
 
-	void SetLocalPostion(math::Vector3F pos) {
-		mLocalTransform[0][3] = pos.x;
-		mLocalTransform[1][3] = pos.y;
-		mLocalTransform[2][3] = pos.z;
+	// transform opertion
+	void SetLocalTransform(const math::Matrix4F& transform) {
+		mLocalTransform.SetTransform(transform);
+	}
+
+	void SetLocalPostion(const math::Vector3F& pos) {
+		mLocalTransform.SetPostion(pos);
+	}
+
+	void SetLocalScale(const math::Vector3F& scale) {
+		mLocalTransform.SetScale(scale);
+	}
+
+	void SetLocalRotation(math::Vector3F rotation) {
+
+	}
+
+	math::Matrix4F GetLocalTransform() {
+		return mLocalTransform.GetTransform();
+	}
+
+	math::Vector3F GetLocalPosition() {
+		return mLocalTransform.GetPosition();
+	}
+
+	math::Vector3F GetLocalRotation() {
+		
+	}
+
+	math::Vector3F GetLocalScale() {
+		return mLocalTransform.GetScale();
 	}
 
 	math::Matrix4F& GetWorldTransform() {
 		// use local transoform now
-		return mLocalTransform;
+		return mLocalTransform.GetTransform();
+
 	}
 
 	template<typename T>
@@ -68,7 +96,9 @@ private:
 		}
 	}
 
-	math::Matrix4F mLocalTransform;
+	Transform mLocalTransform;
+	Transform mWorldTransform;
+
 	std::unordered_map<EComponentType, std::vector<RefCountPtr<IComponent>>> mComps;
 };
 

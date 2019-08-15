@@ -55,6 +55,71 @@ a = aspect, t = tan(fov/2)
 
 
 // row major
+// Matrix3
+template<typename T>
+class TMatrix3 {
+	using TVector = TVector3<T>;
+public:
+	// ctor
+	TMatrix3() {}
+	TMatrix3(TVector _x, TVector _y, TVector _z) : x(_x), y(_y), z(_z) { }
+	TMatrix3(const TMatrix3& m) { *this = m; }
+	TMatrix3(T m00, T m01, T m02, T m10, T m11, T m12, T m20, T m21, T m22) :
+		TMatrix3(TVector(m00, m01, m02), TVector(m10, m11, m12), TVector(m20, m21, m22)) {}
+
+	// operator
+	TVector operator* (TVector v) const {
+		// vector * matrix
+		T fX = (m[0][0] * v[0]) + (m[0][1] * v[1]) + (m[0][2] * v[2]);
+		T fY = (m[1][0] * v[0]) + (m[1][1] * v[1]) + (m[1][2] * v[2]);
+		T fZ = (m[2][0] * v[0]) + (m[2][1] * v[1]) + (m[2][2] * v[2]);
+		return TVector(fX, fY, fZ);
+	}
+
+	TMatrix3 operator* (TMatrix3 m2) {
+		// m * m2
+		TMatrix3 r;
+		// Cache the invariants in registers
+		T a0 = m[0][0], a1 = m[1][0], a2 = m[2][0];
+		r[0][0] = (m2[0][0] * a0) + (m2[0][1] * a1) + (m2[0][2] * a2);
+		r[1][0] = (m2[1][0] * a0) + (m2[1][1] * a1) + (m2[1][2] * a2);
+		r[2][0] = (m2[2][0] * a0) + (m2[2][1] * a1) + (m2[2][2] * a2);
+
+		a0 = m[0][1], a1 = m[1][1], a2 = m[2][1];
+		r[0][1] = (m2[0][0] * a0) + (m2[0][1] * a1) + (m2[0][2] * a2);
+		r[1][1] = (m2[1][0] * a0) + (m2[1][1] * a1) + (m2[1][2] * a2);
+		r[2][1] = (m2[2][0] * a0) + (m2[2][1] * a1) + (m2[2][2] * a2);
+
+		a0 = m[0][2], a1 = m[1][2], a2 = m[2][2];
+		r[0][2] = (m2[0][0] * a0) + (m2[0][1] * a1) + (m2[0][2] * a2);
+		r[1][2] = (m2[1][0] * a0) + (m2[1][1] * a1) + (m2[1][2] * a2);
+		r[2][2] = (m2[2][0] * a0) + (m2[2][1] * a1) + (m2[2][2] * a2);
+
+		return r;
+	}
+
+
+	TVector& operator [](int idx) { return m[idx]; }
+	const TVector operator [](int idx) const { return m[idx]; }
+
+	// data
+	union {
+		struct { TVector x, y, z; };
+		TVector m[3];
+	};
+
+	const static TMatrix3 Zero;
+	const static TMatrix3 Identity;
+};
+
+
+template<typename T> const TMatrix3<T> TMatrix3<T>::Zero(0, 0, 0, 0, 0, 0, 0, 0, 0);
+template<typename T> const TMatrix3<T> TMatrix3<T>::Identity(1, 0, 0, 0, 1, 0, 0, 0, 1);
+
+typedef TMatrix3<float> Matrix3F;
+
+
+// Matrix4
 template<typename T>
 class TMatrix4 {
 	using TVector = TVector4<T>;
@@ -73,11 +138,6 @@ public:
 	// operator
 	TVector operator* (TVector v) const {
 		// vector * matrix
-		//T fX = (m[0][0] * v[0]) + (m[0][0] * v[1]) + (m[2][0] * v[2]) + (m[3][0] * v[3]);
-		//T fY = (m[0][1] * v[0]) + (m[0][1] * v[1]) + (m[2][1] * v[2]) + (m[3][1] * v[3]);
-		//T fZ = (m[0][2] * v[0]) + (m[1][2] * v[1]) + (m[2][2] * v[2]) + (m[3][2] * v[3]);
-		//T fW = (m[0][3] * v[0]) + (m[1][3] * v[1]) + (m[2][3] * v[2]) + (m[3][3] * v[3]);
-
 		T fX = (m[0][0] * v[0]) + (m[0][1] * v[1]) + (m[0][2] * v[2]) + (m[0][3] * v[3]);
 		T fY = (m[1][0] * v[0]) + (m[1][1] * v[1]) + (m[1][2] * v[2]) + (m[1][3] * v[3]);
 		T fZ = (m[2][0] * v[0]) + (m[2][1] * v[1]) + (m[2][2] * v[2]) + (m[2][3] * v[3]);
@@ -119,6 +179,8 @@ public:
 	TVector& operator [](int idx) { return m[idx]; }
 	const TVector operator [](int idx) const { return m[idx]; }
 
+	operator TMatrix3<T>() { return TMatrix3<T>{x, y, z}; }
+
 	// data
 	union {
 		struct { TVector x, y, z, w; };
@@ -136,6 +198,8 @@ template<typename T> const TMatrix4<T> TMatrix4<T>::Identity(1, 0, 0, 0, 0, 1, 0
 
 typedef TMatrix4<float> Matrix4;
 typedef TMatrix4<float> Matrix4F;
+
+
 
 
 }

@@ -26,6 +26,10 @@ inline TVector3<T> Normalize(TVector3<T> v) {
 	return v / l;
 }
 
+template<typename T>
+inline T GetLength(TVector3<T> v) {
+	return std::sqrt(Dot(v, v));
+}
 
 // Matrix
 template <typename T>
