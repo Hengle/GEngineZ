@@ -5,7 +5,13 @@ namespace z {
 
 
 enum ERenderSet {
-	RSet_Editor
+	RSET_EDITOR,
+	RSET_OPAQUE,
+};
+
+enum ERenderTech {
+	RTECH_NORMAL = 0,
+
 };
 
 // shader params

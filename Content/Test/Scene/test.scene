@@ -10,15 +10,29 @@ return {
 	models = {
 		{
 			model = "Test/Nanosuit/nanosuit.model",
-			position = {-20, -5, 0},
+			position = {-3, 1, 0},
 
 		},
 		{
 			model = "Test/UE/chair.model",
-			position = {-5, 0, 0},
-			scale = {5, 5, 5},
+			position = {-5, 1, 0},
+			scale = {1, 1, 1},
+		},
 
-		}
+		{
+			model = "Test/Other/man0.model",
+			position = {-8, 1, 0},
+			scale = {3, 3, 3},
+			rotator = {0, 180, 0},
+		},
+
+		
+		{
+			model = "Test/Other/horse.model",
+			position = {-11, 1, 0},
+			scale = {3, 3, 3},
+			rotator = {0, 180, 0},
+		},
 	}
 
 };

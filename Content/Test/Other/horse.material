@@ -1,0 +1,21 @@
+return {
+	shader = "PBR",
+	params = {
+		{
+			name = "tBaseMap",
+			type = "texture",
+			value = "Test/Other/horse_b.tga"
+		},
+		{
+			name = "tNormalMap",
+			type = "texture",
+			value = "Test/Other/horse_n.tga"
+		},
+		{
+			name = "tMixMap",
+			type = "texture",
+			value = "Test/Other/horse_m.tga"
+		}
+	}
+
+};

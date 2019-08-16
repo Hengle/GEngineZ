@@ -23,7 +23,7 @@ Scene::Scene() {
 
 
 bool Scene::Load(const std::string file) {
-	mCamera = new Camera(math::Vector3F{ 0, 5, 20 }, math::Vector3F(0, 0, 0));
+	mCamera = new Camera(math::Vector3F{ -8, 3, 3 }, math::Vector3F(0, 0, 0));
 
 	if (mIsEditor) {
 		// grid, 10m*10m
@@ -38,7 +38,7 @@ bool Scene::Load(const std::string file) {
 
 		// xyz axis
 		for (int i = 0; i < 3; i++) {
-			Mesh *mesh = MeshGenerator::CreateCylinder(0.5, 0, 40, 10, 10);
+			Mesh *mesh = MeshGenerator::CreateCylinder(0.1, 0, 20, 10, 10);
 			RenderItem *item = new RenderItem();
 			item->material = MaterialManager::GetMaterialInstance("EditorAxis");
 			item->material->SetParameter("Color", math::Vector3F(i==0, i==1, i==2).value, 3);
@@ -104,7 +104,7 @@ bool Scene::LoadFromFile(const std::string file) {
 		}
 		ent->SetLocalPostion({ entPos[0], entPos[1], entPos[2] });
 		ent->SetLocalScale({ entScale[0], entScale[1], entScale[2] });
-		ent->SetLocalRotator({ entRotator[0], entRotator[1], entRotator[2] });
+		ent->SetLocalRotator({ math::ToRadian(entRotator[0]),  math::ToRadian(entRotator[1]), entRotator[2] });
 
 		RefCountPtr<PrimitiveComp> p = new PrimitiveComp();
 		if (p->LoadFromFile(GApp->GetContentPath() / modelData["model"].Get<lc::string_t>())) {

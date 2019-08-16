@@ -59,7 +59,7 @@ class MeshConverter(BT.Module):
     def __init__(self):
         super(MeshConverter, self).__init__("MeshConverter", BT.EXECUTABLE)
         self.SOURCE = ["Program/MeshConverter"]
-        self.DEPS = ["Engine", "assimp-vc142-mt", "zlib"]
+        self.DEPS = ["Engine", "assimp-${MSVC_PREFIX}-mt", "zlib"]
 
 # ================= Tests =================
 class TestSched(BT.Module):

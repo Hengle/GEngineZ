@@ -1,0 +1,13 @@
+conf = {
+    name = 'model',
+    mesh = "Test/Other/horse.zmesh",
+    material = {
+        {
+            idx =  0,
+            file = "Test/Other/horse.material"
+        },
+
+    }
+}
+
+return conf

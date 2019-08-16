@@ -29,6 +29,38 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/Binary)
 include_directories(ThirdParty/include)
 link_directories(ThirdParty/lib)
 
+if( MSVC )
+  # in order to prevent DLL hell, each of the DLLs have to be suffixed with the major version and msvc prefix
+  # CMake 3.12 added a variable for this
+  if(MSVC_TOOLSET_VERSION)
+    set(MSVC_PREFIX "vc${MSVC_TOOLSET_VERSION}")
+  else()
+    if( MSVC70 OR MSVC71 )
+      set(MSVC_PREFIX "vc70")
+    elseif( MSVC80 )
+      set(MSVC_PREFIX "vc80")
+    elseif( MSVC90 )
+      set(MSVC_PREFIX "vc90")
+    elseif( MSVC10 )
+      set(MSVC_PREFIX "vc100")
+    elseif( MSVC11 )
+      set(MSVC_PREFIX "vc110")
+    elseif( MSVC12 )
+      set(MSVC_PREFIX "vc120")
+    elseif( MSVC_VERSION LESS 1910)
+      set(MSVC_PREFIX "vc140")
+    elseif( MSVC_VERSION LESS 1920)
+      set(MSVC_PREFIX "vc141")
+    elseif( MSVC_VERSION LESS 1930)
+      set(MSVC_PREFIX "vc142")
+    else()
+      MESSAGE(WARNING "unknown msvc version ${MSVC_VERSION}")
+      set(MSVC_PREFIX "vc150")
+    endif()
+  endif()
+endif()
+
+
 %DEFINES%
 '''
 

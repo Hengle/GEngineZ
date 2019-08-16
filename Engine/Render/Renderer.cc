@@ -23,10 +23,10 @@ Renderer::Renderer() :
 
 Renderer::~Renderer() {
 
-	}
+}
 
-	void Renderer::Resize(uint32_t width, uint32_t height) {
-		mViewportWidth = width;
+void Renderer::Resize(uint32_t width, uint32_t height) {
+	mViewportWidth = width;
 	mViewportHeight = height;
 	if (!mRHIViewport) {
 		mRHIViewport = GDevice->CreateViewport(width, height, PF_R8G8B8A8);
@@ -34,7 +34,7 @@ Renderer::~Renderer() {
 		mRHIViewport->Resize(width, height);
 	}
 
-	mDepthStencil = GDevice->CreateDepthStencil(width, height, PF_D24S8);
+mDepthStencil = GDevice->CreateDepthStencil(width, height, PF_D24S8);
 
 }
 
@@ -65,6 +65,10 @@ void Renderer::Render() {
 
 	// === Render Scene ===
 	mDepthStencil->Clear(RHIClearValue(1.0, 0));
+
+	//GDevice->CreateRenderTarget()
+
+
 	GDevice->SetOutputs({ mRHIViewport->GetBackBuffer() }, mDepthStencil);
 
 	// render oqaque

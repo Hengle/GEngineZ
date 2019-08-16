@@ -27,7 +27,7 @@ float4 PS(v2f IN) : SV_Target{
 	float3 N = normalize(IN.WorldNormal.xyz);
 
 	// calc V & R
-	float3 L = -normalize(SunDirection.xyz);
+	float3 L = normalize(SunDirection.xyz);
 	float3 V = -normalize(IN.ViewDirection);
 	float3 R = normalize(reflect(-L, N));
 

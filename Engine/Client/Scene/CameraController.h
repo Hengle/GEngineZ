@@ -67,8 +67,8 @@ public:
 			cam->UpdateForward(newF);
 
 		} else if (key == EI_BTN_MM) {
-			float deltaX = (x - GInput->GetLastX()) * 2 * GDirector->GetFrameTime();
-			float deltaY = (GInput->GetLastY() - y) * 2 * GDirector->GetFrameTime();
+			float deltaX = (x - GInput->GetLastX()) *  GDirector->GetFrameTime();
+			float deltaY = (GInput->GetLastY() - y) * GDirector->GetFrameTime();
 
 			math::Camera* cam = mCam->GetCam();
 			math::Vector3F newP = cam->GetPosition() + cam->GetWorldUp() * deltaY + cam->GetRight() * deltaX;
@@ -87,7 +87,7 @@ public:
 		// more smoothly
 		if (mCam) {
 			math::Camera* cam = mCam->GetCam();
-			math::Vector3F delta = math::Vector3F(mKeyDirPressed.x, mKeyDirPressed.y, 0) * mSensityMove * GDirector->GetFrameTime() * 15;
+			math::Vector3F delta = math::Vector3F(mKeyDirPressed.x, mKeyDirPressed.y, 0) * mSensityMove * GDirector->GetFrameTime() * 5;
 			math::Vector3F newP = cam->GetPosition() + cam->GetForward() * delta.y + cam->GetRight() * delta.x;
 			cam->UpdatePosition(newP);
 		}
