@@ -11,7 +11,7 @@ math::Vector4F gShaderParams[SP_MAX];
 const char* ShaderParamKey[] = {
 	"SunColor",
 	"SunDirection",
-	"Ambient"
+	"AmbientColor"
 };
 
 Renderer::Renderer() :
@@ -23,10 +23,10 @@ Renderer::Renderer() :
 
 Renderer::~Renderer() {
 
-}
+	}
 
-void Renderer::Resize(uint32_t width, uint32_t height) {
-	mViewportWidth = width;
+	void Renderer::Resize(uint32_t width, uint32_t height) {
+		mViewportWidth = width;
 	mViewportHeight = height;
 	if (!mRHIViewport) {
 		mRHIViewport = GDevice->CreateViewport(width, height, PF_R8G8B8A8);

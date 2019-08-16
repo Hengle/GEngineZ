@@ -1,6 +1,6 @@
-conf = {
+return {
     name = 'model',
-    mesh = "Test/UE/SM_Chair_2.zmesh",
+    mesh = "Test/UE/SM_Elegant_chair_2.zmesh",
     material = {
         {
             idx =  0,
@@ -9,5 +9,3 @@ conf = {
 
     }
 }
-
-return conf

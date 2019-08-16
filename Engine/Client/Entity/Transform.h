@@ -57,14 +57,7 @@ public:
 
 	void SetRotator(math::Vector3F rotator) {
 		mRotation = math::Matrix4F::Identity;
-		std::cout << mRotation << std::endl;
-		std::cout << math::MatrixRotationY(rotator.y) << std::endl;
-		std::cout << math::MatrixRotationZ(rotator.z) << std::endl;
-		std::cout << math::MatrixRotationX(rotator.x) << std::endl;
-
 		mRotation = mRotation * math::MatrixRotationY(rotator.y) * math::MatrixRotationX(rotator.x) * math::MatrixRotationZ(rotator.z);
-
-		std::cout << mRotation << std::endl;
 	}
 
 	math::Vector3F GetPosition() {
@@ -78,8 +71,9 @@ public:
 			euler.y = -std::atan2f(mRotation[2][0], mRotation[2][2]);
 			euler.z = -std::atan2f(mRotation[0][1], mRotation[1][1]);
 		} else {
+			// when x = 90 degree, rotar y is loss, just set to zero 
 			euler.y = 0.0f;
-			euler.z = std::atan2f(mRotation[0][1], mRotation[0][0]);
+			euler.z = std::atan2f(mRotation[1][0], mRotation[0][0]);
 		}
 		return euler;
 	}

@@ -23,7 +23,7 @@ Scene::Scene() {
 
 
 bool Scene::Load(const std::string file) {
-	mCamera = new Camera(math::Vector3F{ 0, 0, -20 }, math::Vector3F(0, 0, 0));
+	mCamera = new Camera(math::Vector3F{ 0, 5, 20 }, math::Vector3F(0, 0, 0));
 
 	if (mIsEditor) {
 		// grid, 10m*10m
@@ -92,14 +92,19 @@ bool Scene::LoadFromFile(const std::string file) {
 	for (int modelIdx = 0; modelIdx < modelNum; modelIdx++) {
 		lc::Value modelData = sceneData["models"][modelIdx];
 		RefCountPtr<IEntity> ent = new IEntity();
-		std::vector<float> entPos;
-		if (modelData["position"].GetValSafety(entPos)) {
-			ent->SetLocalPostion({ entPos[0], entPos[1], entPos[2] });
-			ent->SetLocalScale({ 1, 1, 1 });
-			ent->SetLocalRotator({ math::ToRadian(180), math::ToRadian(45), math::ToRadian(90) });
-			std::cout << ent->GetLocalRotation() << std::endl;
+		std::vector<float> entPos, entScale, entRotator;
+		if (!modelData["position"].GetValSafety(entPos)) {
+			entPos = { 0, 0, 0 };
 		}
-
+		if (!modelData["scale"].GetValSafety(entScale)) {
+			entScale = { 1, 1, 1 };
+		}
+		if (!modelData["rotator"].GetValSafety(entRotator)) {
+			entRotator = { 0, 0, 0 };
+		}
+		ent->SetLocalPostion({ entPos[0], entPos[1], entPos[2] });
+		ent->SetLocalScale({ entScale[0], entScale[1], entScale[2] });
+		ent->SetLocalRotator({ entRotator[0], entRotator[1], entRotator[2] });
 
 		RefCountPtr<PrimitiveComp> p = new PrimitiveComp();
 		if (p->LoadFromFile(GApp->GetContentPath() / modelData["model"].Get<lc::string_t>())) {
@@ -120,8 +125,9 @@ void Scene::ColloectEnv(RenderScene* renderScn) {
 	EnvComp *comp = GetComponent<EnvComp>();
 	comp->CollectRenderItems(renderScn);
 
-	gShaderParams[SP_SUN_COLOR] = math::Vector4F(1, 1, 1, 0.0);
-	gShaderParams[SP_SUN_DIRECTION] = { math::Normalize(math::Vector3F{0, 0, 1}), 1.0 };
+	gShaderParams[SP_SUN_COLOR] = math::Vector4F(1, 1, 1, 1.0);
+	gShaderParams[SP_SUN_DIRECTION] = { math::Normalize(math::Vector3F{1, 1, 1}), 1.0 };
+	gShaderParams[SP_AMBIENT_COLOR] = math::Vector4F(0.3, 0.3, 0.3, 1.0);
 }
 
 

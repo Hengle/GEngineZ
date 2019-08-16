@@ -8,7 +8,7 @@
 namespace z {
 
 struct SubMeshFileHeader {
-	uint8_t Semanatics[SEMANTIC_MAX];
+	uint8_t Semanatics[20];
 	int SemnaticNum;
 	uint32_t VertCount;
 	uint32_t IndexCount[20];

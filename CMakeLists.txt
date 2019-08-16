@@ -24,7 +24,7 @@ add_definitions(-DCOMPRESS_MESH_FILE)
 # ========== Library Engine ==========
 include_directories(Engine)
 
-set(Engine_SRC Engine/Core/Common/Define.h Engine/Core/Common/Logger.h Engine/Core/Common/Noncopyable.h Engine/Core/Common/RefCountPtr.h Engine/Core/Common/Singleton.h Engine/Core/Common/Time.h Engine/Core/CoreHeader.h Engine/Render/Pipeline/ForwardPipeline.h Engine/Render/Pipeline/Stage.h Engine/Core/Thread/todo Engine/Startup/Win32/Win32App.cc Engine/Startup/Win32/Win32App.h Engine/Startup/Win32/Win32Input.h Engine/Startup/Win32/Win32Window.cc Engine/Startup/Win32/Win32Window.h Engine/RHIDX12/DX12Buffer.cc Engine/RHIDX12/DX12Buffer.h Engine/RHIDX12/DX12Const.h Engine/RHIDX12/DX12Device.cc Engine/RHIDX12/DX12Device.h Engine/RHIDX12/DX12Executor.cc Engine/RHIDX12/DX12Executor.h Engine/RHIDX12/DX12Header.h Engine/RHIDX12/DX12PipelineState.cc Engine/RHIDX12/DX12PipelineState.h Engine/RHIDX12/DX12Resource.cc Engine/RHIDX12/DX12Resource.h Engine/RHIDX12/DX12Shader.cc Engine/RHIDX12/DX12Shader.h Engine/RHIDX12/DX12Texture.cc Engine/RHIDX12/DX12Texture.h Engine/RHIDX12/DX12Util.h Engine/RHIDX12/DX12View.cc Engine/RHIDX12/DX12View.h Engine/RHIDX12/DX12Viewport.cc Engine/RHIDX12/DX12Viewport.h Engine/Util/Image/Image.cc Engine/Util/Image/Image.h Engine/Core/Platform/Win32/Windows.h Engine/Client/Main/App.cc Engine/Client/Main/App.h Engine/Client/Main/Director.cc Engine/Client/Main/Director.h Engine/Client/Main/Input.cc Engine/Client/Main/Input.h Engine/Core/Object/IObject.h Engine/Core/Math/Camera.h Engine/Core/Math/GeometryAlg.h Engine/Core/Math/LinearAlg.h Engine/Core/Math/Matrix.h Engine/Core/Math/Number.h Engine/Core/Math/Vector.h Engine/Client/Scene/Camera.cc Engine/Client/Scene/Camera.h Engine/Client/Scene/CameraController.h Engine/Client/Scene/Scene.cc Engine/Client/Scene/Scene.h Engine/Client/Scene/WorldEnv.cc Engine/Client/Scene/WorldEnv.h Engine/Util/Mesh/MeshGenerator.cc Engine/Util/Mesh/MeshGenerator.h Engine/Util/Mesh/ZMeshLoader.h Engine/Core/Scheduler/Scheduler.h Engine/Core/Scheduler/Service.cc Engine/Core/Scheduler/Service.h Engine/Core/Scheduler/Worker.h Engine/Core/Platform/OSHeader.h Engine/Client/Entity/IComponent.cc Engine/Client/Entity/IComponent.h Engine/Client/Entity/IEntity.cc Engine/Client/Entity/IEntity.h Engine/RHIDX12/DX12/d3dx12.h Engine/Client/Component/EnvComp.cc Engine/Client/Component/EnvComp.h Engine/Client/Component/PrimitiveComp.cc Engine/Client/Component/PrimitiveComp.h Engine/RHI/RHIConst.h Engine/RHI/RHIDevice.cc Engine/RHI/RHIDevice.h Engine/RHI/RHIResource.h Engine/RHI/RHIUtil.h Engine/Render/Camera.h Engine/Render/Material.cc Engine/Render/Material.h Engine/Render/Mesh.cc Engine/Render/Mesh.h Engine/Render/RenderConst.h Engine/Render/Renderer.cc Engine/Render/Renderer.h Engine/Render/RenderItem.h Engine/Render/RenderOption.h Engine/Render/RenderScene.h Engine/Render/RenderUnit.h Engine/Render/RenderUtil.cc Engine/Render/RenderUtil.h Engine/Util/Luaconf/Luaconf.h Engine/Util/Luaconf/LValue.h Engine/Core/FileSystem/Directory.h Engine/Core/FileSystem/File.cc Engine/Core/FileSystem/File.h)
+set(Engine_SRC Engine/Core/Common/Define.h Engine/Core/Common/Logger.h Engine/Core/Common/Noncopyable.h Engine/Core/Common/RefCountPtr.h Engine/Core/Common/Singleton.h Engine/Core/Common/Time.h Engine/Core/CoreHeader.h Engine/Render/Pipeline/ForwardPipeline.h Engine/Render/Pipeline/Stage.h Engine/Core/Thread/todo Engine/Startup/Win32/Win32App.cc Engine/Startup/Win32/Win32App.h Engine/Startup/Win32/Win32Input.h Engine/Startup/Win32/Win32Window.cc Engine/Startup/Win32/Win32Window.h Engine/RHIDX12/DX12Buffer.cc Engine/RHIDX12/DX12Buffer.h Engine/RHIDX12/DX12Const.h Engine/RHIDX12/DX12Device.cc Engine/RHIDX12/DX12Device.h Engine/RHIDX12/DX12Executor.cc Engine/RHIDX12/DX12Executor.h Engine/RHIDX12/DX12Header.h Engine/RHIDX12/DX12PipelineState.cc Engine/RHIDX12/DX12PipelineState.h Engine/RHIDX12/DX12Resource.cc Engine/RHIDX12/DX12Resource.h Engine/RHIDX12/DX12Shader.cc Engine/RHIDX12/DX12Shader.h Engine/RHIDX12/DX12Texture.cc Engine/RHIDX12/DX12Texture.h Engine/RHIDX12/DX12Util.h Engine/RHIDX12/DX12View.cc Engine/RHIDX12/DX12View.h Engine/RHIDX12/DX12Viewport.cc Engine/RHIDX12/DX12Viewport.h Engine/Util/Image/Image.cc Engine/Util/Image/Image.h Engine/Core/Platform/Win32/Windows.h Engine/Client/Main/App.cc Engine/Client/Main/App.h Engine/Client/Main/Director.cc Engine/Client/Main/Director.h Engine/Client/Main/Input.cc Engine/Client/Main/Input.h Engine/Core/Object/IObject.h Engine/Core/Math/Camera.h Engine/Core/Math/GeometryAlg.h Engine/Core/Math/LinearAlg.h Engine/Core/Math/Matrix.h Engine/Core/Math/Number.h Engine/Core/Math/Vector.h Engine/Client/Scene/Camera.cc Engine/Client/Scene/Camera.h Engine/Client/Scene/CameraController.h Engine/Client/Scene/Scene.cc Engine/Client/Scene/Scene.h Engine/Util/Mesh/MeshGenerator.cc Engine/Util/Mesh/MeshGenerator.h Engine/Util/Mesh/ZMeshLoader.h Engine/Core/Scheduler/Scheduler.h Engine/Core/Scheduler/Service.cc Engine/Core/Scheduler/Service.h Engine/Core/Scheduler/Worker.h Engine/Core/Platform/OSHeader.h Engine/Client/Entity/IComponent.cc Engine/Client/Entity/IComponent.h Engine/Client/Entity/IEntity.cc Engine/Client/Entity/IEntity.h Engine/Client/Entity/Transform.h Engine/RHIDX12/DX12/d3dx12.h Engine/Client/Component/EnvComp.cc Engine/Client/Component/EnvComp.h Engine/Client/Component/PrimitiveComp.cc Engine/Client/Component/PrimitiveComp.h Engine/RHI/RHIConst.h Engine/RHI/RHIDevice.cc Engine/RHI/RHIDevice.h Engine/RHI/RHIResource.h Engine/RHI/RHIUtil.h Engine/Render/Material.cc Engine/Render/Material.h Engine/Render/Mesh.cc Engine/Render/Mesh.h Engine/Render/RenderConst.h Engine/Render/Renderer.cc Engine/Render/Renderer.h Engine/Render/RenderItem.h Engine/Render/RenderOption.h Engine/Render/RenderScene.h Engine/Render/RenderUnit.h Engine/Render/RenderUtil.cc Engine/Render/RenderUtil.h Engine/Render/Shading.cc Engine/Render/Shading.h Engine/Util/Luaconf/Luaconf.h Engine/Util/Luaconf/LValue.h Engine/Core/FileSystem/Directory.h Engine/Core/FileSystem/File.cc Engine/Core/FileSystem/File.h)
 
 set(Engine_Core_Common_GROUP_FILES Engine/Core/Common/Define.h Engine/Core/Common/Logger.h Engine/Core/Common/Noncopyable.h Engine/Core/Common/RefCountPtr.h Engine/Core/Common/Singleton.h Engine/Core/Common/Time.h)
 source_group(Core\\Common FILES ${Engine_Core_Common_GROUP_FILES})
@@ -59,7 +59,7 @@ source_group(Core\\Object FILES ${Engine_Core_Object_GROUP_FILES})
 set(Engine_Core_Math_GROUP_FILES Engine/Core/Math/Camera.h Engine/Core/Math/GeometryAlg.h Engine/Core/Math/LinearAlg.h Engine/Core/Math/Matrix.h Engine/Core/Math/Number.h Engine/Core/Math/Vector.h)
 source_group(Core\\Math FILES ${Engine_Core_Math_GROUP_FILES})
 
-set(Engine_Client_Scene_GROUP_FILES Engine/Client/Scene/Camera.cc Engine/Client/Scene/Camera.h Engine/Client/Scene/CameraController.h Engine/Client/Scene/Scene.cc Engine/Client/Scene/Scene.h Engine/Client/Scene/WorldEnv.cc Engine/Client/Scene/WorldEnv.h)
+set(Engine_Client_Scene_GROUP_FILES Engine/Client/Scene/Camera.cc Engine/Client/Scene/Camera.h Engine/Client/Scene/CameraController.h Engine/Client/Scene/Scene.cc Engine/Client/Scene/Scene.h)
 source_group(Client\\Scene FILES ${Engine_Client_Scene_GROUP_FILES})
 
 set(Engine_Util_Mesh_GROUP_FILES Engine/Util/Mesh/MeshGenerator.cc Engine/Util/Mesh/MeshGenerator.h Engine/Util/Mesh/ZMeshLoader.h)
@@ -71,7 +71,7 @@ source_group(Core\\Scheduler FILES ${Engine_Core_Scheduler_GROUP_FILES})
 set(Engine_Core_Platform_GROUP_FILES Engine/Core/Platform/OSHeader.h)
 source_group(Core\\Platform FILES ${Engine_Core_Platform_GROUP_FILES})
 
-set(Engine_Client_Entity_GROUP_FILES Engine/Client/Entity/IComponent.cc Engine/Client/Entity/IComponent.h Engine/Client/Entity/IEntity.cc Engine/Client/Entity/IEntity.h)
+set(Engine_Client_Entity_GROUP_FILES Engine/Client/Entity/IComponent.cc Engine/Client/Entity/IComponent.h Engine/Client/Entity/IEntity.cc Engine/Client/Entity/IEntity.h Engine/Client/Entity/Transform.h)
 source_group(Client\\Entity FILES ${Engine_Client_Entity_GROUP_FILES})
 
 set(Engine_RHIDX12_DX12_GROUP_FILES Engine/RHIDX12/DX12/d3dx12.h)
@@ -83,7 +83,7 @@ source_group(Client\\Component FILES ${Engine_Client_Component_GROUP_FILES})
 set(Engine_RHI_GROUP_FILES Engine/RHI/RHIConst.h Engine/RHI/RHIDevice.cc Engine/RHI/RHIDevice.h Engine/RHI/RHIResource.h Engine/RHI/RHIUtil.h)
 source_group(RHI FILES ${Engine_RHI_GROUP_FILES})
 
-set(Engine_Render_GROUP_FILES Engine/Render/Camera.h Engine/Render/Material.cc Engine/Render/Material.h Engine/Render/Mesh.cc Engine/Render/Mesh.h Engine/Render/RenderConst.h Engine/Render/Renderer.cc Engine/Render/Renderer.h Engine/Render/RenderItem.h Engine/Render/RenderOption.h Engine/Render/RenderScene.h Engine/Render/RenderUnit.h Engine/Render/RenderUtil.cc Engine/Render/RenderUtil.h)
+set(Engine_Render_GROUP_FILES Engine/Render/Material.cc Engine/Render/Material.h Engine/Render/Mesh.cc Engine/Render/Mesh.h Engine/Render/RenderConst.h Engine/Render/Renderer.cc Engine/Render/Renderer.h Engine/Render/RenderItem.h Engine/Render/RenderOption.h Engine/Render/RenderScene.h Engine/Render/RenderUnit.h Engine/Render/RenderUtil.cc Engine/Render/RenderUtil.h Engine/Render/Shading.cc Engine/Render/Shading.h)
 source_group(Render FILES ${Engine_Render_GROUP_FILES})
 
 set(Engine_Util_Luaconf_GROUP_FILES Engine/Util/Luaconf/Luaconf.h Engine/Util/Luaconf/LValue.h)
@@ -139,7 +139,7 @@ set(MeshConverter_SRC Program/MeshConverter/main.cc)
 
 
 add_executable(MeshConverter ${MeshConverter_SRC})
-target_link_libraries(MeshConverter Engine assimp-vc141-mt zlib)
+target_link_libraries(MeshConverter Engine assimp-vc142-mt zlib)
 
 
 # ========== Executable HLSLLint ==========
@@ -154,6 +154,6 @@ target_link_libraries(HLSLLint Engine)
 
 
 # ========== Custom Target Config ==========
-set(Config_SRC Config/Engine.xml)
+set(Config_SRC )
 
 add_custom_target(Config SOURCES ${Config_SRC})

@@ -14,8 +14,9 @@ return {
 
 		},
 		{
-			model = "Test/Other/gundam.model",
-			position = {0, 0, 0},
+			model = "Test/UE/chair.model",
+			position = {-5, 0, 0},
+			scale = {5, 5, 5},
 
 		}
 	}

@@ -5,7 +5,7 @@ cbuffer GlobalPerFrame : register(b1)
 	float4   CameraPos;
 	float4   SunColor;
 	float4   SunDirection;
-	float4   Ambient;
+	float4   AmbientColor;
 }
 
 

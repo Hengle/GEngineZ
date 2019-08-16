@@ -18,6 +18,12 @@ float Pow5(float x) {
 	return xx * xx * x;
 }
 
+float Pow4(float x) {
+	float xx = x * x;
+	return xx * xx;
+}
+
+
 float ClampedPow(float X, float Y) {
 	return pow(max(abs(X), 0.000001f), Y);
 }
@@ -43,3 +49,12 @@ float PhongShadingPow(float X, float Y) {
 }
 
 // copy from ue end ======================== 
+
+
+float3 DecodeGamma(float3 Color) {
+	return pow(abs(Color), 2.2);
+}
+
+float3 EncodeGamma(float3 Color) {
+	return pow(abs(Color), 1 / 2.2);
+}
