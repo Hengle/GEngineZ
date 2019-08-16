@@ -135,6 +135,8 @@ def PostProcess():
 if __name__ == "__main__":
     builder = Builder()
     builder.build_ninja()
+    # imgui
+    builder.build_lib("imgui", ["-DBUILD_SHARED_LIBS=OFF"])
     # lua
     builder.build_lib("lua", ["-DBUILD_SHARED_LIBS=ON"])
     # hlslcc
