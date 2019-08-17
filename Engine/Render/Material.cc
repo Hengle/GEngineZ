@@ -20,8 +20,14 @@ Material::Material(RHIShader* rhiShader) :
 // MaterialInstance
 MaterialInstance::MaterialInstance(Material* material) :
 	mParent(material),
-	mRHIShaderInstance(nullptr),
-	mRState(RS_FILL_SOLID|RS_CULL_BACK) {
+	mRHIShaderInstance(nullptr) {
+	mRState.Value = 0;
+	mRState.EnableDepthTest = 1;
+	mRState.EnableDepthWrite = 1;
+	mRState.FillMode = RS_FILL_SOLID;
+	mRState.CullMode = RS_CULL_BACK;
+	mRState.DepthCompFunc = RS_COMP_FUNC_LESS;
+
 	mRHIShaderInstance = GDevice->CreateShaderInstance(material->GetShader());
 }
 
@@ -113,9 +119,11 @@ RHIShader* MaterialManager::CompileShader(const std::string &path) {
 		shader = GDevice->CreateShader();
 		shader->CombineStage(stageVS);
 		shader->CombineStage(stagePS);
-		shader->Complete();
-
-		Log<LINFO>("Compile shader succeed!");
+		if (shader->Complete()) {
+			Log<LINFO>("Compile shader succeed!");
+		} else {
+			Log<LERROR>("Compile shader succeed! but validate failed...");
+		}
 	} else {
 		Log<LINFO>("Compile shader failed...");
 	}

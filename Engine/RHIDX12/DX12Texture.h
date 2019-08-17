@@ -40,8 +40,6 @@ public:
 		return mSRView;
 	}
 
-	void AttachResource(DX12Resource* resource);
-
 	virtual void Clear(const D3D12_CLEAR_VALUE& value) {}
 
 	virtual void SetWritable() {}
@@ -103,6 +101,18 @@ public:
 		return mRTView;
 	}
 
+	// RHI Begin
+	void SetBlendState(const RHIBlendState& state) override {
+		Log<LINFO>("send blend state");
+		mBlendDesc = FromRHIBlendState(state);
+	}
+	// RHI End
+
+	const D3D12_RENDER_TARGET_BLEND_DESC& GetBlendState() const {
+		return mBlendDesc;
+	}
+
+	// RHI End
 
 	void SetPresent();
 	void SetWritable() override;
@@ -111,6 +121,8 @@ public:
 
 private:
 	RefCountPtr<DX12RenderTargetView> mRTView;
+
+	D3D12_RENDER_TARGET_BLEND_DESC mBlendDesc;
 };
 
 

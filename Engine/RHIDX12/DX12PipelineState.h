@@ -7,39 +7,39 @@ namespace z {
 
 class DX12Shader;
 class DX12PipelineState;
+class DX12RenderTarget;
+class DX12DepthStencil;
 
 class DX12PipelineStateCache {
 public:
-	static DX12PipelineState* Get(DX12Shader* shader, const uint8_t semoff[SEMANTIC_MAX], const std::vector<DXGI_FORMAT>&, const DXGI_FORMAT, const uint64_t);
+	static DX12PipelineState* Get(DX12Shader* shader, const uint8_t semoff[SEMANTIC_MAX], 
+		const std::vector<DX12RenderTarget*>&, const DX12DepthStencil*, const RHIRenderState);
 
 	struct DX12PipelineStateHash {
 		uint8_t Semoffs[SEMANTIC_MAX];
-		uint64_t State;
-		DX12Shader* Shader;;
-		DXGI_FORMAT RTs[MAX_SIGNATURE_NUM];
-		DXGI_FORMAT DS;
+		RHIRenderState State;
+		DX12Shader* Shader;
+		// render target
+		int RTNum;
+		DXGI_FORMAT RTsFormat[MAX_RT_NUM];
+		D3D12_BLEND_DESC BlendDesc;
 
-		DX12PipelineStateHash(DX12Shader* shader, const uint8_t semoff[SEMANTIC_MAX], const std::vector<DXGI_FORMAT>& rtsFormat,
-			const DXGI_FORMAT dsFormat, const uint64_t state) {
-			Shader = shader;
-			memset(RTs, 0, MAX_SIGNATURE_NUM * sizeof(DXGI_FORMAT));
-			memcpy(RTs, rtsFormat.data(), rtsFormat.size() * sizeof(DXGI_FORMAT));
-			memcpy(Semoffs, semoff, sizeof(uint8_t) * SEMANTIC_MAX);
-			DS = DXGI_FORMAT_UNKNOWN;
-			State = state;
-		}
+		// depth stencil
+		DXGI_FORMAT DSFormat;
+
+		DX12PipelineStateHash(DX12Shader* shader, const uint8_t sem[SEMANTIC_MAX], const std::vector<DX12RenderTarget*>& rts, 
+			const DX12DepthStencil* ds, const RHIRenderState state);
 
 		bool operator == (const DX12PipelineStateHash& state) const {
-			// todo... compare shader's inputlayout
 			return  0 == memcmp(this, &state, sizeof(DX12PipelineStateHash));
 		}
 	};
 
 	struct DX12PipelineStateHashFN {
 		std::size_t operator() (const DX12PipelineStateHash& node) const {
-			size_t hv = (uint64_t)node.DS ^ node.State;
+			size_t hv = (uint64_t)node.DSFormat ^ node.State.Value;
 			for (int i = 0; i < MAX_SIGNATURE_NUM; i++) {
-				hv ^= (uint64_t)node.RTs[i];
+				hv ^= (uint64_t)node.RTsFormat[i];
 			}
 			for (int i = 0; i < SEMANTIC_MAX; i++) {
 				hv ^= (uint64_t)node.Semoffs[i];
@@ -74,13 +74,11 @@ public:
 	ID3D12RootSignature* GetIRootSignature();
 
 private:
-	DX12PipelineState(DX12Shader* shader, const uint8_t semoff[SEMANTIC_MAX], const std::vector<DXGI_FORMAT>&, const DXGI_FORMAT, const uint64_t);
+	DX12PipelineState(const DX12PipelineStateCache::DX12PipelineStateHash&);
 
 	RefCountPtr<DX12Shader> mShader;
 	RefCountPtr<ID3D12PipelineState> mState;
 
-	std::vector<DXGI_FORMAT> mRenderTargetsFormat;
-	DXGI_FORMAT mDepthStencilFormat;
 	D3D12_RASTERIZER_DESC mRasterizerState;
 	D3D12_BLEND_DESC mBlendState;
 	D3D12_DEPTH_STENCIL_DESC mDepthStencilState;

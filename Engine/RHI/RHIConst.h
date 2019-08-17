@@ -49,25 +49,95 @@ enum ERHISamplerFlag {
 	SAMPLER_ADDRESS_MIRROR		= 0x0200,
 	SAMPLER_ADDRESS_CLAMP		= 0x0400,
 	SAMPLER_ADDRESS_BORDER		= 0x0800,
-
 };
 
+// render state
 enum ERHIRenderState {
-	// 2 bit, fill mode
-	RS_FILL_WIREFRAME = 0x01 << 0,
-	RS_FILL_SOLID	  = 0x02 << 0,
-	// 2 bit, cull mode
-	RS_CULL_NONE	  = 0x01 << 2,
-	RS_CULL_FRONT	  = 0x02 << 2,
-	RS_CULL_BACK	  = 0x03 << 2,
-	// blend
+	// fill mode, 2 bit
+	RS_FILL_WIREFRAME      = 0x01,
+	RS_FILL_SOLID          = 0x02,
+	// cull mode, 2bit
+	RS_CULL_NONE           = 0x01,
+	RS_CULL_FRONT          = 0x02,
+	RS_CULL_BACK           = 0x03,
+	// compare func, 4 bit
+	RS_COMP_FUNC_NEVER     = 0x01,
+	RS_COMP_FUNC_EQUAL     = 0x02,
+	RS_COMP_FUNC_LESS      = 0x03,
+	RS_COMP_FUNC_LEQUAL    = 0x04,
+	RS_COMP_FUNC_GREATER   = 0x05,
+	RS_COMP_FUNC_GEQUAL    = 0x06,
+	RS_COMP_FUNC_NEQUAL    = 0x07,
+	RS_COMP_FUNC_ALWAYS    = 0x08,
+	// stencil op func, 4bit
+	RS_STENCIL_OP_KEEP     = 0x01,
+	RS_STENCIL_OP_ZERO     = 0x02,
+	RS_STENCIL_OP_REPLACE  = 0x03,
+	RS_STENCIL_OP_INCR_SAT = 0x04,
+	RS_STENCIL_OP_DECR_SAT = 0x05,
+	RS_STENCIL_OP_INVERT   = 0x06,
+	RS_STENCIL_OP_INCR     = 0x07,
+	RS_STENCIL_OP_DECR     = 0x08,
+};
 
-	// stencil
+struct RHIRenderState {
+	union {
+		struct {
+			uint8_t
+				// switch
+				EnableDepthTest      : 1,	// 1
+				EnableDepthWrite     : 1,	// 2
+				EnableStencil        : 1,	// 3
+				                     : 1,	// 4
+				// Rasterizer
+				FillMode             : 2,	// 6
+				CullMode             : 2,	// 8
+				// DepthStencil
+				DepthCompFunc        : 4,	// 12
+				StencilReadMask      : 8,	// 20
+				StencilWriteMask     : 8,	// 28
+				StencilFrontPassOp   : 4,	// 32
+				StencilForntFailOp   : 4,	// 36
+				StencilFrontZFailOp  : 4,	// 40
+				StencilFrontCompFunc : 4,	// 44
+				StencilBackPassOp    : 4,	// 48
+				StencilBackFailOp    : 4,	// 52
+				StencilBackZFailOp   : 4,	// 56
+				StencilBackCompFunc  : 4	// 60
+				;
+		};
+		uint64_t Value;
+	};
+};
 
-	// depth
 
-	RS_FILL_MASK = RS_FILL_WIREFRAME| RS_FILL_SOLID,
-	RS_CULL_MASK = RS_CULL_BACK,
+// blend state is bind to render target
+enum ERHIBlendOperation {
+	BLEND_OP_ADD,
+	BLEND_OP_SUBTRACT,
+	BLEND_OP_REV_SUBTRACT,
+	BLEND_OP_MIN,
+	BLEND_OP_MAX,
+};
+
+enum ERHIBlendFactor {
+	BLEND_FACTOR_ZERO,
+	BLEND_FACTOR_ONE,
+	BLEND_FACTOR_SRC_COLOR,
+	BLEND_FACTOR_INV_SRC_COLOR,
+	BLEND_FACTOR_SRC_ALPHA,
+	BLEND_FACTOR_INV_SRC_ALPHA,
+	BLEND_FACTOR_DEST_ALPHA,
+	BLEND_FACTOR_INV_DEST_ALPHA,
+	BLEND_FACTOR_DEST_COLOR,
+	BLEND_FACTOR_INV_DEST_COLOR,
+	BLEND_FACTOR_SRC_ALPHA_SAT,
+	BLEND_FACTOR_BLEND_FACTOR,
+	BLEND_FACTOR_INV_BLEND_FACTOR,
+	BLEND_FACTOR_SRC1_COLOR,
+	BLEND_FACTOR_INV_SRC1_COLOR,
+	BLEND_FACTOR_SRC1_ALPHA,
+	BLEND_FACTOR_INV_SRC1_ALPHA
 };
 
 enum ERHIInputSemantic {
@@ -77,11 +147,11 @@ enum ERHIInputSemantic {
 	SEMANTIC_BINORMAL,
 	SEMANTIC_UV0,
 	SEMANTIC_UV1,
+	SEMANTIC_COLOR,
+	SEMANTIC_POSITION2D,
 
-	SEMANTIC_MAX = SEMANTIC_UV1 + 1
+	SEMANTIC_MAX = SEMANTIC_POSITION2D + 1
 };
-
-
 
 
 struct RHIClearValue {
@@ -127,11 +197,14 @@ struct RHITextureDesc {
 
 
 
-
-
-
-struct BlendState {
-
+struct RHIBlendState {
+	bool Enable;
+	ERHIBlendFactor SrcBlend;
+	ERHIBlendFactor DestBlend;
+	ERHIBlendOperation BlendOp;
+	ERHIBlendFactor SrcBlendAlpha;
+	ERHIBlendFactor DestBlendAlpha;
+	ERHIBlendOperation BlendOpAlpha;
 };
 
 

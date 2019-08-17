@@ -56,6 +56,7 @@ void Director::Update() {
 	uint64_t now = ZTime::Now().TotalMs();
 
 	if (last_update_ms + mFrameInterval < now) {
+
 		mFrameTime = (now - last_update_ms) / 1000.0;
 		last_update_ms = now;
 		FrameTick();
@@ -67,8 +68,8 @@ void Director::Update() {
 			mFramesForStatFps = 0;
 		}
 	} else {
-		std::this_thread::sleep_for(std::chrono::milliseconds(std::min(5ULL, last_update_ms + mFrameInterval - now)));
-		std::this_thread::yield();
+		//std::this_thread::sleep_for(std::chrono::milliseconds(std::min(5ULL, last_update_ms + mFrameInterval - now)));
+		//std::this_thread::yield();
 	}
 
 }

@@ -1,8 +1,13 @@
 #include "Win32Window.h"
 #include <Core/CoreHeader.h>
 
+#include <imgui/imgui.h>
+#include "imgui_impl_win32.h"
+
 #include "imm.h"
 #pragma comment(lib, "imm32.lib")
+
+extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 namespace z {
 Win32Window* GWindow = nullptr;
@@ -67,6 +72,13 @@ bool Win32Window::InitWindow() {
 	::ShowWindow(mMainWnd, SW_SHOW);
 	::UpdateWindow(mMainWnd);
 
+	// imgui
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	ImGui::StyleColorsDark();
+	ImGui_ImplWin32_Init(mMainWnd);
+
 	return true;
 }
 
@@ -80,11 +92,14 @@ bool Win32Window::UpdateWindow() {
 			return false;
 		}
 	}
-	
+
+	ImGui_ImplWin32_NewFrame();
 	return true;
 }
 
 LRESULT Win32Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+	if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wParam, lParam))
+		return true;
 	switch (msg) {
 	case WM_ACTIVATE:
 		if (LOWORD(wParam) == WA_INACTIVE) {

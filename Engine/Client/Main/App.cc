@@ -18,7 +18,7 @@ void App::OnInit(FilePath rootPath) {
 	mRootPath = rootPath;
 	new Input();
 	new Director();
-	GDirector->SetFrameLimit(60);
+	//GDirector->SetFrameLimit(60);
 
 	OnResize(mWidth, mHeight);
 

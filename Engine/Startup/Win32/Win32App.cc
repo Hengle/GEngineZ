@@ -6,7 +6,6 @@
 
 #include <string.h>
 
-
 namespace z {
 
 bool Win32App::Init() {
@@ -14,6 +13,8 @@ bool Win32App::Init() {
 
 	// device
 	new DX12Device(mMainWnd);
+
+
 
 	// Get Root Path
 	char exePath[MAX_PATH];

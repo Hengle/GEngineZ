@@ -230,7 +230,6 @@ void DX12Shader::ReflectBoundResource(ID3D12ShaderReflection* reflection, const 
 	for (uint32_t i = 0; i < shaderDesc.BoundResources; i++) {
 		D3D12_SHADER_INPUT_BIND_DESC sibDesc;
 		reflection->GetResourceBindingDesc(i, &sibDesc);
-		Log<LINFO>(sibDesc.Name, sibDesc.BindPoint, sibDesc.Type);
 
 		if (sibDesc.Type == D3D_SIT_CBUFFER && mCBufferMap.count(sibDesc.Name) == 0) {
 			mCBufferMap[sibDesc.Name] = {sibDesc.BindPoint, 0};
@@ -294,6 +293,16 @@ if (strcmp(desc.SemanticName, #name) == 0 && desc.SemanticIndex == index && GetP
 		CHECK_AND_APPEND_SEMNATIC(desc, BINORMAL, 0, SEMANTIC_BINORMAL);
 		CHECK_AND_APPEND_SEMNATIC(desc, TEXCOORD, 0, SEMANTIC_UV0);
 		CHECK_AND_APPEND_SEMNATIC(desc, TEXCOORD, 1, SEMANTIC_UV1);
+
+		CHECK_AND_APPEND_SEMNATIC(desc, COLOR, 0, SEMANTIC_COLOR);
+		CHECK_AND_APPEND_SEMNATIC(desc, POSITION2D, 0, SEMANTIC_POSITION2D);
+
+		if (strcmp(desc.SemanticName, "COLOR") == 0) {
+			mInputSemantics.push_back(SEMANTIC_COLOR);
+			desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+			continue;
+		}
+		Log<LINFO>(desc.SemanticName);
 		// not matched...
 		return false;
 	}

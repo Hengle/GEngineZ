@@ -52,6 +52,9 @@ private:
 class RHITexture : public RHIResource {
 public:
 	virtual void Clear(const RHIClearValue& v) = 0;
+	
+	// render target
+	virtual void SetBlendState(const RHIBlendState&) {}
 };
 
 // Viewport 

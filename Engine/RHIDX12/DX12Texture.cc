@@ -1,3 +1,4 @@
+
 #include "DX12Texture.h"
 #include "DX12Device.h"
 #include "DX12Executor.h"
@@ -184,6 +185,14 @@ void DX12DepthStencil::Clear(const D3D12_CLEAR_VALUE& value) {
 
 // DX12RenderTarget
 DX12RenderTarget::DX12RenderTarget(DX12Resource* resource) {
+
+	mBlendDesc = {
+		FALSE, FALSE,
+		D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
+		D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
+		D3D12_LOGIC_OP_NOOP,
+		D3D12_COLOR_WRITE_ENABLE_ALL,
+	};
 	// int texture info
 	InitWithResourceDesc(resource->GetDesc());
 	

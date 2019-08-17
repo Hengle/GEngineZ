@@ -38,19 +38,29 @@ public:
 	void DrawIndexed(RHIVertexBuffer* vb, RHIIndexBuffer* ib);
 
 	void SetFillMode(ERHIRenderState rs) {
-		mRState &= ~RS_FILL_MASK;
-		mRState |= rs;
+		mRState.FillMode = rs;
 	}
 
 	void SetCullMode(ERHIRenderState rs) {
-		mRState &= ~RS_CULL_MASK;
-		mRState |= rs;
+		mRState.CullMode = rs;
+	}
+
+	void SetEnableDepthWrite(bool enable) {
+		mRState.EnableDepthWrite = enable ? 1 : 0;
+	}
+
+	void SetEnableDepthTest(bool enable) {
+		mRState.EnableDepthTest = enable ? 1 : 0;
+	}
+
+	void SetEnableStencil(bool enable) {
+		mRState.EnableStencil = enable ? 1 : 0;
 	}
 
 public:
 	Material* mParent;
 	RefCountPtr<RHIShaderInstance> mRHIShaderInstance;
-	uint64_t mRState;
+	RHIRenderState mRState;
 };
 
 

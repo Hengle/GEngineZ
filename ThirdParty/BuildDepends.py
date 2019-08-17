@@ -132,26 +132,36 @@ def PostProcess():
     SafeDo(shutil.rmtree, os.path.join(INSTALL_DIR, "lib", "pkgconfig"))
     SafeDo(shutil.rmtree, os.path.join(INSTALL_DIR, "share"))
 
-if __name__ == "__main__":
-    builder = Builder()
-    builder.build_ninja()
-    # imgui
-    builder.build_lib("imgui", ["-DBUILD_SHARED_LIBS=OFF"])
+
+
+build_lsit = {
+    "imgui": ["-DBUILD_SHARED_LIBS=OFF"],
     # lua
-    builder.build_lib("lua", ["-DBUILD_SHARED_LIBS=ON"])
+    "lua": ["-DBUILD_SHARED_LIBS=ON"],
     # hlslcc
-    builder.build_lib("HLSLcc", ["-DHLSLCC_LIBRARY_SHARED=ON"])
+    "HLSLcc": ["-DHLSLCC_LIBRARY_SHARED=ON"],
     # zlib with zstr
-    builder.build_lib("zlibzstr", ["-DBUILD_SHARED_LIBS=ON"])
+    "zlibzstr": ["-DBUILD_SHARED_LIBS=ON"],
     # assimp
-    builder.build_lib("assimp", [
+    "assimp": [
         "-DBUILD_SHARED_LIBS=ON",
         "-DASSIMP_BUILD_ASSIMP_TOOLS=OFF", 
         "-DASSIMP_BUILD_TESTS=OFF", 
         "-DASSIMP_INSTALL_PDB=OFF",
         "-DASSIMP_NO_EXPORT=ON",
-        "-DASSIMP_BUILD_SAMPLES=OFF"])
+        "-DASSIMP_BUILD_SAMPLES=OFF"]
+}
 
+if __name__ == "__main__":
+    builder = Builder()
+    builder.build_ninja()
+
+
+    if len(sys.argv) == 2:
+        builder.build_lib(sys.argv[1], build_lsit[sys.argv[1]])
+    else:
+        for lib, cfg in build_lsit.iteritems():
+            builder.build_lib(lib,  cfg)
 
     # === build libs end ====
     PostProcess()

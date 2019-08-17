@@ -86,7 +86,8 @@ public:
 	std::vector<DXGI_FORMAT> GetCurRenderTargetsFormat() const;
 	DXGI_FORMAT GetCurDepthStencilFormat() const;
 
-
+	std::vector<DX12RenderTarget*> GetCurRenderTargets() const;
+	DX12DepthStencil* GetCurDepthStencil() const;
 
 	// CommandList
 	ID3D12CommandQueue* GetCommandQueue() {

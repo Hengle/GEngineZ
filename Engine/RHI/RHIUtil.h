@@ -21,6 +21,7 @@ inline int GetRHIPixelFormatSize(ERHIPixelFormat format) {
 
 inline int GetSemanticSize(ERHIInputSemantic format) {
 	switch (format) {
+
 	case SEMANTIC_POSITION:
 	case SEMANTIC_NORMAL:
 	case SEMANTIC_TANGENT:
@@ -28,7 +29,11 @@ inline int GetSemanticSize(ERHIInputSemantic format) {
 		return 12;
 	case SEMANTIC_UV0:
 	case SEMANTIC_UV1:
+	case SEMANTIC_POSITION2D:
 		return 8;
+	case SEMANTIC_COLOR:
+		return 4;
+
 	}
 	return 0;
 }

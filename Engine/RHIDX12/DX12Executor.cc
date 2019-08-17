@@ -80,7 +80,7 @@ void DX12Executor::ApplyState() {
 	// render target
 	int rtdsDirty = DX12EXE_FLAG_RT_DIRTY | DX12EXE_FLAG_DS_DIRTY;
 	if (mFlag & rtdsDirty) {
-		D3D12_CPU_DESCRIPTOR_HANDLE rtHandls[MAX_MRT_NUM]{0};
+		D3D12_CPU_DESCRIPTOR_HANDLE rtHandls[MAX_RT_NUM]{0};
 		for (int i = 0; i < mRenderTargets.size(); i++) {
 			rtHandls[i] = mRenderTargets[i]->GetRTView()->GetCPUHandle();
 			mRenderTargets[i]->SetWritable();
@@ -142,6 +142,20 @@ DXGI_FORMAT DX12Executor::GetCurDepthStencilFormat() const {
 		return mDepthStencil->Format;
 	}
 	return DXGI_FORMAT_UNKNOWN;
+}
+
+std::vector<DX12RenderTarget*> DX12Executor::GetCurRenderTargets() const {
+
+	std::vector<DX12RenderTarget*> rts;
+	rts.reserve(mRenderTargets.size());
+	for (DX12RenderTarget* rt : mRenderTargets) {
+		rts.push_back(rt);
+	}
+	return rts;
+}
+
+DX12DepthStencil* DX12Executor::GetCurDepthStencil() const {
+	return mDepthStencil;
 }
 
 
