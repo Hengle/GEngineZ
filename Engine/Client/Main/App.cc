@@ -15,6 +15,10 @@ App::~App() {
 
 void App::OnInit(FilePath rootPath) {
 	Log<LINFO>("App On Inited....");
+
+	if (mEnableEditorUI) {
+		InitEditorUI();
+	}
 	mRootPath = rootPath;
 	new Input();
 	new Director();

@@ -105,13 +105,12 @@ void DX12Executor::ApplyState() {
 	if (mFlag & DX12EXE_FLAG_IB_DIRTY) {
 		GetCommandList()->IASetIndexBuffer(&mIndexBuffer->GetView());
 		GetCommandList()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		//GetCommandList()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 		mFlag &= ~DX12EXE_FLAG_IB_DIRTY;
 	}
 }
 
-void DX12Executor::DrawShaderInstance(DX12ShaderInstance *shaderInst) {
+void DX12Executor::DrawShaderInstance(DX12ShaderInstance *shaderInst, uint32_t indexNum, uint32_t baseIndex, uint32_t baseVertex ) {
 	ApplyState();
 
 	std::vector<ID3D12DescriptorHeap*> &heap = shaderInst->GetUsedHeap();
@@ -123,9 +122,32 @@ void DX12Executor::DrawShaderInstance(DX12ShaderInstance *shaderInst) {
 			GetCommandList()->SetGraphicsRootDescriptorTable(i, descTable[i]);
 		}
 	}
+	if (indexNum == 0) {
+		indexNum = mIndexBuffer->GetSize();
+	}
 
-	GetCommandList()->DrawIndexedInstanced(mIndexBuffer->GetSize(), 1, 0, 0, 0);
+	GetCommandList()->DrawIndexedInstanced(indexNum, 1, baseIndex, baseVertex, 0);
+}
 
+void DX12Executor::PrepareShaderInstance(DX12ShaderInstance* shaderInst) {
+	ApplyState();
+
+	std::vector<ID3D12DescriptorHeap*>& heap = shaderInst->GetUsedHeap();
+	GetCommandList()->SetDescriptorHeaps(heap.size(), heap.data());
+
+	std::vector<D3D12_GPU_DESCRIPTOR_HANDLE>& descTable = shaderInst->GetDescriptorTable();
+	for (int i = 0; i < descTable.size(); i++) {
+		if (descTable[i].ptr != 0) {
+			GetCommandList()->SetGraphicsRootDescriptorTable(i, descTable[i]);
+		}
+	}
+}
+
+void DX12Executor::DrawBatchSingle(uint32_t indexNum, uint32_t baseIndex, uint32_t baseVertex) {
+	if (indexNum == 0) {
+		indexNum = mIndexBuffer->GetSize();
+	}
+	GetCommandList()->DrawIndexedInstanced(indexNum, 1, baseIndex, baseVertex, 0);
 }
 
 std::vector<DXGI_FORMAT> DX12Executor::GetCurRenderTargetsFormat() const {

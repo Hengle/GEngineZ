@@ -45,14 +45,17 @@ public:
 			mesh->Stride += GetSemanticSize(f);
 		}
 		// index
-		mesh->Indices.resize(meshHeader.IndexNum);
+		uint32_t totalIndexNum = 0;
 		for (int i = 0; i < meshHeader.IndexNum; i++) {
-			std::vector<uint32_t>& indices = mesh->Indices[i];
-			indices.resize(meshHeader.IndexCount[i]);
-			os.read((char*)indices.data(), indices.size() * sizeof(uint32_t));
+			mesh->NumIndices.push_back(meshHeader.IndexCount[i]);
+			mesh->BaseIndices.push_back(totalIndexNum);
+			totalIndexNum += meshHeader.IndexCount[i];
 		}
-		mesh->VertCount = meshHeader.VertCount;
+		mesh->Indices.resize(totalIndexNum);
+		os.read((char*)mesh->Indices.data(), mesh->Indices.size() * sizeof(uint32_t));
 
+		// vertex
+		mesh->VertCount = meshHeader.VertCount;
 		std::vector<float>& vertexes = mesh->Vertexes;
 		vertexes.resize(mesh->Stride * mesh->VertCount / 4);
 		os.read((char*)vertexes.data(), vertexes.size() * sizeof(float));

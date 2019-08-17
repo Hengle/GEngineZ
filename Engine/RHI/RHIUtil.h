@@ -38,4 +38,6 @@ inline int GetSemanticSize(ERHIInputSemantic format) {
 	return 0;
 }
 
+
+
 }

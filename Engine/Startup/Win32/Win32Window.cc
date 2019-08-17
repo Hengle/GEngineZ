@@ -2,7 +2,7 @@
 #include <Core/CoreHeader.h>
 
 #include <imgui/imgui.h>
-#include "imgui_impl_win32.h"
+#include "Win32IMGuiImpl.h"
 
 #include "imm.h"
 #pragma comment(lib, "imm32.lib")
@@ -72,13 +72,6 @@ bool Win32Window::InitWindow() {
 	::ShowWindow(mMainWnd, SW_SHOW);
 	::UpdateWindow(mMainWnd);
 
-	// imgui
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
-	ImGui::StyleColorsDark();
-	ImGui_ImplWin32_Init(mMainWnd);
-
 	return true;
 }
 
@@ -93,13 +86,22 @@ bool Win32Window::UpdateWindow() {
 		}
 	}
 
-	ImGui_ImplWin32_NewFrame();
 	return true;
 }
 
 LRESULT Win32Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-	if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wParam, lParam))
-		return true;
+	// event capture by imgui
+	if (ImGui::GetCurrentContext()) {
+		if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wParam, lParam)) {
+			return true;
+		}
+		
+		ImGuiIO& io = ImGui::GetIO();
+		if (io.WantCaptureMouse || io.WantCaptureKeyboard) {
+			return DefWindowProc(hwnd, msg, wParam, lParam);
+		}
+	}
+
 	switch (msg) {
 	case WM_ACTIVATE:
 		if (LOWORD(wParam) == WA_INACTIVE) {

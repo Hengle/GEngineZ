@@ -177,6 +177,17 @@ struct RHIClearValue {
 };
 
 
+struct RHIBlendState {
+	bool Enable;
+	ERHIBlendFactor SrcBlend;
+	ERHIBlendFactor DestBlend;
+	ERHIBlendOperation BlendOp;
+	ERHIBlendFactor SrcBlendAlpha;
+	ERHIBlendFactor DestBlendAlpha;
+	ERHIBlendOperation BlendOpAlpha;
+};
+
+
 struct ScreenRenderRect {
 	float topLeftX;
 	float topLeftY;
@@ -195,17 +206,6 @@ struct RHITextureDesc {
 	uint8_t numMips;
 };
 
-
-
-struct RHIBlendState {
-	bool Enable;
-	ERHIBlendFactor SrcBlend;
-	ERHIBlendFactor DestBlend;
-	ERHIBlendOperation BlendOp;
-	ERHIBlendFactor SrcBlendAlpha;
-	ERHIBlendFactor DestBlendAlpha;
-	ERHIBlendOperation BlendOpAlpha;
-};
 
 
 }

@@ -1,10 +1,9 @@
 #include "Win32App.h"
+#include "Win32IMGuiImpl.h"
 
-#include <Client/Main/App.h>
 #include <Client/Main/Input.h>
 #include <RHIDX12/DX12Device.h>
 
-#include <string.h>
 
 namespace z {
 
@@ -13,7 +12,6 @@ bool Win32App::Init() {
 
 	// device
 	new DX12Device(mMainWnd);
-
 
 
 	// Get Root Path
@@ -102,6 +100,29 @@ void Win32App::OnKeyboardEvent(UINT_PTR key, bool press) {
 		GInput->OnKeyboard(ikey, press ? EI_ACT_DOWN : EI_ACT_UP);
 	}
 };
+
+
+void Win32App::InitEditorUI() {
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); 
+	(void)io;
+	ImGui::StyleColorsDark();
+	ImGui_ImplWin32_Init(mMainWnd);
+}
+
+void Win32App::ReleaseEditorUI() {
+	ImGui_ImplWin32_Shutdown();
+}
+
+void Win32App::EditorUINewFrame() {
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+
+	bool open = true;
+	ImGui::ShowDemoWindow(&open);
+}
+
 
 
 }

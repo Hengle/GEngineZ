@@ -39,7 +39,7 @@ bool PrimitiveComp::LoadFromFile(std::string file) {
 		}
 
 		// create render items
-		for (size_t meshIdx = 0; meshIdx < mesh->Indices.size(); meshIdx++) {
+		for (size_t meshIdx = 0; meshIdx < mesh->BaseIndices.size(); meshIdx++) {
 			RefCountPtr<RenderItem> item = new RenderItem();
 			item->mesh = mesh;
 			item->meshIdx = meshIdx;

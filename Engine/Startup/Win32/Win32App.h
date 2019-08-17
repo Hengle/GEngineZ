@@ -13,6 +13,12 @@ public:
 	bool Init();
 	void Run();
 
+	void InitEditorUI() override;
+	void ReleaseEditorUI() override;
+	void EditorUINewFrame() override;
+
+
+
 protected:
 	Win32InputHandler mInputHandler;
 

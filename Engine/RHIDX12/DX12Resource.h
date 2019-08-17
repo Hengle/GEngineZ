@@ -42,15 +42,22 @@ private:
 // resource may be bound as shader resource
 class DX12ShaderResource {
 public:
-	DX12ShaderResource() {}
+	DX12ShaderResource() : mLocked(false), mMappedBuffer(nullptr) {}
 
 	DX12Resource* GetResource() {
 		return mResource;
 	}
 
+	// for buffer mapping
+	void* MapBuffer();
+	void UnMapBuffer();
+
 protected:
 	RefCountPtr<DX12Resource> mResource;
 
+private:
+	bool mLocked;
+	BYTE* mMappedBuffer;
 };
 
 

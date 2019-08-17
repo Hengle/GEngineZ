@@ -57,6 +57,10 @@ void Director::Update() {
 
 	if (last_update_ms + mFrameInterval < now) {
 
+		if (GApp->IsEditorUIEnable()) {
+			//GApp->EditorUINewFrame();
+		}
+
 		mFrameTime = (now - last_update_ms) / 1000.0;
 		last_update_ms = now;
 		FrameTick();

@@ -50,37 +50,61 @@ void DX12BufferUploader::Clear() {
 
 
 // DX12 Index Buffer
-DX12IndexBuffer::DX12IndexBuffer(uint32_t num, uint32_t stride, const void* data) :
-	mNum(num) {
-	assert(stride == 4);
+DX12IndexBuffer::DX12IndexBuffer(uint32_t num, uint8_t stride, const void* data, bool dynamic) :
+	mNum(num),
+	mStride(stride) {
+	CHECK(stride == 4|| stride == 2);
 
-	uint32_t size = num * sizeof(uint32_t);
-	D3D12_RESOURCE_DESC destDesc = CD3DX12_RESOURCE_DESC::Buffer(size);
-	mResource = new DX12Resource(D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_COMMON, destDesc);
-	DX12BufferUploader::UploadBuffer(mResource, data, size);
+	uint32_t totolSize = num * stride;
+	D3D12_RESOURCE_DESC destDesc = CD3DX12_RESOURCE_DESC::Buffer(totolSize);
+	if (dynamic) {
+		mResource = new DX12Resource(D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, destDesc);
+		if (data) {
+			// upload data
+			void* addr = MapBuffer();
+			memcpy(addr, data, totolSize);
+			UnMapBuffer();
+		}
+	} else {
+		CHECK(data);
+		mResource = new DX12Resource(D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_COMMON, destDesc);
+		DX12BufferUploader::UploadBuffer(mResource, data, totolSize);
+	}
 }
 
 
 // DX12 Vertex Buffer
-DX12VertexBuffer::DX12VertexBuffer(uint32_t num, uint32_t stride, const void* data, const std::vector<ERHIInputSemantic> &semantic) :
-	mNum(num),
-	mStride(stride) {
+DX12VertexBuffer::DX12VertexBuffer(uint32_t num, const std::vector<ERHIInputSemantic>& semantic, const void* data, bool dynamic) :
+	mNum(num) {
 	mSemantics = semantic;
 	memset(mSemanticsOffset, 0, sizeof(uint8_t) * SEMANTIC_MAX);
-	int offset = 0;
+
+	// calculate stride from semantic
+	mStride = 0;
 	for (size_t i = 0; i < semantic.size(); i++) {
-		mSemanticsOffset[semantic[i]] = offset;
-		offset += GetSemanticSize(semantic[i]);
+		mSemanticsOffset[semantic[i]] = mStride;
+		mStride += GetSemanticSize(semantic[i]);
 	}
 
-	uint32_t size = num * stride;
-	D3D12_RESOURCE_DESC destDesc = CD3DX12_RESOURCE_DESC::Buffer(size);
-	mResource = new DX12Resource(D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_COMMON, destDesc);
-	DX12BufferUploader::UploadBuffer(mResource, data, size);
+	uint32_t totolSize = num * mStride;
+	D3D12_RESOURCE_DESC destDesc = CD3DX12_RESOURCE_DESC::Buffer(totolSize);
+	if (dynamic) {
+		mResource = new DX12Resource(D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, destDesc);
+		if (data) {
+			// upload data
+			void *addr = MapBuffer();
+			memcpy(addr, data, totolSize);
+			UnMapBuffer();
+		}
+	} else {
+		CHECK(data);
+		mResource = new DX12Resource(D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_COMMON, destDesc);
+		DX12BufferUploader::UploadBuffer(mResource, data, totolSize);
+	}
 }
 
-// Constant Buffer
 
+// Constant Buffer
 DX12ConstantBuffer::DX12ConstantBuffer(uint32_t size) :
 	mMappedBuffer(nullptr),
 	mSize(size) {

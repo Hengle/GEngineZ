@@ -81,7 +81,10 @@ public:
 	void SetIndexBuffer(DX12IndexBuffer*);
 	void ApplyState();
 
-	void DrawShaderInstance(DX12ShaderInstance*);
+	void DrawShaderInstance(DX12ShaderInstance*, uint32_t indexNum = 0, uint32_t baseIndex = 0, uint32_t baseVertex = 0);
+
+	void PrepareShaderInstance(DX12ShaderInstance*);
+	void DrawBatchSingle(uint32_t indexNum, uint32_t baseIndex, uint32_t baseVertex);
 
 	std::vector<DXGI_FORMAT> GetCurRenderTargetsFormat() const;
 	DXGI_FORMAT GetCurDepthStencilFormat() const;
@@ -111,8 +114,6 @@ public:
 	}
 
 private:
-	RefCountPtr<DX12ShaderInstance> mShaderInst;
-
 	std::vector<RefCountPtr<DX12RenderTarget>> mRenderTargets;
 	RefCountPtr<DX12DepthStencil> mDepthStencil;
 	RefCountPtr<DX12VertexBuffer> mVertexBuffer;

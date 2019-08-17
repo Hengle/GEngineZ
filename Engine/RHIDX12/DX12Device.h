@@ -38,8 +38,8 @@ public:
 	RHIShader* CreateShader() override;
 	RHIShaderStage* CreateShaderStage(const char* data, size_t dataLen, ERHIShaderStage stype) override;
 	RHIShaderInstance* CreateShaderInstance(RHIShader*) override;
-	RHIIndexBuffer* CreateIndexBuffer(uint32_t num, uint32_t stride, const void* data) override;
-	RHIVertexBuffer* CreateVertexBuffer(uint32_t num, uint32_t stride, const void* data, const std::vector<ERHIInputSemantic>) override;
+	RHIIndexBuffer* CreateIndexBuffer(uint32_t num, uint32_t stride, const void* data, bool dynamic = false) override;
+	RHIVertexBuffer* CreateVertexBuffer(uint32_t num, const std::vector<ERHIInputSemantic>&, const void* data, bool dynamic = false) override;
 	RHITexture* CreateTexture(const RHITextureDesc& desc, const uint8_t* data) override;
 	RHITexture* CreateDepthStencil(uint32_t width, uint32_t height, ERHIPixelFormat format) override;
 	RHITexture* CreateRenderTarget(uint32_t width, uint32_t height, ERHIPixelFormat format) override;
@@ -49,9 +49,13 @@ public:
 
 	void SetOutputs(const std::vector<RHITexture*>& rts, RHITexture *ds=nullptr) override;
 	void DrawIndexed(RHIShaderInstance* si, RHIVertexBuffer* vb, RHIIndexBuffer* ib, RHIRenderState state) override;
+	
+	
+	void DrawBatch(const RHIDrawBatch& batch) override;
+
 	// ==== end device method ====
 
-
+	
 private:
 	HWND mHWND;
 	RefCountPtr<IDXGIFactory5> mDxgiFactory{ nullptr };

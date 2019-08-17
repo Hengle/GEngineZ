@@ -24,7 +24,9 @@ public:
 		mesh->VertCount = data.Vertices.size();
 		mesh->Stride = 44;
 		mesh->Semantics = { SEMANTIC_POSITION, SEMANTIC_NORMAL, SEMANTIC_TANGENT, SEMANTIC_UV0 };
-		mesh->Indices.push_back(data.Indices32);
+		mesh->Indices = data.Indices32;
+		mesh->NumIndices.push_back(data.Indices32.size());
+		mesh->BaseIndices.push_back(0);
 		mesh->Vertexes.resize(data.Vertices.size() * 11);
 		memcpy(mesh->Vertexes.data(), data.Vertices.data(), data.Vertices.size() * 44);
 

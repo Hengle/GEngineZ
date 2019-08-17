@@ -18,17 +18,16 @@ struct Mesh : RefCounter {
 	uint32_t Stride{ 0 };
 	uint32_t VertCount{ 0 };
 	std::vector<float> Vertexes;
+	std::vector<uint32_t> Indices;
 
-	std::vector<std::vector<uint32_t>> Indices;
-
-	void UseBuffer(int idx);
+	std::vector<uint32_t> NumIndices;
+	std::vector<uint32_t> BaseIndices;
+	
 	void CreateBuffer();
 
 	RefCountPtr<RHIVertexBuffer> mVBuffer;
-	std::vector<RefCountPtr<RHIIndexBuffer>> mIBuffer;
+	RefCountPtr<RHIIndexBuffer> mIBuffer;
 
 };
-
-typedef std::vector<RefCountPtr<Mesh>> MeshHub;
 
 }
