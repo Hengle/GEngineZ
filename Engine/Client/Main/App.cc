@@ -7,6 +7,7 @@ App* GApp = nullptr;
 
 App::App() {
 	InitializeSingleton<App>(GApp, this);
+	mEnableEditorUI = false;
 }
 
 App::~App() {

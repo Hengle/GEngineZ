@@ -26,6 +26,10 @@ public:
 
 	void SetCameraController(CameraController *);
 
+	CameraController* GetCameraController() {
+		return mCameraController;
+	}
+
 	void LoadScene(const std::string& scnFile);
 
 	Scene* GetCurScene() {

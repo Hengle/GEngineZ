@@ -1,5 +1,6 @@
 #pragma once
 #include <Core/CoreHeader.h>
+#include <Client/EditorUI/UIManager.h>
 #include "Input.h"
 
 namespace z {
@@ -33,10 +34,17 @@ public:
 		mEnableEditorUI = enable;
 	}
 
+	UIManager* GetUIManager() {
+		return &mUI;
+	}
+
 	virtual void InitEditorUI() = 0;
 	virtual void ReleaseEditorUI() = 0;
 	virtual void EditorUINewFrame() = 0;
 
+	math::Vector2I GetWinSize() {
+		return { mWidth, mHeight };
+	}
 
 protected:
 	int mWidth{ 800 };
@@ -44,6 +52,8 @@ protected:
 
 	FilePath mRootPath;
 	bool mEnableEditorUI;
+
+	UIManager mUI;
 };
 
 

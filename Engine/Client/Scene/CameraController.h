@@ -67,8 +67,8 @@ public:
 			cam->UpdateForward(newF);
 
 		} else if (key == EI_BTN_MM) {
-			float deltaX = (x - GInput->GetLastX()) *  GDirector->GetFrameTime();
-			float deltaY = (GInput->GetLastY() - y) * GDirector->GetFrameTime();
+			float deltaX = (x - GInput->GetLastX()) *  GDirector->GetFrameTime() * mSensityMove * 0.5;
+			float deltaY = (GInput->GetLastY() - y) * GDirector->GetFrameTime() * mSensityMove * 0.5;
 
 			math::Camera* cam = mCam->GetCam();
 			math::Vector3F newP = cam->GetPosition() + cam->GetWorldUp() * deltaY + cam->GetRight() * deltaX;
@@ -77,7 +77,7 @@ public:
 	}
 
 	void OnMouseRoll(EInput key, float delta) {
-		delta = delta * GDirector->GetFrameTime() * 1.5f;
+		delta = delta * GDirector->GetFrameTime() * 1.5f * mSensityMove;
 		math::Camera* cam = mCam->GetCam();
 		math::Vector3F newP = cam->GetPosition() + cam->GetForward() * delta;
 		cam->UpdatePosition(newP);
@@ -91,6 +91,22 @@ public:
 			math::Vector3F newP = cam->GetPosition() + cam->GetForward() * delta.y + cam->GetRight() * delta.x;
 			cam->UpdatePosition(newP);
 		}
+	}
+
+	float GetSensityMove() {
+		return mSensityMove;
+	}
+
+	float GetSensityRotate() {
+		return mSensityRotate;
+	}
+
+	void SetSensityMove(float v) {
+		mSensityMove = v;
+	}
+
+	void SetSensityRotate(float v) {
+		mSensityRotate = v;
 	}
 
 private:

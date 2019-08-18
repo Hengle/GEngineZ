@@ -59,6 +59,7 @@ void Director::Update() {
 
 		if (GApp->IsEditorUIEnable()) {
 			GApp->EditorUINewFrame();
+			GApp->GetUIManager()->NewFrame();
 		}
 
 		mFrameTime = (now - last_update_ms) / 1000.0f;

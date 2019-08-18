@@ -28,7 +28,7 @@ public:
 	void Detach();
 
 protected:
-	IEntity *mOwner;
+	IEntity* mOwner{ nullptr };
 };
 
 }

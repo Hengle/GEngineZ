@@ -37,17 +37,7 @@ void Win32App::Run() {
 	while (UpdateWindow()) {
 		App::OnUpdate();
 	
-		float fps = App::GetFps();
-
-		std::string fpsStr = std::to_string(fps);
-		fpsStr = fpsStr.substr(0, 5);
-		
-		std::string windowText = "GameZ FPS: " + fpsStr;
-
-		SetWindowText(mMainWnd, windowText.c_str());
 	}
-
-
 }
 
 void Win32App::OnResize(int width, int height) {
@@ -119,8 +109,8 @@ void Win32App::EditorUINewFrame() {
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 
-	bool open = true;
-	ImGui::ShowDemoWindow(&open);
+	//static bool show_demo = true;
+	//ImGui::ShowDemoWindow(&show_demo);
 }
 
 
