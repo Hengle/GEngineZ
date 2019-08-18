@@ -103,7 +103,6 @@ public:
 
 	// RHI Begin
 	void SetBlendState(const RHIBlendState& state) override {
-		Log<LINFO>("send blend state");
 		mBlendDesc = FromRHIBlendState(state);
 	}
 	// RHI End

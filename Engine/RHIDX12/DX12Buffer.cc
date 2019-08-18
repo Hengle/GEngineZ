@@ -61,9 +61,9 @@ DX12IndexBuffer::DX12IndexBuffer(uint32_t num, uint8_t stride, const void* data,
 		mResource = new DX12Resource(D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, destDesc);
 		if (data) {
 			// upload data
-			void* addr = MapBuffer();
+			void* addr = MapResource();
 			memcpy(addr, data, totolSize);
-			UnMapBuffer();
+			UnMapResource();
 		}
 	} else {
 		CHECK(data);
@@ -92,9 +92,9 @@ DX12VertexBuffer::DX12VertexBuffer(uint32_t num, const std::vector<ERHIInputSema
 		mResource = new DX12Resource(D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, destDesc);
 		if (data) {
 			// upload data
-			void *addr = MapBuffer();
+			void *addr = MapResource();
 			memcpy(addr, data, totolSize);
-			UnMapBuffer();
+			UnMapResource();
 		}
 	} else {
 		CHECK(data);

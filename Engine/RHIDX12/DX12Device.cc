@@ -130,7 +130,7 @@ void DX12Device::SetOutputs(const std::vector<RHITexture*>& rts, RHITexture* ds)
 
 }
 
-void DX12Device::DrawIndexed(RHIShaderInstance* shaderInst, RHIVertexBuffer* vb, RHIIndexBuffer* ib, RHIRenderState state) {
+void DX12Device::DrawIndexed(RHIShaderInstance* shaderInst, RHIVertexBuffer* vb, RHIIndexBuffer* ib, RHIRenderState state, uint32_t numIndex, uint32_t baseIndex, uint32_t baseVertex) {
 	DX12ShaderInstance* inst = static_cast<DX12ShaderInstance*>(shaderInst);
 	DX12VertexBuffer* vbuffer = static_cast<DX12VertexBuffer*>(vb);
 	DX12IndexBuffer* ibuffer = static_cast<DX12IndexBuffer*>(ib);
@@ -144,55 +144,9 @@ void DX12Device::DrawIndexed(RHIShaderInstance* shaderInst, RHIVertexBuffer* vb,
 	mExecutor->SetPipelineState(ppState);
 	mExecutor->SetVertexBuffer(static_cast<DX12VertexBuffer*>(vbuffer));
 	mExecutor->SetIndexBuffer(static_cast<DX12IndexBuffer*>(ibuffer));
-	mExecutor->DrawShaderInstance(inst);
+	mExecutor->DrawShaderInstance(inst, numIndex, baseIndex, baseVertex);
 }
 
-//struct RHIDrawBatch {
-//	struct DrawCall {
-//		uint32_t Num;
-//		uint32_t BaseIndex;
-//		uint32_t BaseVertex;
-//	};
-//	struct DrawData {
-//		RHIShaderInstance* ShaderInst;
-//		RHIRenderState RenderState;
-//		std::vector<DrawCall> DPs;
-//	};
-//
-//	RHIVertexBuffer* VBuffer;
-//	RHIIndexBuffer* IBuffer;
-//	DrawData Draws;
-//};
-
-void DX12Device::DrawBatch(const RHIDrawBatch& batch) {
-	DX12VertexBuffer* vbuffer = static_cast<DX12VertexBuffer*>(batch.VBuffer);
-	DX12IndexBuffer* ibuffer = static_cast<DX12IndexBuffer*>(batch.IBuffer);
-	if (vbuffer == nullptr || ibuffer == nullptr) {
-		return;
-	}
-
-	mExecutor->SetVertexBuffer(static_cast<DX12VertexBuffer*>(vbuffer));
-	mExecutor->SetIndexBuffer(static_cast<DX12IndexBuffer*>(ibuffer));
-
-	std::vector<DX12RenderTarget*> rts = mExecutor->GetCurRenderTargets();
-	DX12DepthStencil* ds = mExecutor->GetCurDepthStencil();
-
-	for (const auto& drawData : batch.Draws) {
-		CHECK(drawData.ShaderInst);
-		DX12ShaderInstance* inst = static_cast<DX12ShaderInstance*>(drawData.ShaderInst);
-		DX12PipelineState* ppState = DX12PipelineStateCache::Get(inst->GetShader(), vbuffer->mSemanticsOffset, rts, ds, drawData.RenderState);
-
-		mExecutor->SetPipelineState(ppState);
-		mExecutor->PrepareShaderInstance(inst);
-		// prepare draw
-		for (const auto& dp : drawData.DPs) {
-			mExecutor->DrawBatchSingle(dp.Num, dp.BaseIndex, dp.BaseVertex);
-		}
-
-	}
-	
-
-}
 
 
 }

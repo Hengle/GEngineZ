@@ -30,6 +30,14 @@ public:
 		return view;
 	}
 
+	void* MapBuffer() override {
+		return MapResource();
+	}
+
+	void UnMapBuffer() override {
+		UnMapResource();
+	}
+
 	uint32_t GetSize() {
 		return mNum;
 	}
@@ -47,6 +55,14 @@ public:
 
 	virtual ~DX12VertexBuffer() {
 		mSemantics.clear();
+	}
+
+	void* MapBuffer() override {
+		return MapResource();
+	}
+
+	void UnMapBuffer() override {
+		UnMapResource();
 	}
 
 

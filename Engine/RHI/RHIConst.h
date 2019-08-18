@@ -51,6 +51,7 @@ enum ERHISamplerFlag {
 	SAMPLER_ADDRESS_BORDER		= 0x0800,
 };
 
+
 // render state
 enum ERHIRenderState {
 	// fill mode, 2 bit
@@ -78,36 +79,6 @@ enum ERHIRenderState {
 	RS_STENCIL_OP_INVERT   = 0x06,
 	RS_STENCIL_OP_INCR     = 0x07,
 	RS_STENCIL_OP_DECR     = 0x08,
-};
-
-struct RHIRenderState {
-	union {
-		struct {
-			uint8_t
-				// switch
-				EnableDepthTest      : 1,	// 1
-				EnableDepthWrite     : 1,	// 2
-				EnableStencil        : 1,	// 3
-				                     : 1,	// 4
-				// Rasterizer
-				FillMode             : 2,	// 6
-				CullMode             : 2,	// 8
-				// DepthStencil
-				DepthCompFunc        : 4,	// 12
-				StencilReadMask      : 8,	// 20
-				StencilWriteMask     : 8,	// 28
-				StencilFrontPassOp   : 4,	// 32
-				StencilForntFailOp   : 4,	// 36
-				StencilFrontZFailOp  : 4,	// 40
-				StencilFrontCompFunc : 4,	// 44
-				StencilBackPassOp    : 4,	// 48
-				StencilBackFailOp    : 4,	// 52
-				StencilBackZFailOp   : 4,	// 56
-				StencilBackCompFunc  : 4	// 60
-				;
-		};
-		uint64_t Value;
-	};
 };
 
 
@@ -151,6 +122,53 @@ enum ERHIInputSemantic {
 	SEMANTIC_POSITION2D,
 
 	SEMANTIC_MAX = SEMANTIC_POSITION2D + 1
+};
+
+struct RHIRenderState {
+	union {
+		struct {
+			uint8_t
+				// switch
+				EnableDepthTest      : 1,	// 1
+				EnableDepthWrite     : 1,	// 2
+				EnableStencil        : 1,	// 3
+								     : 1,	// 4
+				// Rasterizer
+				FillMode             : 2,	// 6
+				CullMode             : 2,	// 8
+				// DepthStencil
+				DepthCompFunc        : 4,	// 12
+				StencilReadMask      : 8,	// 20
+				StencilWriteMask     : 8,	// 28
+				StencilFrontPassOp   : 4,	// 32
+				StencilForntFailOp   : 4,	// 36
+				StencilFrontZFailOp  : 4,	// 40
+				StencilFrontCompFunc : 4,	// 44
+				StencilBackPassOp    : 4,	// 48
+				StencilBackFailOp    : 4,	// 52
+				StencilBackZFailOp   : 4,	// 56
+				StencilBackCompFunc  : 4	// 60
+				;
+		};
+		uint64_t Value;
+	};
+};
+
+
+struct RHIRenderRect {
+	float TopLeftX;
+	float TopLeftY;
+	float Width;
+	float Height;
+	float MinDepth;
+	float MaxDepth;
+};
+
+struct RHIScissorRect {
+	int Left;
+	int Top;
+	int Right;
+	int Bottom;
 };
 
 

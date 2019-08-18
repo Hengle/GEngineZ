@@ -5,7 +5,7 @@
 #include <RHI/RHIDevice.h>
 #include "RenderScene.h"
 
-#include <imgui/imgui.h>
+#include <Render/Pipeline/IMGuiStage.h>
 
 namespace z {
 
@@ -23,7 +23,8 @@ Renderer::Renderer() :
 	MaterialManager::LoadShaders(GApp->GetRootPath() / "Content/Engine/Shader/hlsl");
 	mRenderScene = new RenderScene();
 
-
+	mGuiStage = new IMGuiStage();
+	mGuiStage->Init();
 }
 
 Renderer::~Renderer() {
@@ -82,29 +83,14 @@ void Renderer::Render() {
 	// just simple render everything now	
 	for (auto item : mRenderScene->RenderItems) {
 		CollectMaterialParametes(item);
-		RHIDrawBatch batch = {
-			item->mesh->mVBuffer,
-			item->mesh->mIBuffer,
-			{
-				{
-					item->material->mRHIShaderInstance,
-					item->material->mRState,
-					{
-						{item->mesh->NumIndices[item->meshIdx], item->mesh->BaseIndices[item->meshIdx], 0},
-						
-					}
-				},
-			}
-		};
-
-		GDevice->DrawBatch(batch);
+		GDevice->DrawIndexed(item->material->mRHIShaderInstance, item->mesh->mVBuffer, item->mesh->mIBuffer, item->material->mRState, item->mesh->NumIndices[item->meshIdx], item->mesh->BaseIndices[item->meshIdx], 0);
 	}
 
 	// === Post Process ===
 
 
 	// === UI ===
-
+	mGuiStage->Draw(this);
 	
 
 	mRHIViewport->EndDraw();

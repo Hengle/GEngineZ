@@ -49,8 +49,8 @@ public:
 	}
 
 	// for buffer mapping
-	void* MapBuffer();
-	void UnMapBuffer();
+	void* MapResource();
+	void UnMapResource();
 
 protected:
 	RefCountPtr<DX12Resource> mResource;

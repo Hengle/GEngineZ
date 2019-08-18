@@ -63,7 +63,8 @@ public:
 	virtual void Resize(uint32_t width, uint32_t height) = 0;
 	virtual void BeginDraw(const RHIClearValue& clearValue) = 0;
 	virtual void EndDraw() = 0;
-	virtual void SetRenderRect(const ScreenRenderRect& rect) = 0;
+	virtual void SetRenderRect(const RHIRenderRect& rect) = 0;
+	virtual void SetScissorRect(const RHIScissorRect& rect) = 0;
 	virtual RHITexture* GetBackBuffer() = 0;
 };
 
@@ -87,10 +88,15 @@ public:
 
 // buffer
 class RHIVertexBuffer : public RHIResource {
+public:
+	virtual void* MapBuffer() = 0;
+	virtual void UnMapBuffer() = 0;
 };
 
 class RHIIndexBuffer : public RHIResource {
-
+public:
+	virtual void* MapBuffer() = 0;
+	virtual void UnMapBuffer() = 0;
 };
 
 

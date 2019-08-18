@@ -18,30 +18,25 @@ public:
 	void Resize(uint32_t width, uint32_t height) override;
 	void BeginDraw(const RHIClearValue& clearValue) override;
 	void EndDraw() override;
-	void SetRenderRect(const ScreenRenderRect& rect) override;
+	void SetRenderRect(const RHIRenderRect& rect) override;
+	void SetScissorRect(const RHIScissorRect& rect) override;
 	RHITexture* GetBackBuffer() override {
 		return GetCurBackBuffer();
 	}
 	
-	/*RHIRenderTarget* GetCurRenderTarget() override {
-		return 
-	}*/
+
 	// End RHI Viewport
 
 	DX12RenderTarget* GetCurBackBuffer() {
 		return mBackBuffers[mCurBackBufferIndex];
 	}
 
-	const D3D12_VIEWPORT& GetRenderRect() {
-		return mRenderRect;
-	}
 private:
 	void Present();
 
 	uint32_t mWidth;
 	uint32_t mHeight;
 	DXGI_FORMAT mFormat;
-	D3D12_VIEWPORT mRenderRect;
 
 	// swapchain
 	RefCountPtr<IDXGISwapChain1> mSwapChain;

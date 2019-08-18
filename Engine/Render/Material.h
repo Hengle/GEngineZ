@@ -35,7 +35,6 @@ public:
 		return mParent;
 	}
 
-	void DrawIndexed(RHIVertexBuffer* vb, RHIIndexBuffer* ib);
 
 	void SetFillMode(ERHIRenderState rs) {
 		mRState.FillMode = rs;

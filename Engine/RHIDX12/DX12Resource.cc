@@ -54,7 +54,7 @@ void DX12Resource::Transition(D3D12_RESOURCE_STATES toState) {
 	SetState(toState);
 }
 
-void* DX12ShaderResource::MapBuffer() {
+void* DX12ShaderResource::MapResource() {
 	CHECK(!mLocked);
 	mLocked = true;
 	HRESULT rt = GetResource()->GetIResource()->Map(0, nullptr, (void**)& mMappedBuffer);
@@ -63,7 +63,7 @@ void* DX12ShaderResource::MapBuffer() {
 	return mMappedBuffer;
 }
 
-void DX12ShaderResource::UnMapBuffer() {
+void DX12ShaderResource::UnMapResource() {
 	CHECK(mLocked);
 	GetResource()->GetIResource()->Unmap(0, nullptr);
 	mLocked = false;

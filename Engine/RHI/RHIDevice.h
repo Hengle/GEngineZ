@@ -5,25 +5,6 @@
 
 namespace z {
 
-
-
-struct RHIDrawBatch {
-	struct DrawCall {
-		uint32_t Num;
-		uint32_t BaseIndex;
-		uint32_t BaseVertex;
-	};
-	struct DrawData {
-		RHIShaderInstance* ShaderInst;
-		RHIRenderState RenderState;
-		std::vector<DrawCall> DPs;
-	};
-	RHIVertexBuffer* VBuffer;
-	RHIIndexBuffer* IBuffer;
-	std::vector<DrawData> Draws;
-};
-
-
 class RHIDevice {
 public:
 	RHIDevice();
@@ -45,8 +26,7 @@ public:
 	virtual void SetVertexBuffer(RHIVertexBuffer*) = 0;
 	virtual void SetIndexBuffer(RHIIndexBuffer*) = 0;
 	virtual void SetOutputs(const std::vector<RHITexture*>& rts, RHITexture* ds = nullptr) = 0;
-	virtual void DrawIndexed(RHIShaderInstance* si, RHIVertexBuffer* vb, RHIIndexBuffer* ib, RHIRenderState state) = 0;
-	virtual void DrawBatch(const RHIDrawBatch& batch) = 0;
+	virtual void DrawIndexed(RHIShaderInstance* si, RHIVertexBuffer* vb, RHIIndexBuffer* ib, RHIRenderState state, uint32_t numIndex, uint32_t baseIndex, uint32_t baseVertex) = 0;
 	//
 	void EndDraw() {
 		RHIResource::FreeWaitDelResource();

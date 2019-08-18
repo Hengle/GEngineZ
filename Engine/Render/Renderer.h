@@ -4,6 +4,7 @@
 #include <RHI/RHIDevice.h>
 
 namespace z {
+class IMGuiStage;
 class RenderScene;
 class RenderItem;
 
@@ -16,6 +17,9 @@ public:
 	void Tick();
 	void Render();
 
+	RHIViewport* GetViewport() {
+		return mRHIViewport;
+	}
 
 private:
 	void CollectMaterialParametes(RenderItem*);
@@ -26,6 +30,8 @@ private:
 	uint32_t mViewportHeight;
 
 	RefCountPtr<RenderScene> mRenderScene;
+
+	RefCountPtr<IMGuiStage> mGuiStage;
 
 };
 

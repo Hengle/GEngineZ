@@ -3,10 +3,14 @@
 #include <RHI/RHIDevice.h>
 #include <RHI/RHIResource.h>
 #include <Render/RenderItem.h>
+#include <Render/Mesh.h>
+#include <Render/Renderer.h>
+
+#include <imgui/imgui.h>
 
 namespace z {
 
-class IMGuiStage {
+class IMGuiStage : public RefCounter{
 public:
 	void Init() {
 		ImGuiIO& io = ImGui::GetIO();
@@ -43,7 +47,7 @@ public:
 
 	}
 
-	void Draw(RHITexture* rt) {
+	void Draw(Renderer *ren) {
 		ImGui::Render();
 		ImDrawData* drawData = ImGui::GetDrawData();
 
@@ -56,7 +60,7 @@ public:
 		state.DestBlendAlpha = BLEND_FACTOR_ZERO;
 		state.BlendOpAlpha = BLEND_OP_ADD;
 
-		rt->SetBlendState(state);
+		ren->GetViewport()->GetBackBuffer()->SetBlendState(state);
 
 		struct VERTEX_CONSTANT_BUFFER
 		{
@@ -77,40 +81,73 @@ public:
 			};
 			memcpy(&vertex_constant_buffer.mvp, mvp, sizeof(mvp));
 		}
-		ScreenRenderRect rect;
-		rect.width = drawData->DisplaySize.x;
-		rect.height = drawData->DisplaySize.y;
-		rect.topLeftX = rect.topLeftY = 0.0f;
-		mRHIViewport->SetRenderRect(rect);
+
+		ren->GetViewport()->SetRenderRect({0.f, 0.f, drawData->DisplaySize.x, drawData->DisplaySize.y, 0.0f, 1.0f});
 
 		mUIItem->material->SetParameter("ProjectionMatrix", (const float*)& vertex_constant_buffer, 16);
 
-
-		for (int n = 0; n < drawData->CmdListsCount; n++) {
-			const ImDrawList* cmd_list = drawData->CmdLists[n];
-
-
-			std::vector<float> vdata;
-			std::vector<uint32_t> idata;
-
-			vdata.resize(sizeof(ImDrawVert) / 4 * cmd_list->VtxBuffer.Size);
-			idata.resize(cmd_list->IdxBuffer.Size);
-			memcpy(vdata.data(), cmd_list->VtxBuffer.Data, cmd_list->VtxBuffer.Size * sizeof(ImDrawVert));
-			memcpy(idata.data(), cmd_list->IdxBuffer.Data, cmd_list->IdxBuffer.Size * sizeof(ImDrawIdx));
-
-			mesh->Indices.push_back(idata);
-			mesh->Vertexes = vdata;
-
-			mesh->CreateBuffer();
-
-
-
-			for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++)
-			{
-				const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
-				mUIItem->material->SetParameter("texture0", (RHITexture*)pcmd->TextureId);
-				mUIItem->material->DrawIndexed(uiItem->mesh->mVBuffer, uiItem->mesh->mIBuffer[0]);
+		Mesh* mesh = mUIItem->mesh;
+		// merge vertex and index
+		uint32_t totalV = 0, totalI = 0;
+		bool needExpandV = false, needExpandI = false;
+		for (size_t i = 0; i < drawData->CmdListsCount; i++) {
+			const ImDrawList* cmdList = drawData->CmdLists[i];
+			totalV += cmdList->VtxBuffer.Size;
+			totalI += cmdList->IdxBuffer.Size;
+			if (totalV * (sizeof(ImDrawVert) / 4) > mesh->Vertexes.size()) {
+				mesh->Vertexes.resize(totalV * sizeof(ImDrawVert) / 4 + 1000);
+				needExpandV = true;
 			}
+			if (totalI > mesh->Indices.size()) {
+				mesh->Indices.resize(totalI + 3000);
+				needExpandI = true;
+			}
+			memcpy((char*)mesh->Vertexes.data() + (totalV - cmdList->VtxBuffer.Size) * sizeof(ImDrawVert), cmdList->VtxBuffer.Data, cmdList->VtxBuffer.Size * sizeof(ImDrawVert));
+			memcpy((char*)mesh->Indices.data() + (totalI - cmdList->IdxBuffer.Size) * sizeof(ImDrawIdx), cmdList->IdxBuffer.Data, cmdList->IdxBuffer.Size * sizeof(ImDrawIdx));
+		}
+
+		if (totalV <= 0 || totalI <= 0) {
+			return;
+		}
+
+		if (needExpandV) {
+			mesh->mVBuffer = GDevice->CreateVertexBuffer(mesh->Vertexes.size() / (mesh->Stride / 4), mesh->Semantics, mesh->Vertexes.data(), true);
+		} else {
+			void *p = mesh->mVBuffer->MapBuffer();
+			memcpy(p, mesh->Vertexes.data(), mesh->Vertexes.size() * 4);
+			mesh->mVBuffer->UnMapBuffer();
+		}
+
+		if (needExpandI) {
+			mesh->mIBuffer = GDevice->CreateIndexBuffer(mesh->Indices.size(), 4, mesh->Indices.data(), true);
+		} else {
+			void* p = mesh->mIBuffer->MapBuffer();
+			memcpy(p, mesh->Indices.data(), mesh->Indices.size() * 4);
+			mesh->mIBuffer->UnMapBuffer();
+		}
+
+		int Voff = 0, Ioff = 0;
+
+		ImVec2 clip_off = drawData->DisplayPos;
+		for (int n = 0; n < drawData->CmdListsCount; n++) {
+			const ImDrawList* cmdList = drawData->CmdLists[n];
+
+			for (int cmd_i = 0; cmd_i < cmdList->CmdBuffer.Size; cmd_i++)
+			{
+				const ImDrawCmd* pcmd = &cmdList->CmdBuffer[cmd_i];
+				mUIItem->material->SetParameter("texture0", (RHITexture*)pcmd->TextureId);
+				ren->GetViewport()->SetScissorRect({ 
+					(int)(pcmd->ClipRect.x - clip_off.x), 
+					(int)(pcmd->ClipRect.y - clip_off.y), 
+					(int)(pcmd->ClipRect.z - clip_off.x), 
+					(int)(pcmd->ClipRect.w - clip_off.y) });
+				GDevice->DrawIndexed(mUIItem->material->mRHIShaderInstance, mUIItem->mesh->mVBuffer, mUIItem->mesh->mIBuffer,
+					mUIItem->material->mRState, pcmd->ElemCount, pcmd->IdxOffset + Ioff, pcmd->VtxOffset + Voff);
+
+
+			}
+			Voff += cmdList->VtxBuffer.Size;
+			Ioff += cmdList->IdxBuffer.Size;
 		}
 
 

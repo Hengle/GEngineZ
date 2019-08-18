@@ -40,11 +40,6 @@ void MaterialInstance::SetParameter(const std::string& key, RHITexture* tex, uin
 	mRHIShaderInstance->SetParameter(key, tex, sampler);
 }
 
-
-void MaterialInstance::DrawIndexed(RHIVertexBuffer* vb, RHIIndexBuffer *ib) {
-	GDevice->DrawIndexed(mRHIShaderInstance, vb, ib, mRState);
-}
-
 // MaterialManager
 MaterialInstance* MaterialManager::GetMaterialInstance(std::string name) {
 	Material* m = GetMaterial(name);

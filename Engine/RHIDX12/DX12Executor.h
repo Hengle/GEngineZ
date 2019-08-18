@@ -83,9 +83,6 @@ public:
 
 	void DrawShaderInstance(DX12ShaderInstance*, uint32_t indexNum = 0, uint32_t baseIndex = 0, uint32_t baseVertex = 0);
 
-	void PrepareShaderInstance(DX12ShaderInstance*);
-	void DrawBatchSingle(uint32_t indexNum, uint32_t baseIndex, uint32_t baseVertex);
-
 	std::vector<DXGI_FORMAT> GetCurRenderTargetsFormat() const;
 	DXGI_FORMAT GetCurDepthStencilFormat() const;
 

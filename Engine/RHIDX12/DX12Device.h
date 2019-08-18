@@ -48,10 +48,7 @@ public:
 	void SetIndexBuffer(RHIIndexBuffer*) override;
 
 	void SetOutputs(const std::vector<RHITexture*>& rts, RHITexture *ds=nullptr) override;
-	void DrawIndexed(RHIShaderInstance* si, RHIVertexBuffer* vb, RHIIndexBuffer* ib, RHIRenderState state) override;
-	
-	
-	void DrawBatch(const RHIDrawBatch& batch) override;
+	void DrawIndexed(RHIShaderInstance* si, RHIVertexBuffer* vb, RHIIndexBuffer* ib, RHIRenderState state, uint32_t numIndex, uint32_t baseIndex, uint32_t baseVertex) override;
 
 	// ==== end device method ====
 
