@@ -83,7 +83,7 @@ void Renderer::Render() {
 	// just simple render everything now	
 	for (auto item : mRenderScene->RenderItems) {
 		CollectMaterialParametes(item);
-		GDevice->DrawIndexed(item->material->mRHIShaderInstance, item->mesh->mVBuffer, item->mesh->mIBuffer, item->material->mRState, item->mesh->NumIndices[item->meshIdx], item->mesh->BaseIndices[item->meshIdx], 0);
+		item->Draw();
 	}
 
 	// === Post Process ===
@@ -103,16 +103,16 @@ void Renderer::Render() {
 void Renderer::CollectMaterialParametes(RenderItem* item) {
 	math::Matrix4 world = math::Matrix4::Identity;
 	// per frame
-	item->material->SetParameter("ViewProj", (const float*)& mRenderScene->ViewProjMatrix, 16);
+	item->Material->SetParameter("ViewProj", (const float*)& mRenderScene->ViewProjMatrix, 16);
 	math::Vector4F cameraPos = { mRenderScene->CameraPos, 0.0f };
-	item->material->SetParameter("CameraPos", (const float*)cameraPos.value, 4);
+	item->Material->SetParameter("CameraPos", (const float*)cameraPos.value, 4);
 
 	// per object
-	item->material->SetParameter("World", (const float*)& item->WorldMatrix, 16);
+	item->Material->SetParameter("World", (const float*)& item->WorldMatrix, 16);
 
 
 	for (size_t i = 0; i < SP_MAX ; i++) {
-		item->material->SetParameter(ShaderParamKey[i], gShaderParams[i].value, 4);
+		item->Material->SetParameter(ShaderParamKey[i], gShaderParams[i].value, 4);
 	}
 }
 

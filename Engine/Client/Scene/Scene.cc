@@ -27,24 +27,24 @@ bool Scene::Load(const std::string file) {
 
 	if (mIsEditor) {
 		// grid, 10m*10m
-		Mesh *mesh = MeshGenerator::CreateGrid(1580, 1580, 79, 79);
+		RenderMesh *mesh = MeshGenerator::CreateGrid(1580, 1580, 79, 79);
 		RenderItem* item = new RenderItem();
-		item->material = MaterialManager::GetMaterialInstance(EMPTY_MATERIAL);
-		item->material->SetFillMode(RS_FILL_WIREFRAME);
-		item->mesh = mesh;
-		item->meshIdx = 0;
+		item->Material = MaterialManager::GetMaterialInstance(EMPTY_MATERIAL);
+		item->Material->SetFillMode(RS_FILL_WIREFRAME);
+		item->Mesh = mesh;
+		item->SetMeshIndexGroup(0);
 		item->WorldMatrix = math::Matrix4F::Identity;
 		mEditorItems.push_back(item);
 
 		// xyz axis
 		for (int i = 0; i < 3; i++) {
-			Mesh *mesh = MeshGenerator::CreateCylinder(0.1, 0, 20, 10, 10);
+			RenderMesh*mesh = MeshGenerator::CreateCylinder(0.1, 0, 20, 10, 10);
 			RenderItem *item = new RenderItem();
-			item->material = MaterialManager::GetMaterialInstance("EditorAxis");
-			item->material->SetParameter("Color", math::Vector3F(i==0, i==1, i==2).value, 3);
+			item->Material = MaterialManager::GetMaterialInstance("EditorAxis");
+			item->Material->SetParameter("Color", math::Vector3F(i==0, i==1, i==2).value, 3);
 			//item->material->SetFillMode(RS_FILL_WIREFRAME);
-			item->mesh = mesh;
-			item->meshIdx = 0;
+			item->Mesh = mesh;
+			item->SetMeshIndexGroup(0);
 			item->WorldMatrix = math::Matrix4F::Identity;
 
 			math::Matrix4F rotation = math::MatrixRotationAxis(math::Vector3F(i==2, i==1, i==0), math::ToRadian(90 * (3 - i)));

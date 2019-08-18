@@ -91,12 +91,14 @@ class RHIVertexBuffer : public RHIResource {
 public:
 	virtual void* MapBuffer() = 0;
 	virtual void UnMapBuffer() = 0;
+	virtual uint32_t GetBufferSize() = 0;
 };
 
 class RHIIndexBuffer : public RHIResource {
 public:
 	virtual void* MapBuffer() = 0;
 	virtual void UnMapBuffer() = 0;
+	virtual uint32_t GetBufferSize() = 0;
 };
 
 

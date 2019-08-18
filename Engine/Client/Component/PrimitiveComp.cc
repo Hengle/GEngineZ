@@ -33,25 +33,25 @@ bool PrimitiveComp::LoadFromFile(std::string file) {
 
 		// load mesh
 		std::string meshname = model["mesh"].Get<lc::string_t>();
-		RefCountPtr<Mesh> mesh = ZMeshLoader::Load(GApp->GetContentPath() / meshname);
+		RefCountPtr<RenderMesh> mesh = ZMeshLoader::Load(GApp->GetContentPath() / meshname);
 		if (mesh == nullptr) {
 			return false;
 		}
 
 		// create render items
-		for (size_t meshIdx = 0; meshIdx < mesh->BaseIndices.size(); meshIdx++) {
+		for (size_t meshIdx = 0; meshIdx < mesh->GetIndexGroupNum(); meshIdx++) {
 			RefCountPtr<RenderItem> item = new RenderItem();
-			item->mesh = mesh;
-			item->meshIdx = meshIdx;
+			item->Mesh = mesh;
+			item->SetMeshIndexGroup(meshIdx);
 
 			// Get Material
 			if (materials.count(meshIdx) == 0) {
-				item->material = MaterialManager::GetMaterialInstance(EMPTY_MATERIAL);
+				item->Material = MaterialManager::GetMaterialInstance(EMPTY_MATERIAL);
 			} else {
 				std::string materialPath = GApp->GetContentPath() / materials[meshIdx];
-				item->material = LoadMaterialFile(materialPath);
-				if (item->material == nullptr) {
-					item->material = MaterialManager::GetMaterialInstance(EMPTY_MATERIAL);
+				item->Material = LoadMaterialFile(materialPath);
+				if (item->Material == nullptr) {
+					item->Material = MaterialManager::GetMaterialInstance(EMPTY_MATERIAL);
 				}
 			}
 			// save render item

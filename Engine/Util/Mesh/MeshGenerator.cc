@@ -7,7 +7,7 @@
 
 namespace z{
 
-Mesh* MeshGenerator::CreateBox(float width, float height, float depth, uint32_t numSubdivisions) {
+RenderMesh* MeshGenerator::CreateBox(float width, float height, float depth, uint32_t numSubdivisions) {
 	MeshData meshData;
 
 	Vertex v[24];
@@ -91,7 +91,7 @@ Mesh* MeshGenerator::CreateBox(float width, float height, float depth, uint32_t 
 	return ConvertToMesh(meshData);
 }
 
-Mesh* MeshGenerator::CreateSphere(float radius, uint32_t sliceCount, uint32_t stackCount) {
+RenderMesh* MeshGenerator::CreateSphere(float radius, uint32_t sliceCount, uint32_t stackCount) {
 	MeshData meshData;
 
 	Vertex topVertex(0.0f, +radius, 0.0f, 0.0f, +1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
@@ -313,7 +313,7 @@ MeshGenerator::Vertex MeshGenerator::MidPoint(const Vertex& v0, const Vertex& v1
 //	return meshData;
 //}
 //
-Mesh* MeshGenerator::CreateCylinder(float bottomRadius, float topRadius, float height, uint32_t sliceCount, uint32_t stackCount){
+RenderMesh* MeshGenerator::CreateCylinder(float bottomRadius, float topRadius, float height, uint32_t sliceCount, uint32_t stackCount){
 	MeshData meshData;
 
 	float stackHeight = height / stackCount;
@@ -464,7 +464,7 @@ void MeshGenerator::BuildCylinderBottomCap(float bottomRadius, float topRadius, 
 	}
 }
 //
-Mesh* MeshGenerator::CreateGrid(float width, float depth, uint32_t m, uint32_t n) {
+RenderMesh* MeshGenerator::CreateGrid(float width, float depth, uint32_t m, uint32_t n) {
 	MeshData meshData;
 
 	uint32_t vertexCount = m * n;

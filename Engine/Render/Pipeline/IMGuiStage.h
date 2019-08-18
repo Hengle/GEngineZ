@@ -34,15 +34,18 @@ public:
 
 		}
 
-		mUIItem = new RenderItem();
-		mUIItem->mesh = new Mesh();
-		mUIItem->mesh->Stride = sizeof(ImDrawVert);
-		mUIItem->mesh->Semantics = { SEMANTIC_POSITION2D, SEMANTIC_UV0, SEMANTIC_COLOR };
+		mItem = new RenderItem();
 
-		mUIItem->material = MaterialManager::GetMaterialInstance("IMGui");
-		mUIItem->material->SetCullMode(RS_CULL_NONE);
-		mUIItem->material->SetEnableDepthTest(false);
-		mUIItem->material->SetEnableDepthWrite(true);
+		// create dynamic mesh
+		mItem->Mesh = new RenderMesh(true);
+		mItem->Mesh->SetVertexSemantics({ SEMANTIC_POSITION2D, SEMANTIC_UV0, SEMANTIC_COLOR });
+		mItem->Mesh->SetIndexStride(4);
+
+		// create material
+		mItem->Material = MaterialManager::GetMaterialInstance("IMGui");
+		mItem->Material->SetCullMode(RS_CULL_NONE);
+		mItem->Material->SetEnableDepthTest(false);
+		mItem->Material->SetEnableDepthWrite(true);
 
 
 	}
@@ -84,78 +87,52 @@ public:
 
 		ren->GetViewport()->SetRenderRect({0.f, 0.f, drawData->DisplaySize.x, drawData->DisplaySize.y, 0.0f, 1.0f});
 
-		mUIItem->material->SetParameter("ProjectionMatrix", (const float*)& vertex_constant_buffer, 16);
+		mItem->Material->SetParameter("ProjectionMatrix", (const float*)& vertex_constant_buffer, 16);
 
-		Mesh* mesh = mUIItem->mesh;
 		// merge vertex and index
 		uint32_t totalV = 0, totalI = 0;
-		bool needExpandV = false, needExpandI = false;
 		for (size_t i = 0; i < drawData->CmdListsCount; i++) {
 			const ImDrawList* cmdList = drawData->CmdLists[i];
+			mItem->Mesh->CopyVertex(totalV * sizeof(ImDrawVert), cmdList->VtxBuffer.Size * sizeof(ImDrawVert), (const char*)cmdList->VtxBuffer.Data, i);
+			mItem->Mesh->CopyIndex(totalI * sizeof(ImDrawIdx), cmdList->IdxBuffer.Size * sizeof(ImDrawIdx), (const char*)cmdList->IdxBuffer.Data, i);
+
 			totalV += cmdList->VtxBuffer.Size;
 			totalI += cmdList->IdxBuffer.Size;
-			if (totalV * (sizeof(ImDrawVert) / 4) > mesh->Vertexes.size()) {
-				mesh->Vertexes.resize(totalV * sizeof(ImDrawVert) / 4 + 1000);
-				needExpandV = true;
-			}
-			if (totalI > mesh->Indices.size()) {
-				mesh->Indices.resize(totalI + 3000);
-				needExpandI = true;
-			}
-			memcpy((char*)mesh->Vertexes.data() + (totalV - cmdList->VtxBuffer.Size) * sizeof(ImDrawVert), cmdList->VtxBuffer.Data, cmdList->VtxBuffer.Size * sizeof(ImDrawVert));
-			memcpy((char*)mesh->Indices.data() + (totalI - cmdList->IdxBuffer.Size) * sizeof(ImDrawIdx), cmdList->IdxBuffer.Data, cmdList->IdxBuffer.Size * sizeof(ImDrawIdx));
 		}
 
 		if (totalV <= 0 || totalI <= 0) {
 			return;
 		}
 
-		if (needExpandV) {
-			mesh->mVBuffer = GDevice->CreateVertexBuffer(mesh->Vertexes.size() / (mesh->Stride / 4), mesh->Semantics, mesh->Vertexes.data(), true);
-		} else {
-			void *p = mesh->mVBuffer->MapBuffer();
-			memcpy(p, mesh->Vertexes.data(), mesh->Vertexes.size() * 4);
-			mesh->mVBuffer->UnMapBuffer();
-		}
-
-		if (needExpandI) {
-			mesh->mIBuffer = GDevice->CreateIndexBuffer(mesh->Indices.size(), 4, mesh->Indices.data(), true);
-		} else {
-			void* p = mesh->mIBuffer->MapBuffer();
-			memcpy(p, mesh->Indices.data(), mesh->Indices.size() * 4);
-			mesh->mIBuffer->UnMapBuffer();
-		}
+		mItem->Mesh->Complete(drawData->CmdListsCount, drawData->CmdListsCount);
 
 		int Voff = 0, Ioff = 0;
 
 		ImVec2 clip_off = drawData->DisplayPos;
-		for (int n = 0; n < drawData->CmdListsCount; n++) {
-			const ImDrawList* cmdList = drawData->CmdLists[n];
+		for (int i = 0; i < drawData->CmdListsCount; i++) {
+			const ImDrawList* cmdList = drawData->CmdLists[i];
 
-			for (int cmd_i = 0; cmd_i < cmdList->CmdBuffer.Size; cmd_i++)
-			{
-				const ImDrawCmd* pcmd = &cmdList->CmdBuffer[cmd_i];
-				mUIItem->material->SetParameter("texture0", (RHITexture*)pcmd->TextureId);
+			// set mesh group to draw
+			mItem->SetMeshIndexGroup(i);
+			mItem->SetMeshVertexGroup(i);
+
+			for (int cmd = 0; cmd < cmdList->CmdBuffer.Size; cmd++) {
+				const ImDrawCmd* pcmd = &cmdList->CmdBuffer[cmd];
+				mItem->Material->SetParameter("texture0", (RHITexture*)pcmd->TextureId);
 				ren->GetViewport()->SetScissorRect({ 
 					(int)(pcmd->ClipRect.x - clip_off.x), 
 					(int)(pcmd->ClipRect.y - clip_off.y), 
 					(int)(pcmd->ClipRect.z - clip_off.x), 
 					(int)(pcmd->ClipRect.w - clip_off.y) });
-				GDevice->DrawIndexed(mUIItem->material->mRHIShaderInstance, mUIItem->mesh->mVBuffer, mUIItem->mesh->mIBuffer,
-					mUIItem->material->mRState, pcmd->ElemCount, pcmd->IdxOffset + Ioff, pcmd->VtxOffset + Voff);
 
-
+				// draw with specific index count and offset
+				mItem->CustomDraw(pcmd->ElemCount, pcmd->IdxOffset, pcmd->VtxOffset);
 			}
-			Voff += cmdList->VtxBuffer.Size;
-			Ioff += cmdList->IdxBuffer.Size;
 		}
-
-
-
 	}
 
 private:
-	RefCountPtr<RenderItem> mUIItem;
+	RefCountPtr<RenderItem> mItem;
 
 
 };

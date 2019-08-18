@@ -38,6 +38,10 @@ public:
 		UnMapResource();
 	}
 
+	uint32_t GetBufferSize() override {
+		return mNum * mStride;
+	}
+
 	uint32_t GetSize() {
 		return mNum;
 	}
@@ -63,6 +67,10 @@ public:
 
 	void UnMapBuffer() override {
 		UnMapResource();
+	}
+
+	uint32_t GetBufferSize() override {
+		return mNum * mStride;
 	}
 
 

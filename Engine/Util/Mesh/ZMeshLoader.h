@@ -18,7 +18,7 @@ struct SubMeshFileHeader {
 
 class ZMeshLoader {
 public:
-	static Mesh* Load(std::string const& meshFile) {
+	static RenderMesh* Load(std::string const& meshFile) {
 		FilePath f(meshFile);
 		f.ToAbsolute();
 		if (!f.IsExist()) {
@@ -32,35 +32,40 @@ public:
 #else
 		std::ifstream os(meshFile, std::ios_base::binary);
 #endif
-		Mesh* mesh = new Mesh();
+		RenderMesh* mesh = new RenderMesh(false);
 
 		SubMeshFileHeader meshHeader;
 		os.read((char*)& meshHeader, sizeof(SubMeshFileHeader));
 		// semantic
-		mesh->Stride = 0;
-		mesh->Semantics.clear();
+		std::vector<ERHIInputSemantic> sems;
 		for (int i = 0; i < meshHeader.SemnaticNum; i++) {
 			ERHIInputSemantic f = (ERHIInputSemantic)meshHeader.Semanatics[i];
-			mesh->Semantics.push_back(f);
-			mesh->Stride += GetSemanticSize(f);
+			sems.push_back(f);
 		}
+		mesh->SetVertexSemantics(sems);
+		mesh->SetIndexStride(4);
+
 		// index
 		uint32_t totalIndexNum = 0;
+
+		std::vector<uint8_t> indices;
 		for (int i = 0; i < meshHeader.IndexNum; i++) {
-			mesh->NumIndices.push_back(meshHeader.IndexCount[i]);
-			mesh->BaseIndices.push_back(totalIndexNum);
+			indices.resize(meshHeader.IndexCount[i] * mesh->GetIndexStride());
+
+			os.read((char*)indices.data(), indices.size());
+			mesh->CopyIndex(totalIndexNum * mesh->GetIndexStride(), indices.size(), indices.data(), i);
+
 			totalIndexNum += meshHeader.IndexCount[i];
 		}
-		mesh->Indices.resize(totalIndexNum);
-		os.read((char*)mesh->Indices.data(), mesh->Indices.size() * sizeof(uint32_t));
 
 		// vertex
-		mesh->VertCount = meshHeader.VertCount;
-		std::vector<float>& vertexes = mesh->Vertexes;
-		vertexes.resize(mesh->Stride * mesh->VertCount / 4);
-		os.read((char*)vertexes.data(), vertexes.size() * sizeof(float));
+		std::vector<uint8_t> vertexes;
+		vertexes.resize(meshHeader.VertCount * mesh->GetVertexStride());
+		os.read((char*)vertexes.data(), vertexes.size());
 
-		mesh->CreateBuffer();
+		mesh->CopyVertex(0, vertexes.size(), vertexes.data(), 0);
+
+		mesh->Complete(1, meshHeader.IndexNum);
 		return mesh;
 	}
 

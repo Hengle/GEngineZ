@@ -13,12 +13,12 @@ EnvComp::EnvComp() {
 }
 
 void EnvComp::SetSky(std::string shader, std::string texPath) {
-	Mesh* mesh = MeshGenerator::CreateSphere(800, 100, 100);
+	RenderMesh* mesh = MeshGenerator::CreateSphere(800, 100, 100);
 	mSkyItem = new RenderItem();
-	mSkyItem->material = MaterialManager::GetMaterialInstance(shader);
-	mSkyItem->material->SetCullMode(RS_CULL_FRONT);
-	mSkyItem->mesh = mesh;
-	mSkyItem->meshIdx = 0;
+	mSkyItem->Material = MaterialManager::GetMaterialInstance(shader);
+	mSkyItem->Material->SetCullMode(RS_CULL_FRONT);
+	mSkyItem->Mesh = mesh;
+	mSkyItem->SetMeshIndexGroup(0);
 
 	Image* img = Image::Load(texPath);
 	RHITextureDesc desc;
@@ -30,7 +30,7 @@ void EnvComp::SetSky(std::string shader, std::string texPath) {
 	desc.dimension = TEX_DIMENSION_2D;
 	desc.numMips = 1;
 	RHITexture* tex = GDevice->CreateTexture(desc, img->GetData());
-	mSkyItem->material->SetParameter("tSkyTexture", tex);
+	mSkyItem->Material->SetParameter("tSkyTexture", tex);
 	mSkyItem->WorldMatrix = math::Matrix4F::Identity;
 }
 

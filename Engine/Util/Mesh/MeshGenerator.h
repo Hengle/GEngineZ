@@ -19,29 +19,24 @@ public:
 		std::vector<uint32_t> Indices32;
 	};
 
-	static Mesh* ConvertToMesh(const MeshData& data) {
-		Mesh* mesh = new Mesh;
-		mesh->VertCount = data.Vertices.size();
-		mesh->Stride = 44;
-		mesh->Semantics = { SEMANTIC_POSITION, SEMANTIC_NORMAL, SEMANTIC_TANGENT, SEMANTIC_UV0 };
-		mesh->Indices = data.Indices32;
-		mesh->NumIndices.push_back(data.Indices32.size());
-		mesh->BaseIndices.push_back(0);
-		mesh->Vertexes.resize(data.Vertices.size() * 11);
-		memcpy(mesh->Vertexes.data(), data.Vertices.data(), data.Vertices.size() * 44);
-
-		mesh->CreateBuffer();
+	static RenderMesh* ConvertToMesh(const MeshData& data) {
+		RenderMesh* mesh = new RenderMesh;
+		mesh->SetVertexSemantics({ SEMANTIC_POSITION, SEMANTIC_NORMAL, SEMANTIC_TANGENT, SEMANTIC_UV0 });
+		mesh->SetIndexStride(4);
+		mesh->CopyVertex(0, data.Vertices.size() * sizeof(Vertex), data.Vertices.data(), 0);
+		mesh->CopyIndex(0, data.Indices32.size() * sizeof(uint32_t), data.Indices32.data(), 0);
+		mesh->Complete(1, 1);
 		return mesh;
 	}
 
-	static Mesh* CreateBox(float width, float height, float depth, uint32_t numSubdivisions);
+	static RenderMesh* CreateBox(float width, float height, float depth, uint32_t numSubdivisions);
 
-	static Mesh* CreateSphere(float radius, uint32_t sliceCount, uint32_t stackCount);
+	static RenderMesh* CreateSphere(float radius, uint32_t sliceCount, uint32_t stackCount);
 
 	//MeshData CreateGeosphere(float radius, uint32 numSubdivisions);
-	static Mesh* CreateCylinder(float bottomRadius, float topRadius, float height, uint32_t sliceCount, uint32_t stackCount);
+	static RenderMesh* CreateCylinder(float bottomRadius, float topRadius, float height, uint32_t sliceCount, uint32_t stackCount);
 
-	static Mesh* CreateGrid(float width, float depth, uint32_t m, uint32_t n);
+	static RenderMesh* CreateGrid(float width, float depth, uint32_t m, uint32_t n);
 
 	///<summary>
 	/// Creates a quad aligned with the screen.  This is useful for postprocessing and screen effects.
