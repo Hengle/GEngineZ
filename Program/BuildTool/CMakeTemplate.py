@@ -11,6 +11,9 @@ set(%GRP_SRC_KEY% %GRP_SRC%)
 source_group(%GRP_KEY% FILES ${%GRP_SRC_KEY%})
 '''
 
+TARGET_FOLDER_TEMPLATE = '''\
+set_property(TARGET %NAME% PROPERTY FOLDER %GROUP_KEY%)
+'''
 
 HEADER_TEMPLATE = '''
 project(%PROJECT_NAME%)
@@ -23,12 +26,28 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_BUILD_TYPE RelWithDebInfo)
 
-set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/Binary)
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/Binary)
+set(BIN_DIR ${PROJECT_SOURCE_DIR}/Binary)
 
-include_directories(ThirdParty/include)
-link_directories(ThirdParty/lib)
+set(LIBRARY_OUTPUT_PATH ${BIN_DIR})
+set(EXECUTABLE_OUTPUT_PATH ${BIN_DIR})
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BIN_DIR} )
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${BIN_DIR} )
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${BIN_DIR} )
+foreach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
+    string( TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG )
+    set( CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${BIN_DIR} )
+    set( CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${BIN_DIR} )
+    set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${BIN_DIR} )
+endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
+
+add_compile_options(/wd4267)
+add_compile_options(/wd4267)
+add_compile_options(/wd26451)
+
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+# ========== MSVS VERSION ==========
 if( MSVC )
   # in order to prevent DLL hell, each of the DLLs have to be suffixed with the major version and msvc prefix
   # CMake 3.12 added a variable for this
@@ -60,6 +79,9 @@ if( MSVC )
   endif()
 endif()
 
+# ========== INCLUDE DIECTORY ==========
+include_directories(ThirdParty/include)
+link_directories(ThirdParty/lib)
 
 %DEFINES%
 '''
@@ -82,6 +104,7 @@ set(%EXE_NAME%_SRC %EXE_SRCS%)
 
 add_executable(%EXE_NAME% ${%EXE_NAME%_SRC})
 target_link_libraries(%EXE_NAME% %DEP_LIBS%)
+
 '''
 
 LIBRARY_TEMPLATE = '''

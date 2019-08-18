@@ -21,15 +21,7 @@ void EnvComp::SetSky(std::string shader, std::string texPath) {
 	mSkyItem->SetMeshIndexGroup(0);
 
 	Image* img = Image::Load(texPath);
-	RHITextureDesc desc;
-	desc.sizeX = img->GetWidth();
-	desc.sizeY = img->GetHeight();
-	desc.sizeZ = 1;
-	desc.flags = 0;
-	desc.format = img->GetFormat();
-	desc.dimension = TEX_DIMENSION_2D;
-	desc.numMips = 1;
-	RHITexture* tex = GDevice->CreateTexture(desc, img->GetData());
+	RHITexture* tex = GDevice->CreateTexture2D(img->GetFormat(), img->GetWidth(), img->GetHeight(), 1, img->GetData());
 	mSkyItem->Material->SetParameter("tSkyTexture", tex);
 	mSkyItem->WorldMatrix = math::Matrix4F::Identity;
 }

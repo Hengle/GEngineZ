@@ -27,6 +27,7 @@ class Module(object):
         self.NAME = name
         self.TYPE = tp
         self.excludes = None
+        self.vsfolder = None
 
 
 class CMakeBuilder(object):
@@ -64,6 +65,9 @@ class CMakeBuilder(object):
         output = output.replace("%LIB_GROUPS%", '\n'.join(groups))
         output = output.replace("%LIB_SRCS%", ' '.join(srcs))
 
+        if target.vsfolder:
+            output += T.TARGET_FOLDER_TEMPLATE.replace("%NAME%", target.NAME).replace("%GROUP_KEY%", target.vsfolder)
+
         self.AppendOutput(output)
 
     def GenerateExecutable(self, target_name):
@@ -84,6 +88,9 @@ class CMakeBuilder(object):
         output = output.replace("%EXE_SRCS%", ' '.join(srcs))
         output = output.replace("%DEP_LIBS%", ' '.join(target.DEPS))
 
+        if target.vsfolder:
+            output += T.TARGET_FOLDER_TEMPLATE.replace("%NAME%", target.NAME).replace("%GROUP_KEY%", target.vsfolder)
+
         self.AppendOutput(output)
 
     def GenerateCustom(self, target_name):
@@ -96,6 +103,10 @@ class CMakeBuilder(object):
        
         output = output.replace("%CUSTOM_GROUPS%", '\n'.join(groups))
         output = output.replace("%CUSTOM_SRCS%", ' '.join(srcs))
+
+        
+        if target.vsfolder:
+            output += T.TARGET_FOLDER_TEMPLATE.replace("%NAME%", target.NAME).replace("%GROUP_KEY%", target.vsfolder)
 
         self.AppendOutput(output)
 

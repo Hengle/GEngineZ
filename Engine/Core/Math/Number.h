@@ -20,7 +20,7 @@ inline float ToDegree(float radian) {
 }
 
 // eps
-const float eps = 1e-6;
+const float eps = (float)1e-6;
 
 inline float EpsEqual(float a, float b) {
 	return a - b > -eps && a - b < eps;

@@ -76,7 +76,7 @@ DX12PipelineState::DX12PipelineState(const DX12PipelineStateCache::DX12PipelineS
 	D3D12_INPUT_LAYOUT_DESC layout = mShader->GetInputLayoutDesc();
 	const std::vector< ERHIInputSemantic>& inputSemantics = mShader->GetInputSemantics();
 	std::vector< D3D12_INPUT_ELEMENT_DESC> descs;
-	for (int i = 0; i < layout.NumElements; i++) { 
+	for (size_t i = 0; i < layout.NumElements; i++) { 
 		descs.push_back(layout.pInputElementDescs[i]);
 		descs.back().AlignedByteOffset = hash.Semoffs[inputSemantics[i]];
 	}

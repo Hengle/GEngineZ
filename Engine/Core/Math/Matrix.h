@@ -125,7 +125,7 @@ class TMatrix4 {
 	using TVector = TVector4<T>;
 public:
 	// ctor
-	TMatrix4() {}
+	TMatrix4() : x(0), y(0), z(0), w(0) {}
 	TMatrix4(TVector _x, TVector _y, TVector _z, TVector _w) : x(_x), y(_y), z(_z), w(_w) { }
 	TMatrix4(const TMatrix4& m) { *this = m; }
 	TMatrix4(T m00, T m01, T m02, T m03, T m10, T m11, T m12, T m13,

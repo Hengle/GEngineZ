@@ -5,9 +5,7 @@
 namespace z {
 
 enum DeviceFlag {
-	EDevice_DF_EnableDebug = 1
-	// 
-	//EDEVICE_CF_
+
 };
 
 
@@ -39,6 +37,7 @@ enum ERHITexDimension {
 	TEX_DIMENSION_2D_ARRAY,
 	TEX_DIMENSION_3D_ARRAY,
 };
+
 
 
 enum ERHISamplerFlag {
@@ -84,7 +83,7 @@ enum ERHIRenderState {
 
 // blend state is bind to render target
 enum ERHIBlendOperation {
-	BLEND_OP_ADD,
+	BLEND_OP_ADD = 1,
 	BLEND_OP_SUBTRACT,
 	BLEND_OP_REV_SUBTRACT,
 	BLEND_OP_MIN,
@@ -92,7 +91,7 @@ enum ERHIBlendOperation {
 };
 
 enum ERHIBlendFactor {
-	BLEND_FACTOR_ZERO,
+	BLEND_FACTOR_ZERO = 1,
 	BLEND_FACTOR_ONE,
 	BLEND_FACTOR_SRC_COLOR,
 	BLEND_FACTOR_INV_SRC_COLOR,
@@ -164,6 +163,7 @@ struct RHIRenderRect {
 	float MaxDepth;
 };
 
+
 struct RHIScissorRect {
 	int Left;
 	int Top;
@@ -206,23 +206,16 @@ struct RHIBlendState {
 };
 
 
-struct ScreenRenderRect {
-	float topLeftX;
-	float topLeftY;
-	float width;
-	float height;
-};
-
-
 struct RHITextureDesc {
-	uint32_t sizeX;
-	uint32_t sizeY;
-	uint32_t sizeZ;
-	uint32_t flags;
-	ERHIPixelFormat format;
-	ERHITexDimension dimension;
-	uint8_t numMips;
+	uint8_t NumMips;
+	uint32_t SizeX;
+	uint32_t SizeY;
+	uint32_t SizeZ;
+	uint32_t Flags;
+	ERHIPixelFormat Format;
+	ERHITexDimension Dimension;
 };
+
 
 
 

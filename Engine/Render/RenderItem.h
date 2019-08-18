@@ -18,7 +18,8 @@ public:
 public:
 	RenderItem() :
 		mMeshIndexGroup(0),
-		mMeshVertexGroup(0) {
+		mMeshVertexGroup(0),
+		RenderSet(RSET_OPAQUE) {
 	}
 
 	void SetMeshIndexGroup(int idx) {

@@ -102,6 +102,7 @@ RHITexture* DX12Device::CreateTexture(const RHITextureDesc& desc, const uint8_t*
 	return new DX12Texture2D(desc, data);
 }
 
+
 RHITexture* DX12Device::CreateRenderTarget(uint32_t width, uint32_t height, ERHIPixelFormat format) {
 	return new DX12RenderTarget(width, height, FromRHIFormat(format));
 };

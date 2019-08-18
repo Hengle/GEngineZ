@@ -216,7 +216,7 @@ void DX12Shader::ReflectConstantBuffer(ID3D12ShaderReflection* reflection, const
 		CBufferInfo &cbInfo = mCBufferMap[cbDesc.Name];
 		cbInfo.size = cbDesc.Size;
 
-		for (int vari = 0; vari < cbDesc.Variables; vari++) {
+		for (size_t vari = 0; vari < cbDesc.Variables; vari++) {
 			ID3D12ShaderReflectionVariable *var = cb->GetVariableByIndex(vari);
 			D3D12_SHADER_VARIABLE_DESC varDesc;
 			var->GetDesc(&varDesc);
@@ -324,8 +324,8 @@ const std::vector<ERHIInputSemantic>& DX12Shader::GetInputSemantics() const {
 }
 
 void DX12Shader::CreateRootSignature() {
-	CD3DX12_ROOT_PARAMETER rootParam[MAX_SIGNATURE_NUM];
-	CD3DX12_DESCRIPTOR_RANGE cbvTable[MAX_SIGNATURE_NUM];
+	CD3DX12_ROOT_PARAMETER rootParam[MAX_SIGNATURE_NUM] = { };
+	CD3DX12_DESCRIPTOR_RANGE cbvTable[MAX_SIGNATURE_NUM] = { };
 	uint32_t count = 0;
 	for (auto &iter: mCBufferMap) {
 		cbvTable[count].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, iter.second.index);

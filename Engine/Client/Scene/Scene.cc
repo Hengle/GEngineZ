@@ -38,7 +38,7 @@ bool Scene::Load(const std::string file) {
 
 		// xyz axis
 		for (int i = 0; i < 3; i++) {
-			RenderMesh*mesh = MeshGenerator::CreateCylinder(0.1, 0, 20, 10, 10);
+			RenderMesh*mesh = MeshGenerator::CreateCylinder(0.1f, 0, 20, 10, 10);
 			RenderItem *item = new RenderItem();
 			item->Material = MaterialManager::GetMaterialInstance("EditorAxis");
 			item->Material->SetParameter("Color", math::Vector3F(i==0, i==1, i==2).value, 3);
@@ -47,7 +47,7 @@ bool Scene::Load(const std::string file) {
 			item->SetMeshIndexGroup(0);
 			item->WorldMatrix = math::Matrix4F::Identity;
 
-			math::Matrix4F rotation = math::MatrixRotationAxis(math::Vector3F(i==2, i==1, i==0), math::ToRadian(90 * (3 - i)));
+			math::Matrix4F rotation = math::MatrixRotationAxis(math::Vector3F(i==2, i==1, i==0), math::ToRadian(90.f * (3 - i)));
 			item->WorldMatrix = item->WorldMatrix * rotation;
 			
 			mEditorItems.push_back(item);
@@ -112,7 +112,7 @@ bool Scene::LoadFromFile(const std::string file) {
 			mEntities.push_back(ent);
 		}
 	}
-
+	return true;
 }
 
 
@@ -125,9 +125,9 @@ void Scene::ColloectEnv(RenderScene* renderScn) {
 	EnvComp *comp = GetComponent<EnvComp>();
 	comp->CollectRenderItems(renderScn);
 
-	gShaderParams[SP_SUN_COLOR] = math::Vector4F(1, 1, 1, 1.0);
-	gShaderParams[SP_SUN_DIRECTION] = { math::Normalize(math::Vector3F{1, 1, 1}), 1.0 };
-	gShaderParams[SP_AMBIENT_COLOR] = math::Vector4F(0.3, 0.3, 0.3, 1.0);
+	gShaderParams[SP_SUN_COLOR] = math::Vector4F(1, 1, 1, 1.0f);
+	gShaderParams[SP_SUN_DIRECTION] = { math::Normalize(math::Vector3F{1, 1, 1}), 1.0f };
+	gShaderParams[SP_AMBIENT_COLOR] = math::Vector4F(0.3f, 0.3f, 0.3f, 1.0f);
 }
 
 

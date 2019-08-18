@@ -49,7 +49,7 @@ public:
 		uint32_t totalIndexNum = 0;
 
 		std::vector<uint8_t> indices;
-		for (int i = 0; i < meshHeader.IndexNum; i++) {
+		for (size_t i = 0; i < meshHeader.IndexNum; i++) {
 			indices.resize(meshHeader.IndexCount[i] * mesh->GetIndexStride());
 
 			os.read((char*)indices.data(), indices.size());

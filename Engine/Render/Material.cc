@@ -80,13 +80,13 @@ std::string MaterialManager::PreProcessingHLSL(const FilePath& codePath) {
 	auto incBegin = std::sregex_iterator(lines.begin(), lines.end(), incRegex);
 	auto incEnd = std::sregex_iterator();
 
-	uint32_t lastPos = 0;
+	ptrdiff_t lastPos = 0;
 	for (std::sregex_iterator it = incBegin; it != incEnd; ++it) {
 		std::smatch match = *it;
 		std::string headerPath = FilePath(codePath).ParentDir() / match[1].str();
 		std::string headerContent = FileReader(headerPath).ReadAll();
 
-		uint32_t beginPos = match.position();
+		ptrdiff_t beginPos = match.position();
 		if (beginPos > lastPos) {
 			strArray.emplace_back(lines.substr(lastPos, beginPos - lastPos));
 		}

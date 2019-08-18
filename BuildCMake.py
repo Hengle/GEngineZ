@@ -21,11 +21,21 @@ build_cfg = CMakeConfig()
 
 
 # ================= Main Targets =================
-# Config
+# Config & Shader & Content
 class Config(BT.Module):
     def __init__(self):
         super(Config, self).__init__("Config", BT.CUSTOM)
         self.SOURCE = ["Config"]
+
+class Shader(BT.Module):
+    def __init__(self):
+        super(Shader, self).__init__("Shader", BT.CUSTOM)
+        self.SOURCE = ["Shader"]
+
+class Content(BT.Module):
+    def __init__(self):
+        super(Content, self).__init__("Content", BT.CUSTOM)
+        self.SOURCE = ["Content"]
 
 # Engine
 class Engine(BT.Module):
@@ -42,24 +52,34 @@ class Game(BT.Module):
         super(Game, self).__init__("Game", BT.EXECUTABLE)
         self.SOURCE = ["Program/Game"]
         self.DEPS = ["imgui", "Engine", "zlib", "lua"]
+        self.vsfolder = "Program"
 
 class SLConverter(BT.Module):
     def __init__(self):
         super(SLConverter, self).__init__("SLConverter", BT.EXECUTABLE)
         self.SOURCE = ["Program/SLConverter"]
         self.DEPS = ["Engine", "hlslcc"]
+        self.vsfolder = "Program"
 
 class HLSLLint(BT.Module):
     def __init__(self):
         super(HLSLLint, self).__init__("HLSLLint", BT.EXECUTABLE)
         self.SOURCE = ["Program/HLSLLint"]
         self.DEPS = ["Engine"]
+        self.vsfolder = "Program"
 
 class MeshConverter(BT.Module):
     def __init__(self):
         super(MeshConverter, self).__init__("MeshConverter", BT.EXECUTABLE)
         self.SOURCE = ["Program/MeshConverter"]
         self.DEPS = ["Engine", "assimp-${MSVC_PREFIX}-mt", "zlib"]
+        self.vsfolder = "Program"
+
+class BuildTool(BT.Module):
+    def __init__(self):
+        super(BuildTool, self).__init__("BuildTool", BT.CUSTOM)
+        self.SOURCE = ["Program/BuildTool"]
+        self.vsfolder = "Program"
 
 # ================= Tests =================
 class TestSched(BT.Module):
@@ -67,6 +87,9 @@ class TestSched(BT.Module):
         super(TestSched, self).__init__("TestSched", BT.EXECUTABLE)
         self.SOURCE = ["Test/TestSched.cc"]
         self.DEPS = ["Engine"]
+        self.vsfolder = "Test"
+
+
  
 
 # ================= ThirdParty =================
@@ -77,12 +100,15 @@ build_targets = [
     # ThirdParty
     # Main Targets
     Config(),
+    Shader(),
+    Content(),
     Engine(),
     # Progam
     Game(),
     SLConverter(),
     MeshConverter(),
 	HLSLLint(),
+    BuildTool(),
     # Tests
     TestSched(),
 
@@ -92,9 +118,9 @@ build_targets = [
 # ================= Generate =================
 BT.Build(build_cfg, build_targets)
 
-# if not os.path.exists('Build'):
-#     os.mkdir('Build')
-# os.system("cd Build && cmake ..")
+if not os.path.exists('Build'):
+    os.mkdir('Build')
+os.system("cd Build && cmake ..")
 
 
 

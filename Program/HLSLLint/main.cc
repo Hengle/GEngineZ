@@ -81,7 +81,7 @@ int main(int argc, char* argv[]) {
 
 	z::FilePath root(exePath);
 	std::string shaderFile = std::string(argv[1]) + ".hlsl";
-	z::FilePath shaderPath = root / "Content/Engine/Shader/hlsl" / shaderFile;
+	z::FilePath shaderPath = root / "Shader" / shaderFile;
 
 	Process(shaderPath);
 

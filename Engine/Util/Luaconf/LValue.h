@@ -46,31 +46,31 @@ public:
 	Value(null_t val = null_t()) : val(val) {}
 	Value(char const* s) : Value(std::string(s)) {}
 
-	template <typename T, typename = non_self_t<T>> Value(T const& rhs) : val(rhs) {}
-	template <typename T, typename = non_self_t<T>> Value(T && rhs) : val(std::forward<T>(rhs)) {}
+	template <typename T, typename = non_self_t<T>> Value(T const& rhs) noexcept : val(rhs) {}
+	template <typename T, typename = non_self_t<T>> Value(T && rhs) noexcept : val(std::forward<T>(rhs)) {}
 
-	Value(Value const& rhs) : val(rhs.val) {}
-	Value(Value& rhs) : val(rhs.val) {}
-	Value(Value&& rhs) : val(std::move(rhs.val)) {}
+	Value(Value const& rhs) noexcept : val(rhs.val) {}
+	Value(Value& rhs) noexcept : val(rhs.val) {}
+	Value(Value&& rhs) noexcept : val(std::move(rhs.val)) {}
 
 	template <typename T, typename = non_self_t<T>>
-	Value & operator=(T const& rhs) {
+	Value & operator=(T const& rhs) noexcept {
 		val = rhs;
 		return *this;
 	}
 
 	template <typename T, typename = non_self_t<T>>
-	Value & operator=(T && rhs) {
+	Value & operator=(T && rhs) noexcept {
 		val = std::forward<T>(rhs);
 		return *this;
 	}
 
-	Value& operator=(Value const& rhs) {
+	Value& operator=(Value const& rhs) noexcept {
 		val = rhs.get();
 		return *this;
 	}
 
-	Value& operator=(Value&& rhs) {
+	Value& operator=(Value&& rhs) noexcept {
 		val = std::move(rhs.get());
 		return *this;
 	}

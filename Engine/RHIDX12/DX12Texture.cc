@@ -46,7 +46,10 @@ DX12Sampler::DX12Sampler(uint32_t samplerFlag) :
 	samplerDesc.MipLODBias = 0;
 	samplerDesc.MaxAnisotropy = 1;
 	samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
-	samplerDesc.BorderColor[4] = { 0.f };
+	samplerDesc.BorderColor[0] = 0.f;
+	samplerDesc.BorderColor[1] = 0.f;
+	samplerDesc.BorderColor[2] = 0.f;
+	samplerDesc.BorderColor[3] = 0.f;
 	samplerDesc.MinLOD = 0;
 	samplerDesc.MaxLOD = D3D12_FLOAT32_MAX;
 
@@ -68,7 +71,7 @@ DX12Texture::DX12Texture(const RHITextureDesc& desc) {
 }
 
 void DX12Texture::InitWithResourceDesc(const D3D12_RESOURCE_DESC& desc) {
-	width = desc.Width;
+	width = (uint32_t)desc.Width;
 	height = desc.Height;
 	depth = desc.DepthOrArraySize;
 	numMips = desc.MipLevels;
@@ -77,11 +80,11 @@ void DX12Texture::InitWithResourceDesc(const D3D12_RESOURCE_DESC& desc) {
 
 
 void DX12Texture::InitWithRHITextureDesc(const RHITextureDesc& desc) {
-	width = desc.sizeX;
-	height = desc.sizeY;
-	depth = desc.sizeZ;
-	numMips = desc.numMips;
-	Format = FromRHIFormat(desc.format);
+	width = desc.SizeX;
+	height = desc.SizeY;
+	depth = desc.SizeZ;
+	numMips = desc.NumMips;
+	Format = FromRHIFormat(desc.Format);
 }
 
 

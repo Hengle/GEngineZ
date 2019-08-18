@@ -45,7 +45,7 @@ public:
 		return mLocalTransform.GetScale();
 	}
 
-	math::Matrix4F& GetWorldTransform() {
+	math::Matrix4F GetWorldTransform() {
 		// use local transoform now
 		return mLocalTransform.GetTransform();
 

@@ -103,15 +103,7 @@ RHITexture* PrimitiveComp::LoadTextureFile(std::string file) {
 		if (img == nullptr) {
 			return nullptr;
 		}
-		RHITextureDesc desc;
-		desc.sizeX = img->GetWidth();
-		desc.sizeY = img->GetHeight();
-		desc.sizeZ = 1;
-		desc.flags = 0;
-		desc.format = img->GetFormat();
-		desc.dimension = TEX_DIMENSION_2D;
-		desc.numMips = 1;
-		return GDevice->CreateTexture(desc, img->GetData());
+		return GDevice->CreateTexture2D(img->GetFormat(), img->GetWidth(), img->GetHeight(), 1, img->GetData());
 	}
 
 void PrimitiveComp::CollectRenderItems(RenderScene* scn) {

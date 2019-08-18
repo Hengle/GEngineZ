@@ -51,7 +51,7 @@ public:
 	}
 
 
-	RefCountPtr(RefCountPtr&& other) {
+	RefCountPtr(RefCountPtr&& other) noexcept{
 		mPtr = other.mPtr;
 		other.mPtr = nullptr;
 	}

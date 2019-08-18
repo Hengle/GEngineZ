@@ -9,12 +9,28 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_BUILD_TYPE RelWithDebInfo)
 
-set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/Binary)
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/Binary)
+set(BIN_DIR ${PROJECT_SOURCE_DIR}/Binary)
 
-include_directories(ThirdParty/include)
-link_directories(ThirdParty/lib)
+set(LIBRARY_OUTPUT_PATH ${BIN_DIR})
+set(EXECUTABLE_OUTPUT_PATH ${BIN_DIR})
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BIN_DIR} )
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${BIN_DIR} )
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${BIN_DIR} )
+foreach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
+    string( TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG )
+    set( CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${BIN_DIR} )
+    set( CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${BIN_DIR} )
+    set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${BIN_DIR} )
+endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
+
+add_compile_options(/wd4267)
+add_compile_options(/wd4267)
+add_compile_options(/wd26451)
+
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+# ========== MSVS VERSION ==========
 if( MSVC )
   # in order to prevent DLL hell, each of the DLLs have to be suffixed with the major version and msvc prefix
   # CMake 3.12 added a variable for this
@@ -46,6 +62,9 @@ if( MSVC )
   endif()
 endif()
 
+# ========== INCLUDE DIECTORY ==========
+include_directories(ThirdParty/include)
+link_directories(ThirdParty/lib)
 
 add_definitions(-DHLSLCC_DYNLIB)
 
@@ -56,7 +75,7 @@ add_definitions(-DCOMPRESS_MESH_FILE)
 # ========== Library Engine ==========
 include_directories(Engine)
 
-set(Engine_SRC Engine/Core/Common/Define.h Engine/Core/Common/Logger.h Engine/Core/Common/Noncopyable.h Engine/Core/Common/RefCountPtr.h Engine/Core/Common/Singleton.h Engine/Core/Common/Time.h Engine/Core/CoreHeader.h Engine/Render/Pipeline/IMGuiStage.h Engine/Render/Pipeline/RenderSetStage.h Engine/Render/Pipeline/RenderStage.h Engine/Render/Pipeline/ScreenStage.h Engine/Core/Thread/todo Engine/Startup/Win32/Win32App.cc Engine/Startup/Win32/Win32App.h Engine/Startup/Win32/Win32IMGuiImpl.cc Engine/Startup/Win32/Win32IMGuiImpl.h Engine/Startup/Win32/Win32Input.h Engine/Startup/Win32/Win32Window.cc Engine/Startup/Win32/Win32Window.h Engine/RHIDX12/DX12Buffer.cc Engine/RHIDX12/DX12Buffer.h Engine/RHIDX12/DX12Const.h Engine/RHIDX12/DX12Device.cc Engine/RHIDX12/DX12Device.h Engine/RHIDX12/DX12Executor.cc Engine/RHIDX12/DX12Executor.h Engine/RHIDX12/DX12Header.h Engine/RHIDX12/DX12PipelineState.cc Engine/RHIDX12/DX12PipelineState.h Engine/RHIDX12/DX12Resource.cc Engine/RHIDX12/DX12Resource.h Engine/RHIDX12/DX12Shader.cc Engine/RHIDX12/DX12Shader.h Engine/RHIDX12/DX12Texture.cc Engine/RHIDX12/DX12Texture.h Engine/RHIDX12/DX12Util.h Engine/RHIDX12/DX12View.cc Engine/RHIDX12/DX12View.h Engine/RHIDX12/DX12Viewport.cc Engine/RHIDX12/DX12Viewport.h Engine/Util/Image/Image.cc Engine/Util/Image/Image.h Engine/Core/Platform/Win32/Windows.h Engine/Client/Main/App.cc Engine/Client/Main/App.h Engine/Client/Main/Director.cc Engine/Client/Main/Director.h Engine/Client/Main/Input.cc Engine/Client/Main/Input.h Engine/Core/Object/IObject.h Engine/Core/Math/Camera.h Engine/Core/Math/GeometryAlg.h Engine/Core/Math/LinearAlg.h Engine/Core/Math/Matrix.h Engine/Core/Math/Number.h Engine/Core/Math/Vector.h Engine/Client/Scene/Camera.cc Engine/Client/Scene/Camera.h Engine/Client/Scene/CameraController.h Engine/Client/Scene/Scene.cc Engine/Client/Scene/Scene.h Engine/Util/Mesh/MeshGenerator.cc Engine/Util/Mesh/MeshGenerator.h Engine/Util/Mesh/ZMeshLoader.h Engine/Core/Scheduler/Scheduler.h Engine/Core/Scheduler/Service.cc Engine/Core/Scheduler/Service.h Engine/Core/Scheduler/Worker.h Engine/Core/Platform/OSHeader.h Engine/Client/Entity/IComponent.cc Engine/Client/Entity/IComponent.h Engine/Client/Entity/IEntity.cc Engine/Client/Entity/IEntity.h Engine/Client/Entity/Transform.h Engine/RHIDX12/DX12/d3dx12.h Engine/Client/Component/EnvComp.cc Engine/Client/Component/EnvComp.h Engine/Client/Component/PrimitiveComp.cc Engine/Client/Component/PrimitiveComp.h Engine/RHI/RHIConst.h Engine/RHI/RHIDevice.cc Engine/RHI/RHIDevice.h Engine/RHI/RHIResource.h Engine/RHI/RHIUtil.h Engine/Render/Material.cc Engine/Render/Material.h Engine/Render/Mesh.cc Engine/Render/Mesh.h Engine/Render/RenderConst.h Engine/Render/Renderer.cc Engine/Render/Renderer.h Engine/Render/RenderItem.h Engine/Render/RenderOption.h Engine/Render/RenderScene.h Engine/Render/RenderUnit.h Engine/Render/RenderUtil.cc Engine/Render/RenderUtil.h Engine/Render/Shading.cc Engine/Render/Shading.h Engine/Util/Luaconf/Luaconf.h Engine/Util/Luaconf/LValue.h Engine/Core/FileSystem/Directory.h Engine/Core/FileSystem/File.cc Engine/Core/FileSystem/File.h)
+set(Engine_SRC Engine/Core/Common/Define.h Engine/Core/Common/Logger.h Engine/Core/Common/Noncopyable.h Engine/Core/Common/RefCountPtr.h Engine/Core/Common/Singleton.h Engine/Core/Common/Time.h Engine/Core/CoreHeader.h Engine/Render/Pipeline/IMGuiStage.h Engine/Render/Pipeline/RenderSetStage.h Engine/Render/Pipeline/RenderStage.h Engine/Render/Pipeline/ScreenStage.h Engine/Core/Thread/todo Engine/Startup/Win32/Win32App.cc Engine/Startup/Win32/Win32App.h Engine/Startup/Win32/Win32IMGuiImpl.cc Engine/Startup/Win32/Win32IMGuiImpl.h Engine/Startup/Win32/Win32Input.h Engine/Startup/Win32/Win32Window.cc Engine/Startup/Win32/Win32Window.h Engine/RHIDX12/DX12Buffer.cc Engine/RHIDX12/DX12Buffer.h Engine/RHIDX12/DX12Const.h Engine/RHIDX12/DX12Device.cc Engine/RHIDX12/DX12Device.h Engine/RHIDX12/DX12Executor.cc Engine/RHIDX12/DX12Executor.h Engine/RHIDX12/DX12Header.h Engine/RHIDX12/DX12PipelineState.cc Engine/RHIDX12/DX12PipelineState.h Engine/RHIDX12/DX12Resource.cc Engine/RHIDX12/DX12Resource.h Engine/RHIDX12/DX12Shader.cc Engine/RHIDX12/DX12Shader.h Engine/RHIDX12/Dx12Texture.cc Engine/RHIDX12/DX12Texture.h Engine/RHIDX12/DX12Util.h Engine/RHIDX12/DX12View.cc Engine/RHIDX12/DX12View.h Engine/RHIDX12/DX12Viewport.cc Engine/RHIDX12/DX12Viewport.h Engine/Util/Image/Image.cc Engine/Util/Image/Image.h Engine/Core/Platform/Win32/Windows.h Engine/Client/Main/App.cc Engine/Client/Main/App.h Engine/Client/Main/Director.cc Engine/Client/Main/Director.h Engine/Client/Main/Input.cc Engine/Client/Main/Input.h Engine/Core/Object/IObject.h Engine/Core/Math/Camera.h Engine/Core/Math/GeometryAlg.h Engine/Core/Math/LinearAlg.h Engine/Core/Math/Matrix.h Engine/Core/Math/Number.h Engine/Core/Math/Vector.h Engine/Client/Scene/Camera.cc Engine/Client/Scene/Camera.h Engine/Client/Scene/CameraController.h Engine/Client/Scene/Scene.cc Engine/Client/Scene/Scene.h Engine/Util/Mesh/MeshGenerator.cc Engine/Util/Mesh/MeshGenerator.h Engine/Util/Mesh/ZMeshLoader.h Engine/Core/Scheduler/Scheduler.h Engine/Core/Scheduler/Service.cc Engine/Core/Scheduler/Service.h Engine/Core/Scheduler/Worker.h Engine/Core/Platform/OSHeader.h Engine/Client/Entity/IComponent.cc Engine/Client/Entity/IComponent.h Engine/Client/Entity/IEntity.cc Engine/Client/Entity/IEntity.h Engine/Client/Entity/Transform.h Engine/RHIDX12/DX12/d3dx12.h Engine/Client/Component/EnvComp.cc Engine/Client/Component/EnvComp.h Engine/Client/Component/PrimitiveComp.cc Engine/Client/Component/PrimitiveComp.h Engine/RHI/RHIConst.h Engine/RHI/RHIDevice.cc Engine/RHI/RHIDevice.h Engine/RHI/RHIResource.h Engine/RHI/RHIUtil.h Engine/Render/Material.cc Engine/Render/Material.h Engine/Render/Mesh.cc Engine/Render/Mesh.h Engine/Render/RenderConst.h Engine/Render/Renderer.cc Engine/Render/Renderer.h Engine/Render/RenderItem.h Engine/Render/RenderOption.h Engine/Render/RenderScene.h Engine/Render/RenderUnit.h Engine/Render/RenderUtil.cc Engine/Render/RenderUtil.h Engine/Render/Shading.cc Engine/Render/Shading.h Engine/Util/Luaconf/Luaconf.h Engine/Util/Luaconf/LValue.h Engine/Core/FileSystem/Directory.h Engine/Core/FileSystem/File.cc Engine/Core/FileSystem/File.h)
 
 set(Engine_Core_Common_GROUP_FILES Engine/Core/Common/Define.h Engine/Core/Common/Logger.h Engine/Core/Common/Noncopyable.h Engine/Core/Common/RefCountPtr.h Engine/Core/Common/Singleton.h Engine/Core/Common/Time.h)
 source_group(Core\\Common FILES ${Engine_Core_Common_GROUP_FILES})
@@ -73,7 +92,7 @@ source_group(Core\\Thread FILES ${Engine_Core_Thread_GROUP_FILES})
 set(Engine_Startup_Win32_GROUP_FILES Engine/Startup/Win32/Win32App.cc Engine/Startup/Win32/Win32App.h Engine/Startup/Win32/Win32IMGuiImpl.cc Engine/Startup/Win32/Win32IMGuiImpl.h Engine/Startup/Win32/Win32Input.h Engine/Startup/Win32/Win32Window.cc Engine/Startup/Win32/Win32Window.h)
 source_group(Startup\\Win32 FILES ${Engine_Startup_Win32_GROUP_FILES})
 
-set(Engine_RHIDX12_GROUP_FILES Engine/RHIDX12/DX12Buffer.cc Engine/RHIDX12/DX12Buffer.h Engine/RHIDX12/DX12Const.h Engine/RHIDX12/DX12Device.cc Engine/RHIDX12/DX12Device.h Engine/RHIDX12/DX12Executor.cc Engine/RHIDX12/DX12Executor.h Engine/RHIDX12/DX12Header.h Engine/RHIDX12/DX12PipelineState.cc Engine/RHIDX12/DX12PipelineState.h Engine/RHIDX12/DX12Resource.cc Engine/RHIDX12/DX12Resource.h Engine/RHIDX12/DX12Shader.cc Engine/RHIDX12/DX12Shader.h Engine/RHIDX12/DX12Texture.cc Engine/RHIDX12/DX12Texture.h Engine/RHIDX12/DX12Util.h Engine/RHIDX12/DX12View.cc Engine/RHIDX12/DX12View.h Engine/RHIDX12/DX12Viewport.cc Engine/RHIDX12/DX12Viewport.h)
+set(Engine_RHIDX12_GROUP_FILES Engine/RHIDX12/DX12Buffer.cc Engine/RHIDX12/DX12Buffer.h Engine/RHIDX12/DX12Const.h Engine/RHIDX12/DX12Device.cc Engine/RHIDX12/DX12Device.h Engine/RHIDX12/DX12Executor.cc Engine/RHIDX12/DX12Executor.h Engine/RHIDX12/DX12Header.h Engine/RHIDX12/DX12PipelineState.cc Engine/RHIDX12/DX12PipelineState.h Engine/RHIDX12/DX12Resource.cc Engine/RHIDX12/DX12Resource.h Engine/RHIDX12/DX12Shader.cc Engine/RHIDX12/DX12Shader.h Engine/RHIDX12/Dx12Texture.cc Engine/RHIDX12/DX12Texture.h Engine/RHIDX12/DX12Util.h Engine/RHIDX12/DX12View.cc Engine/RHIDX12/DX12View.h Engine/RHIDX12/DX12Viewport.cc Engine/RHIDX12/DX12Viewport.h)
 source_group(RHIDX12 FILES ${Engine_RHIDX12_GROUP_FILES})
 
 set(Engine_Util_Image_GROUP_FILES Engine/Util/Image/Image.cc Engine/Util/Image/Image.h)
@@ -138,6 +157,45 @@ set(TestSched_SRC Test/TestSched.cc)
 add_executable(TestSched ${TestSched_SRC})
 target_link_libraries(TestSched Engine)
 
+set_property(TARGET TestSched PROPERTY FOLDER Test)
+
+
+# ========== Custom Target Shader ==========
+set(Shader_SRC Shader/include/BRDF.hlsl Shader/include/CBuffer.hlsl Shader/include/Common.hlsl Shader/include/PBRCommon.hlsl Shader/EditorAxis.hlsl Shader/Empty.hlsl Shader/IMGui.hlsl Shader/PBR.hlsl Shader/Phong.hlsl Shader/render_tex.hlsl Shader/SphereSky.hlsl Shader/ToneMapping.hlsl Shader/_CopyScreen.hlsl)
+set(Shader_include_GROUP_FILES Shader/include/BRDF.hlsl Shader/include/CBuffer.hlsl Shader/include/Common.hlsl Shader/include/PBRCommon.hlsl)
+source_group(include FILES ${Shader_include_GROUP_FILES})
+
+add_custom_target(Shader SOURCES ${Shader_SRC})
+
+
+# ========== Custom Target Content ==========
+set(Content_SRC Content/Config/Engine.xml Content/Game/todo Content/Test/Scene/test.scene Content/Models/gundam.3DS Content/Models/gundam.obj Content/Models/horse.obj Content/Models/man0.obj Content/Models/nanosuit.obj Content/Test/Nanosuit/arm_dif.png Content/Test/Nanosuit/arm_showroom_ddn.png Content/Test/Nanosuit/arm_showroom_spec.png Content/Test/Nanosuit/body_dif.png Content/Test/Nanosuit/body_showroom_ddn.png Content/Test/Nanosuit/body_showroom_spec.png Content/Test/Nanosuit/glass_ddn.png Content/Test/Nanosuit/glass_dif.png Content/Test/Nanosuit/hand_dif.png Content/Test/Nanosuit/hand_showroom_ddn.png Content/Test/Nanosuit/hand_showroom_spec.png Content/Test/Nanosuit/helmet_diff.png Content/Test/Nanosuit/helmet_showroom_ddn.png Content/Test/Nanosuit/helmet_showroom_spec.png Content/Test/Nanosuit/leg_dif.png Content/Test/Nanosuit/leg_showroom_ddn.png Content/Test/Nanosuit/leg_showroom_spec.png Content/Test/Nanosuit/nanosuit.model Content/Test/Nanosuit/nanosuit.zmesh Content/Test/Nanosuit/nanosuit0.material Content/Test/Nanosuit/nanosuit1.material Content/Test/Nanosuit/nanosuit2.material Content/Test/Nanosuit/nanosuit3.material Content/Test/Nanosuit/nanosuit4.material Content/Test/Nanosuit/nanosuit5.material Content/Engine/Texture/Sky.jpg Content/Engine/Texture/Sky2.jpg Content/Engine/Texture/UVTest.jpg Content/Test/UE/chair.material Content/Test/UE/chair.model Content/Test/UE/Color_checker.HDR Content/Test/UE/Floor.zmesh Content/Test/UE/SM_Chair_2.zmesh Content/Test/UE/SM_ColorCalibrator_4.zmesh Content/Test/UE/SM_Elegant_chair_2.zmesh Content/Test/UE/SM_MatPreviewMesh_01_7.zmesh Content/Test/UE/SM_Modern_Table_5.zmesh Content/Test/UE/T_Chair_M.tga Content/Test/UE/T_Elegant_chair_a.TGA Content/Test/UE/T_Elegant_chair_m_r_ao.TGA Content/Test/UE/T_Elegant_chair_n.TGA Content/Test/Other/gundam.model Content/Test/Other/gundam.zmesh Content/Test/Other/horse.material Content/Test/Other/horse.model Content/Test/Other/horse.zmesh Content/Test/Other/horse_b.tga Content/Test/Other/horse_m.tga Content/Test/Other/horse_n.tga Content/Test/Other/man0.material Content/Test/Other/man0.model Content/Test/Other/man0.zmesh Content/Test/Other/man0_b.tga Content/Test/Other/man0_m.tga Content/Test/Other/man0_n.tga)
+set(Content_Config_GROUP_FILES Content/Config/Engine.xml)
+source_group(Config FILES ${Content_Config_GROUP_FILES})
+
+set(Content_Game_GROUP_FILES Content/Game/todo)
+source_group(Game FILES ${Content_Game_GROUP_FILES})
+
+set(Content_Test_Scene_GROUP_FILES Content/Test/Scene/test.scene)
+source_group(Test\\Scene FILES ${Content_Test_Scene_GROUP_FILES})
+
+set(Content_Models_GROUP_FILES Content/Models/gundam.3DS Content/Models/gundam.obj Content/Models/horse.obj Content/Models/man0.obj Content/Models/nanosuit.obj)
+source_group(Models FILES ${Content_Models_GROUP_FILES})
+
+set(Content_Test_Nanosuit_GROUP_FILES Content/Test/Nanosuit/arm_dif.png Content/Test/Nanosuit/arm_showroom_ddn.png Content/Test/Nanosuit/arm_showroom_spec.png Content/Test/Nanosuit/body_dif.png Content/Test/Nanosuit/body_showroom_ddn.png Content/Test/Nanosuit/body_showroom_spec.png Content/Test/Nanosuit/glass_ddn.png Content/Test/Nanosuit/glass_dif.png Content/Test/Nanosuit/hand_dif.png Content/Test/Nanosuit/hand_showroom_ddn.png Content/Test/Nanosuit/hand_showroom_spec.png Content/Test/Nanosuit/helmet_diff.png Content/Test/Nanosuit/helmet_showroom_ddn.png Content/Test/Nanosuit/helmet_showroom_spec.png Content/Test/Nanosuit/leg_dif.png Content/Test/Nanosuit/leg_showroom_ddn.png Content/Test/Nanosuit/leg_showroom_spec.png Content/Test/Nanosuit/nanosuit.model Content/Test/Nanosuit/nanosuit.zmesh Content/Test/Nanosuit/nanosuit0.material Content/Test/Nanosuit/nanosuit1.material Content/Test/Nanosuit/nanosuit2.material Content/Test/Nanosuit/nanosuit3.material Content/Test/Nanosuit/nanosuit4.material Content/Test/Nanosuit/nanosuit5.material)
+source_group(Test\\Nanosuit FILES ${Content_Test_Nanosuit_GROUP_FILES})
+
+set(Content_Engine_Texture_GROUP_FILES Content/Engine/Texture/Sky.jpg Content/Engine/Texture/Sky2.jpg Content/Engine/Texture/UVTest.jpg)
+source_group(Engine\\Texture FILES ${Content_Engine_Texture_GROUP_FILES})
+
+set(Content_Test_UE_GROUP_FILES Content/Test/UE/chair.material Content/Test/UE/chair.model Content/Test/UE/Color_checker.HDR Content/Test/UE/Floor.zmesh Content/Test/UE/SM_Chair_2.zmesh Content/Test/UE/SM_ColorCalibrator_4.zmesh Content/Test/UE/SM_Elegant_chair_2.zmesh Content/Test/UE/SM_MatPreviewMesh_01_7.zmesh Content/Test/UE/SM_Modern_Table_5.zmesh Content/Test/UE/T_Chair_M.tga Content/Test/UE/T_Elegant_chair_a.TGA Content/Test/UE/T_Elegant_chair_m_r_ao.TGA Content/Test/UE/T_Elegant_chair_n.TGA)
+source_group(Test\\UE FILES ${Content_Test_UE_GROUP_FILES})
+
+set(Content_Test_Other_GROUP_FILES Content/Test/Other/gundam.model Content/Test/Other/gundam.zmesh Content/Test/Other/horse.material Content/Test/Other/horse.model Content/Test/Other/horse.zmesh Content/Test/Other/horse_b.tga Content/Test/Other/horse_m.tga Content/Test/Other/horse_n.tga Content/Test/Other/man0.material Content/Test/Other/man0.model Content/Test/Other/man0.zmesh Content/Test/Other/man0_b.tga Content/Test/Other/man0_m.tga Content/Test/Other/man0_n.tga)
+source_group(Test\\Other FILES ${Content_Test_Other_GROUP_FILES})
+
+add_custom_target(Content SOURCES ${Content_SRC})
+
 
 # ========== Executable Game ==========
 include_directories(Program/Game)
@@ -151,6 +209,8 @@ source_group(Win32 FILES ${Program_Game_Win32_GROUP_FILES})
 add_executable(Game ${Game_SRC})
 target_link_libraries(Game imgui Engine zlib lua)
 
+set_property(TARGET Game PROPERTY FOLDER Program)
+
 
 # ========== Executable SLConverter ==========
 include_directories(Program/SLConverter)
@@ -161,6 +221,15 @@ set(SLConverter_SRC Program/SLConverter/main.cc)
 
 add_executable(SLConverter ${SLConverter_SRC})
 target_link_libraries(SLConverter Engine hlslcc)
+
+set_property(TARGET SLConverter PROPERTY FOLDER Program)
+
+
+# ========== Custom Target BuildTool ==========
+set(BuildTool_SRC Program/BuildTool/BuildTool.py Program/BuildTool/BuildTool.pyc Program/BuildTool/CMakeTemplate.py Program/BuildTool/CMakeTemplate.pyc Program/BuildTool/ReflectionTemplates.py Program/BuildTool/Relfect.py)
+
+add_custom_target(BuildTool SOURCES ${BuildTool_SRC})
+set_property(TARGET BuildTool PROPERTY FOLDER Program)
 
 
 # ========== Executable MeshConverter ==========
@@ -173,6 +242,8 @@ set(MeshConverter_SRC Program/MeshConverter/main.cc)
 add_executable(MeshConverter ${MeshConverter_SRC})
 target_link_libraries(MeshConverter Engine assimp-${MSVC_PREFIX}-mt zlib)
 
+set_property(TARGET MeshConverter PROPERTY FOLDER Program)
+
 
 # ========== Executable HLSLLint ==========
 include_directories(Program/HLSLLint)
@@ -183,6 +254,8 @@ set(HLSLLint_SRC Program/HLSLLint/main.cc)
 
 add_executable(HLSLLint ${HLSLLint_SRC})
 target_link_libraries(HLSLLint Engine)
+
+set_property(TARGET HLSLLint PROPERTY FOLDER Program)
 
 
 # ========== Custom Target Config ==========

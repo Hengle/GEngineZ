@@ -14,26 +14,17 @@ class IMGuiStage : public RefCounter{
 public:
 	void Init() {
 		ImGuiIO& io = ImGui::GetIO();
+
+		// upload font texture
 		unsigned char* pixels;
 		int width, height;
 		io.Fonts->AddFontDefault();
 		io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
 
-		// Upload texture
-		{
-			RHITextureDesc desc;
-			desc.sizeX = width;
-			desc.sizeY = height;
-			desc.sizeZ = 1;
-			desc.format = PF_R8G8B8A8;
-			desc.dimension = TEX_DIMENSION_2D;
-			desc.numMips = 1;
-			RHITexture* tex = GDevice->CreateTexture(desc, pixels);
-
-			io.Fonts->TexID = (ImTextureID)tex;
-
-		}
-
+		RHITexture *tex = GDevice->CreateTexture2D(PF_R8G8B8A8, width, height, 1, pixels);
+		io.Fonts->TexID = (ImTextureID)tex;
+		mTexs.push_back(tex);
+		
 		mItem = new RenderItem();
 
 		// create dynamic mesh
@@ -46,8 +37,6 @@ public:
 		mItem->Material->SetCullMode(RS_CULL_NONE);
 		mItem->Material->SetEnableDepthTest(false);
 		mItem->Material->SetEnableDepthWrite(true);
-
-
 	}
 
 	void Draw(Renderer *ren) {
@@ -55,13 +44,13 @@ public:
 		ImDrawData* drawData = ImGui::GetDrawData();
 
 		RHIBlendState state;
-		state.Enable = true;
-		state.SrcBlend = BLEND_FACTOR_SRC_ALPHA;
-		state.DestBlend = BLEND_FACTOR_INV_SRC_ALPHA;
-		state.BlendOp = BLEND_OP_ADD;
-		state.SrcBlendAlpha = BLEND_FACTOR_INV_SRC_ALPHA;
+		state.Enable         = true;
+		state.SrcBlend       = BLEND_FACTOR_SRC_ALPHA;
+		state.DestBlend      = BLEND_FACTOR_INV_SRC_ALPHA;
+		state.BlendOp        = BLEND_OP_ADD;
+		state.SrcBlendAlpha  = BLEND_FACTOR_INV_SRC_ALPHA;
 		state.DestBlendAlpha = BLEND_FACTOR_ZERO;
-		state.BlendOpAlpha = BLEND_OP_ADD;
+		state.BlendOpAlpha   = BLEND_OP_ADD;
 
 		ren->GetViewport()->GetBackBuffer()->SetBlendState(state);
 
@@ -133,6 +122,7 @@ public:
 
 private:
 	RefCountPtr<RenderItem> mItem;
+	std::vector<RefCountPtr<RHITexture>> mTexs;
 
 
 };

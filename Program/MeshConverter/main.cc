@@ -100,9 +100,9 @@ private:
 		for (size_t i = 0; i < mesh->mNumVertices; i++) {
 			// position
 			if (mesh->HasPositions()) {
-				vs.push_back(mesh->mVertices[i].x * 0.1);
-				vs.push_back(mesh->mVertices[i].y * 0.1);
-				vs.push_back(mesh->mVertices[i].z * 0.1);
+				vs.push_back(mesh->mVertices[i].x * 0.1f);
+				vs.push_back(mesh->mVertices[i].y * 0.1f);
+				vs.push_back(mesh->mVertices[i].z * 0.1f);
 			}
 
 			// normal

@@ -41,13 +41,13 @@ public:
 			return;
 		}
 		if (act == EI_ACT_DOWN) {
-			int xdir = (key == EI_BTN_D ? 1 : key == EI_BTN_A ? -1 : 0);
-			int ydir = (key == EI_BTN_W ? 1 : key == EI_BTN_S ? -1 : 0);
+			float xdir = (key == EI_BTN_D ? 1.f : key == EI_BTN_A ? -1.f : 0.f);
+			float ydir = (key == EI_BTN_W ? 1.f : key == EI_BTN_S ? -1.f : 0.f);
 			if (xdir) mKeyDirPressed.x = xdir;
 			if (ydir) mKeyDirPressed.y = ydir;
 		} else if (act == EI_ACT_UP) {
-			if (key == EI_BTN_D || key == EI_BTN_A) mKeyDirPressed.x = 0;
-			if (key == EI_BTN_W || key == EI_BTN_S) mKeyDirPressed.y = 0;
+			if (key == EI_BTN_D || key == EI_BTN_A) mKeyDirPressed.x = 0.f;
+			if (key == EI_BTN_W || key == EI_BTN_S) mKeyDirPressed.y = 0.f;
 		}
 
 	}
@@ -63,7 +63,7 @@ public:
 			math::Camera* cam = mCam->GetCam();
 			math::Matrix4F m1 = math::MatrixRotationAxis(cam->GetRight(), deltaY * math::ToRadian(1.0f));
 			math::Matrix4F m2 = math::MatrixRotationAxis(cam->GetWorldUp(), deltaX * math::ToRadian(1.0f));
-			math::Vector4F newF = m1 * (m2 * math::Vector4F(cam->GetForward(), 0));
+			math::Vector4F newF = m1 * (m2 * math::Vector4F(cam->GetForward(), 0.f));
 			cam->UpdateForward(newF);
 
 		} else if (key == EI_BTN_MM) {
@@ -77,7 +77,7 @@ public:
 	}
 
 	void OnMouseRoll(EInput key, float delta) {
-		delta = delta * GDirector->GetFrameTime() * 1.5;
+		delta = delta * GDirector->GetFrameTime() * 1.5f;
 		math::Camera* cam = mCam->GetCam();
 		math::Vector3F newP = cam->GetPosition() + cam->GetForward() * delta;
 		cam->UpdatePosition(newP);
@@ -87,14 +87,14 @@ public:
 		// more smoothly
 		if (mCam) {
 			math::Camera* cam = mCam->GetCam();
-			math::Vector3F delta = math::Vector3F(mKeyDirPressed.x, mKeyDirPressed.y, 0) * mSensityMove * GDirector->GetFrameTime() * 5;
+			math::Vector3F delta = math::Vector3F(mKeyDirPressed.x, mKeyDirPressed.y, 0.f) * mSensityMove * GDirector->GetFrameTime() * 5.f;
 			math::Vector3F newP = cam->GetPosition() + cam->GetForward() * delta.y + cam->GetRight() * delta.x;
 			cam->UpdatePosition(newP);
 		}
 	}
 
 private:
-	math::Vector3I mKeyDirPressed;
+	math::Vector3F mKeyDirPressed;
 
 	EInput mCtrlMouseKey;
 

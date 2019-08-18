@@ -61,13 +61,13 @@ void Director::Update() {
 			GApp->EditorUINewFrame();
 		}
 
-		mFrameTime = (now - last_update_ms) / 1000.0;
+		mFrameTime = (now - last_update_ms) / 1000.0f;
 		last_update_ms = now;
 		FrameTick();
 
 		mFramesForStatFps++;
 		if (now > mFpsStatTime + 1000) {
-			mCurFps = mFramesForStatFps * 1000.0 / (now - mFpsStatTime);
+			mCurFps = mFramesForStatFps * 1000.0f / (now - mFpsStatTime);
 			mFpsStatTime = now;
 			mFramesForStatFps = 0;
 		}

@@ -20,7 +20,7 @@ const char* ShaderParamKey[] = {
 Renderer::Renderer() :
 	mViewportWidth(0),
 	mViewportHeight(0) {
-	MaterialManager::LoadShaders(GApp->GetRootPath() / "Content/Engine/Shader/hlsl");
+	MaterialManager::LoadShaders(GApp->GetRootPath() / "Shader");
 	mRenderScene = new RenderScene();
 
 	mGuiStage = new IMGuiStage();

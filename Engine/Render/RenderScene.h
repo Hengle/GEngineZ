@@ -6,8 +6,8 @@
 namespace z {
 
 
-struct RenderScene : public RefCounter {
-public:;
+class RenderScene : public RefCounter {
+public:
 
 	void Reset() {
 		RenderItems.clear();
