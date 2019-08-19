@@ -36,7 +36,7 @@ public:
 		int baseIndex = Mesh->GetIndexOffset(mMeshIndexGroup);
 		int baseVertex = Mesh->GetVertexOffset(mMeshVertexGroup);
 
-		GDevice->DrawIndexed(Material->mRHIShaderInstance, vb, ib, Material->mRState, num, baseIndex, baseVertex);
+		GDevice->DrawIndexed(Material->GetShaderInstance(), vb, ib, Material->mRState, num, baseIndex, baseVertex);
 	}
 
 	void CustomDraw(int indexNum, int indexOffset, int vertexOffset) {
@@ -44,7 +44,7 @@ public:
 		int baseIndex = Mesh->GetIndexOffset(mMeshIndexGroup) + indexOffset;
 		int baseVertex = Mesh->GetVertexOffset(mMeshVertexGroup) + vertexOffset;
 
-		GDevice->DrawIndexed(Material->mRHIShaderInstance, vb, ib, Material->mRState, indexNum, baseIndex, baseVertex);
+		GDevice->DrawIndexed(Material->GetShaderInstance(), vb, ib, Material->mRState, indexNum, baseIndex, baseVertex);
 	}
 
 private:

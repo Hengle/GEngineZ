@@ -111,7 +111,9 @@ public:
 		return mBlendDesc;
 	}
 
-	// RHI End
+	void ResetBlendState() {
+		mBlendDesc = CD3DX12_BLEND_DESC(D3D12_DEFAULT).RenderTarget[0];
+	}
 
 	void SetPresent();
 	void SetWritable() override;

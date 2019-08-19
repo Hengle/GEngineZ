@@ -56,6 +56,10 @@ DX12ShaderInstance::DX12ShaderInstance(DX12Shader* shader) :
 	mSamplers.resize(max_slot);
 }
 
+
+DX12ShaderInstance::~DX12ShaderInstance() {
+}
+
 void DX12ShaderInstance::SetParameter(const std::string& key, const float* value, int size) {
 	auto iter = mShader->mVariableMap.find(key);
 	if (iter != mShader->mVariableMap.end()) {
@@ -73,6 +77,24 @@ void DX12ShaderInstance::SetParameter(const std::string& key, RHITexture* tex, u
 			mSamplers[index] = new DX12Sampler(samplerFlag);
 		}
 	}
+};
+
+void DX12ShaderInstance::CloneParametersTo(RHIShaderInstance* other) {
+	DX12Shader* s = mShader;
+	// copy variable
+	for (auto& iter : s->mVariableMap) {
+		const std::string& key = iter.first;
+		other->SetParameter(key, (const float*)mCBuffers[iter.second.index]->GetData(iter.second.offset), iter.second.size / sizeof(float));
+	}
+	// copy texture & sampler
+	for (auto& iter : s->mTextureMap) {
+		const std::string& key = iter.first;
+		const int index = iter.second.index;
+		if (mTextures[index]) {
+			other->SetParameter(key, mTextures[index], mSamplers[index]->GetSamplerFlag());
+		}
+	}
+
 };
 
 

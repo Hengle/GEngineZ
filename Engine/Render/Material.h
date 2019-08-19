@@ -11,17 +11,30 @@ class RHIIndexBuffer;
 class RHIShaderInstance;
 
 // memory manage by material manager
-class Material {
+class Material : public RefCounter {
 public:
 	Material(RHIShader*);
+	~Material();
 
 	RHIShader* GetShader() {
 		return mRHIShader;
 	}
 
+	void ReplaceShader(RHIShader* shader);
+
+	bool CheckExpired(int age) {
+		return age < mAge;
+	}
+
+	int GetAge() {
+		return mAge;
+	}
+
 private:
 	RefCountPtr<RHIShader> mRHIShader;
+	int mAge;
 };
+
 
 
 class MaterialInstance : public RefCounter{
@@ -56,10 +69,16 @@ public:
 		mRState.EnableStencil = enable ? 1 : 0;
 	}
 
+	// !!! method to get shader instance
+	RHIShaderInstance* GetShaderInstance();
+
 public:
 	Material* mParent;
-	RefCountPtr<RHIShaderInstance> mRHIShaderInstance;
 	RHIRenderState mRState;
+
+private:
+	RefCountPtr<RHIShaderInstance> mRHIShaderInstance;
+	int mMaterialAge;
 };
 
 
@@ -67,6 +86,10 @@ public:
 class MaterialManager {
 public:
 	static void LoadShaders(FilePath rootPath);
+	
+	static void ReloadShader(const std::string& name);
+
+	static void ReloadAllShaders();
 
 	static std::string PreProcessingHLSL(const FilePath& codePath);
 
@@ -78,7 +101,9 @@ public:
 	
 private:
 	static RHIShader* CompileShader(const std::string&);
-	static std::unordered_map<std::string, Material*> gMaterials;
+	static std::unordered_map<std::string, RefCountPtr<Material>> gMaterials;
+
+	static std::string mRootPath;
 
 };
 

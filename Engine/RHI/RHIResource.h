@@ -1,4 +1,4 @@
-#pragma once
+#pragma once;
 
 #include "RHIConst.h"
 #include <Core/CoreHeader.h>
@@ -19,7 +19,6 @@ public:
 	int32_t Release() const {
 		// override release. 
 		// free in next frame, because command list may use resource in this frame... 
-
 		int old = --mCntRef;
 		if (mCntRef == 0) {
 			if (mImmedDel) {
@@ -36,10 +35,12 @@ public:
 	}
 
 	static void FreeWaitDelResource() {
-		for (RHIResource* res : gWaitDelReousrce) {
+		// gWaitDelReousrce may changed when delete, so copy it first...
+		std::vector<RHIResource*> backup = gWaitDelReousrce;
+		gWaitDelReousrce.clear();
+		for (RHIResource* res : backup) {
 			delete res;
 		}
-		gWaitDelReousrce.clear();
 	}
 private:
 	bool mImmedDel;
@@ -84,6 +85,9 @@ class RHIShaderInstance : public RHIResource {
 public:
 	virtual void SetParameter(const std::string& key, const float* value, int size) = 0;
 	virtual void SetParameter(const std::string& key, RHITexture*, uint32_t sampler=SAMPLER_FILTER_LINEAR|SAMPLER_ADDRESS_WRAP) = 0;
+
+	// clone current parameter to another shader inst
+	virtual void CloneParametersTo(RHIShaderInstance*) = 0;
 };
 
 // buffer

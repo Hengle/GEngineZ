@@ -23,12 +23,11 @@ public:
 	virtual RHITexture* CreateTexture(const RHITextureDesc& desc, const uint8_t* data) = 0;
 
 	// command
-	virtual void SetVertexBuffer(RHIVertexBuffer*) = 0;
-	virtual void SetIndexBuffer(RHIIndexBuffer*) = 0;
+	virtual void ReloadShaders() = 0;
 	virtual void SetOutputs(const std::vector<RHITexture*>& rts, RHITexture* ds = nullptr) = 0;
 	virtual void DrawIndexed(RHIShaderInstance* si, RHIVertexBuffer* vb, RHIIndexBuffer* ib, RHIRenderState state, uint32_t numIndex, uint32_t baseIndex, uint32_t baseVertex) = 0;
 	
-	
+
 	// method
 	RHITexture* CreateTexture2D(ERHIPixelFormat format, uint32_t sizeX, uint32_t sizeY, uint8_t mips, const uint8_t* data);
 

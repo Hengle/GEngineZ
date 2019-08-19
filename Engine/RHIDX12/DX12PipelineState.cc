@@ -7,7 +7,7 @@ namespace z {
 
 
 // pipeline cache
-std::unordered_map<DX12PipelineStateCache::DX12PipelineStateHash, DX12PipelineState*, 
+std::unordered_map<DX12PipelineStateCache::DX12PipelineStateHash, RefCountPtr<DX12PipelineState>,
 	DX12PipelineStateCache::DX12PipelineStateHashFN> DX12PipelineStateCache::gPipelineStates;
 
 DX12PipelineState* DX12PipelineStateCache::Get(DX12Shader* shader, const uint8_t semoff[SEMANTIC_MAX],
@@ -18,12 +18,30 @@ DX12PipelineState* DX12PipelineStateCache::Get(DX12Shader* shader, const uint8_t
 	if (iter != gPipelineStates.end()) {
 		return iter->second;
 	}
-	Log<LDEBUG>("create new pipeline state....");
 	DX12PipelineState* ppState = new DX12PipelineState(hash);
-
+	{
+		//DX12PipelineStateHashFN hashFN;
+		//Log<LDEBUG>& log = Log<LDEBUG>();
+		//log << "create new pipeline state...\n";
+		//log << "   shader: " << shader << "\n";
+		//log << "   state: "<< state.Value << "\n";
+		//log << "   semnatic: ";
+		//for (int i = 0; i < SEMANTIC_MAX; i++) log << (int)semoff[i] << " ";
+		//log << "\n";
+		//log << "   DS: " << hash.DSFormat << "\n";
+		//log << "   RT: " << hash.RTNum << " >> ";
+		//for (int i = 0; i < hash.RTNum; i++) log << hash.RTsFormat[i] << " ";
+		//log << "\n";
+		//log << "hash === " << hashFN(hash) << "===";
+	}
+	for (int i = 0; i < SEMANTIC_MAX; i++) std:
 	gPipelineStates[hash] = ppState;
 	return ppState;
 
+}
+
+void DX12PipelineStateCache::ClearCache() {
+	gPipelineStates.clear();
 }
 
 DX12PipelineStateCache::DX12PipelineStateHash::DX12PipelineStateHash(
@@ -103,6 +121,8 @@ DX12PipelineState::DX12PipelineState(const DX12PipelineStateCache::DX12PipelineS
 	DX12_CHECK(GDX12Device->GetIDevice()->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(mState.GetComRef())));
 }
 
+DX12PipelineState::~DX12PipelineState() {
+}
 
 ID3D12PipelineState* DX12PipelineState::GetIPipelineState() {
 	return mState;

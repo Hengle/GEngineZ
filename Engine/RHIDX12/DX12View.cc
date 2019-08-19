@@ -49,18 +49,17 @@ DX12DescriptorHeapPos DX12DescriptorHeapAllocator::Allocate() {
 	}
 	DX12DescriptorHeapPos last = mFreeDescriptors.back();
 	mFreeDescriptors.pop_back();
-	Log<LDEBUG>("Allocate descriptor", mDesc.Type, last.heap, last.cpuHandle.ptr);
+	// Log<LDEBUG>("Allocate descriptor", mDesc.Type, last.heap, last.cpuHandle.ptr);
 	return last;
 }
 
 void DX12DescriptorHeapAllocator::Free(DX12DescriptorHeapPos const& pos) {
-
-	Log<LDEBUG>("Free descriptor", mDesc.Type, pos.heap, pos.cpuHandle.ptr);
+	// Log<LDEBUG>("Free descriptor", mDesc.Type, pos.heap, pos.cpuHandle.ptr);
 	mFreeDescriptors.emplace_back(pos);
 }
 
 void DX12DescriptorHeapAllocator::AllocateNewHeap() {
-	Log<LDEBUG>("Allocate descriptor heap for type", mDesc.Type);
+	Log<LINFO>("Allocate descriptor heap for type", mDesc.Type);
 
 	RefCountPtr<ID3D12DescriptorHeap> newHeap;
 	GDX12Device->GetIDevice()->CreateDescriptorHeap(&mDesc, IID_PPV_ARGS(newHeap.GetComRef()));

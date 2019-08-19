@@ -95,6 +95,8 @@ void DX12Viewport::BeginDraw(const RHIClearValue& clearValue) {
 
 	// transition state to render target
 	DX12RenderTarget* backBuffer = GetCurBackBuffer();
+	backBuffer->ResetBlendState();
+
 	backBuffer->SetWritable();
 
 	backBuffer->Clear(FromRHIClearVale(clearValue));

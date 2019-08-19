@@ -112,12 +112,8 @@ RHITexture* DX12Device::CreateDepthStencil(uint32_t width, uint32_t height, ERHI
 }
 
 
-void DX12Device::SetVertexBuffer(RHIVertexBuffer* res) {
-	mExecutor->SetVertexBuffer(static_cast<DX12VertexBuffer*>(res));
-}
-
-void DX12Device::SetIndexBuffer(RHIIndexBuffer* res) {
-	mExecutor->SetIndexBuffer(static_cast<DX12IndexBuffer*>(res));
+void DX12Device::ReloadShaders() {
+	DX12PipelineStateCache::ClearCache();
 }
 
 void DX12Device::SetOutputs(const std::vector<RHITexture*>& rts, RHITexture* ds) {

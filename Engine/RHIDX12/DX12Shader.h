@@ -37,9 +37,11 @@ private:
 class DX12ShaderInstance : public RHIShaderInstance {
 public:
 	DX12ShaderInstance(DX12Shader* shader);
+	virtual ~DX12ShaderInstance();
 
 	void SetParameter(const std::string& key, const float* value, int size) override;
 	void SetParameter(const std::string& key, RHITexture*, uint32_t sampler = SAMPLER_FILTER_LINEAR | SAMPLER_ADDRESS_WRAP) override;
+	void CloneParametersTo(RHIShaderInstance*) override;
 
 	DX12Shader* GetShader() {
 		return mShader;
@@ -64,7 +66,7 @@ class DX12Shader : public RHIShader {
 public:
 	friend class DX12ShaderInstance;
 	DX12Shader();
-	~DX12Shader();
+	virtual ~DX12Shader();
 
 	void CombineStage(RHIShaderStage* rhiStage) override {
 		DX12ShaderStage* stage = static_cast<DX12ShaderStage*>(rhiStage);

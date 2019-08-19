@@ -5,6 +5,8 @@
 #include <Client/Scene/Scene.h>
 #include <Client/Component/EnvComp.h>
 
+#include <Render/Material.h>
+
 namespace z {
 
 namespace ui = ImGui;
@@ -71,7 +73,7 @@ void UIManager::NewFrame() {
 	}
 
 	if (ui::CollapsingHeader("Other", ImGuiTreeNodeFlags_DefaultOpen)) {
-		t.reloadShader = ImGui::Button("Reload Shader");
+		t.reloadAllShader = ImGui::Button("Reload All Shader");
 	}
 
 
@@ -145,8 +147,8 @@ void UIManager::StoreData() {
 
 
 	// Other
-	if (t.reloadShader) {
-		Log<LINFO>("reload shader....");
+	if (t.reloadAllShader) {
+		MaterialManager::ReloadAllShaders();
 	}
 }
 

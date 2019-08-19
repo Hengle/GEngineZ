@@ -130,5 +130,9 @@ void DX12ConstantBuffer::CopyData(const void* data, uint32_t offset, uint32_t si
 	memcpy(mMappedBuffer + offset, data, size);
 }
 
+const void* DX12ConstantBuffer::GetData(uint32_t offset) {
+	return mMappedBuffer + offset;
+}
+
 
 }

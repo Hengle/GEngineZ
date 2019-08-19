@@ -95,6 +95,7 @@ class DX12ConstantBuffer : public DX12ShaderResource, public RefCounter {
 public:
 	DX12ConstantBuffer(uint32_t size);
 	void CopyData(const void *data, uint32_t offset, uint32_t size);
+	const void* GetData(uint32_t offset);
 
 	DX12ConstantBufferView* GetView() {
 		return mView;

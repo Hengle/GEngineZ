@@ -220,6 +220,8 @@ DX12RenderTarget::DX12RenderTarget(DX12Resource* resource) {
 	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 	srvDesc.Texture2D.PlaneSlice          = 0;
 	SetSRView(new DX12ShaderResourceView(srvDesc, mResource));
+
+	ResetBlendState();
 }
 
 

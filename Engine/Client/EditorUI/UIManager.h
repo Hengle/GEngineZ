@@ -25,7 +25,7 @@ struct UIData {
 
 
 	// other
-	bool reloadShader;
+	bool reloadAllShader;
 };
 
 class UIManager {
