@@ -45,6 +45,8 @@ public:
 	RHITexture* CreateDepthStencil(uint32_t width, uint32_t height, ERHIPixelFormat format) override;
 	RHITexture* CreateRenderTarget(uint32_t width, uint32_t height, ERHIPixelFormat format) override;
 
+	void SetRenderRect(const RHIRenderRect& rect) override;
+	void SetScissorRect(const RHIScissorRect& rect) override;
 	void SetOutputs(const std::vector<RHITexture*>& rts, RHITexture *ds=nullptr) override;
 	void DrawIndexed(RHIShaderInstance* si, RHIVertexBuffer* vb, RHIIndexBuffer* ib, RHIRenderState state, uint32_t numIndex, uint32_t baseIndex, uint32_t baseVertex) override;
 

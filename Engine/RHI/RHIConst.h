@@ -8,6 +8,8 @@ enum DeviceFlag {
 
 };
 
+struct _RHIDefault {};
+extern const _RHIDefault RHIDefault;
 
 enum ERHIShaderStage {
 	SHADER_STAGE_VERTEX,
@@ -110,6 +112,7 @@ enum ERHIBlendFactor {
 	BLEND_FACTOR_INV_SRC1_ALPHA
 };
 
+
 enum ERHIInputSemantic {
 	SEMANTIC_POSITION	= 0x01,
 	SEMANTIC_NORMAL,
@@ -197,12 +200,12 @@ struct RHIClearValue {
 
 struct RHIBlendState {
 	bool Enable;
-	ERHIBlendFactor SrcBlend;
-	ERHIBlendFactor DestBlend;
-	ERHIBlendOperation BlendOp;
-	ERHIBlendFactor SrcBlendAlpha;
-	ERHIBlendFactor DestBlendAlpha;
-	ERHIBlendOperation BlendOpAlpha;
+	ERHIBlendFactor SrcColor;
+	ERHIBlendFactor DstColor;
+	ERHIBlendOperation ColorOp;
+	ERHIBlendFactor SrcAlpha;
+	ERHIBlendFactor DstAlpha;
+	ERHIBlendOperation AlphaOp;
 };
 
 

@@ -3,8 +3,10 @@
 #include <RHI/RHIResource.h>
 #include <RHI/RHIDevice.h>
 
+#include "RenderTarget.h"
+#include "Pipeline/RenderStep.h"
+
 namespace z {
-class IMGuiStage;
 class RenderScene;
 class RenderItem;
 
@@ -16,22 +18,29 @@ public:
 	void Resize(uint32_t width, uint32_t height);
 	void Tick();
 	void Render();
+	
+	//void RenderItems(ERenderSet set);
 
-	RHIViewport* GetViewport() {
-		return mRHIViewport;
-	}
+
 
 private:
+
 	void CollectMaterialParametes(RenderItem*);
 
-	RefCountPtr<RHITexture> mDepthStencil;
 	RefCountPtr<RHIViewport> mRHIViewport;
 	uint32_t mViewportWidth;
 	uint32_t mViewportHeight;
 
+	RefCountPtr<RenderTarget> mBackRT;
+	RefCountPtr<DepthStencil> mBackDS;
+
 	RefCountPtr<RenderScene> mRenderScene;
 
-	RefCountPtr<IMGuiStage> mGuiStage;
+	std::unordered_map<ERenderStep, RefCountPtr<RenderStep>> mRenderSteps;
+
+
+
+	
 
 };
 

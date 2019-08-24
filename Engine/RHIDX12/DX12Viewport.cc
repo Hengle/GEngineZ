@@ -88,18 +88,17 @@ void DX12Viewport::Present() {
 }
 
 
-void DX12Viewport::BeginDraw(const RHIClearValue& clearValue) {
+void DX12Viewport::BeginDraw() {
 	// set render rect and scissor rect
-	SetRenderRect({ 0.f, 0.f, (float)mWidth, (float)mHeight, 0.f, 1.f });
-	SetScissorRect({ 0, 0, (int)mWidth, (int)mHeight });
+	//SetRenderRect({ 0.f, 0.f, (float)mWidth, (float)mHeight, 0.f, 1.f });
+	//SetScissorRect({ 0, 0, (int)mWidth, (int)mHeight });
 
 	// transition state to render target
 	DX12RenderTarget* backBuffer = GetCurBackBuffer();
-	backBuffer->ResetBlendState();
+	//backBuffer->ResetBlendState();
 
 	backBuffer->SetWritable();
 
-	backBuffer->Clear(FromRHIClearVale(clearValue));
 	GDX12Device->GetExecutor()->SetRenderTargets({ backBuffer });
 	GDX12Device->GetExecutor()->ApplyState();
 }
@@ -111,19 +110,5 @@ void DX12Viewport::EndDraw() {
 }
 
 
-void DX12Viewport::SetRenderRect(const RHIRenderRect& rect) {
-	D3D12_VIEWPORT dxRect;
-	dxRect = { rect.TopLeftX, rect.TopLeftY, rect.Width, rect.Height, rect.MinDepth, rect.MaxDepth };
-
-	GDX12Device->GetExecutor()->GetCommandList()->RSSetViewports(1, &dxRect);
-}
-
-
-void DX12Viewport::SetScissorRect(const RHIScissorRect& rect) {
-	D3D12_RECT scissorRect;
-	scissorRect = { (long)rect.Left, (long)rect.Top, (long)rect.Right, (long)rect.Bottom };
-
-	GDX12Device->GetExecutor()->GetCommandList()->RSSetScissorRects(1, &scissorRect);
-}
 
 }

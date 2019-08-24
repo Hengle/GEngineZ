@@ -8,6 +8,8 @@ namespace z {
 
 RHIDevice* GDevice = nullptr;
 
+const _RHIDefault RHIDefault;
+
 RHIDevice::RHIDevice() {
 	InitializeSingleton<RHIDevice>(GDevice, this);
 }

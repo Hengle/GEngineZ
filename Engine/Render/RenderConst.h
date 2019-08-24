@@ -5,8 +5,8 @@ namespace z {
 
 
 enum ERenderSet {
-	RSET_EDITOR,
-	RSET_OPAQUE,
+	RENDER_SET_EDITOR,
+	RENDER_SET_OPAQUE,
 };
 
 enum ERenderTech {

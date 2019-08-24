@@ -16,10 +16,8 @@ public:
 	
 	// begin RHI Viewport
 	void Resize(uint32_t width, uint32_t height) override;
-	void BeginDraw(const RHIClearValue& clearValue) override;
+	void BeginDraw() override;
 	void EndDraw() override;
-	void SetRenderRect(const RHIRenderRect& rect) override;
-	void SetScissorRect(const RHIScissorRect& rect) override;
 	RHITexture* GetBackBuffer() override {
 		return GetCurBackBuffer();
 	}

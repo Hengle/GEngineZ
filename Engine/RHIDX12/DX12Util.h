@@ -103,12 +103,12 @@ inline D3D12_RENDER_TARGET_BLEND_DESC FromRHIBlendState(const RHIBlendState& rhi
 	D3D12_RENDER_TARGET_BLEND_DESC state;
 	ZeroMemory(&state, sizeof(D3D12_RENDER_TARGET_BLEND_DESC));
 	state.BlendEnable    = rhiState.Enable ? 1 : 0;
-	state.SrcBlend       = GetDX12BlendFactor(rhiState.SrcBlend);
-	state.DestBlend      = GetDX12BlendFactor(rhiState.DestBlend);
-	state.BlendOp        = GetDX12BlendOp(rhiState.BlendOp);
-	state.SrcBlendAlpha  = GetDX12BlendFactor(rhiState.SrcBlendAlpha);
-	state.DestBlendAlpha = GetDX12BlendFactor(rhiState.DestBlendAlpha);
-	state.BlendOpAlpha   = GetDX12BlendOp(rhiState.BlendOpAlpha);
+	state.SrcBlend       = GetDX12BlendFactor(rhiState.SrcColor);
+	state.DestBlend      = GetDX12BlendFactor(rhiState.DstColor);
+	state.BlendOp        = GetDX12BlendOp(rhiState.ColorOp);
+	state.SrcBlendAlpha  = GetDX12BlendFactor(rhiState.SrcAlpha);
+	state.DestBlendAlpha = GetDX12BlendFactor(rhiState.DstAlpha);
+	state.BlendOpAlpha   = GetDX12BlendOp(rhiState.AlphaOp);
 	state.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 	return state;
 }

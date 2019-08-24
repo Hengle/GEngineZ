@@ -5,6 +5,38 @@
 
 namespace z { namespace math {
 
+
+inline Matrix4F MatrixPerspective(float fov, float aspect, float nearZ, float farZ) {
+	float tanv = std::sin(fov / 2) / std::cos(fov / 2);
+	float r = farZ / (farZ - nearZ);
+
+	return Matrix4F(
+		1 / tanv / aspect, 0, 0, 0,
+		0, 1 / tanv, 0, 0,
+		0, 0, r, -r * nearZ,
+		0, 0, 1, 0
+	);
+}
+
+inline Matrix4F MatrixOrtho(float left, float right, float bottom, float top, float nearZ, float farZ) {
+	return Matrix4F(
+		{ 2.0f / (right - left), 0.0f, 0.0f, 0.0f },
+		{ 0.0f, 2.0f / (top - bottom), 0.0f, 0.0f },
+		{ 0.0f, 0.0f, 2.0f / (farZ - nearZ), 0.0f },
+		{ (left+right)/(left-right),  (top+bottom)/(bottom-top), (nearZ+farZ)/(nearZ-farZ), 1.0f }
+	);
+}
+
+
+inline Matrix4F MatrixOrtho2D(float left, float right, float bottom, float top) {
+	return Matrix4F(
+		{ 2.0f / (right - left), 0.0f, 0.0f, 0.0f },
+		{ 0.0f, 2.0f / (top - bottom), 0.0f, 0.0f },
+		{ 0.0f, 0.0f, 1.0f, 0.0f },
+		{ (left + right) / (left - right),  (top + bottom) / (bottom - top), 0.0f, 1.0f }
+	);
+}
+
 class Camera {
 public:
 	Camera(const Vector3F& eye, const Vector3F& target, const Vector3F& worldUp = Vector3F(0, 1, 0)) {

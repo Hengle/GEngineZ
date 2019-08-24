@@ -5,7 +5,9 @@
 #include <RHI/RHIDevice.h>
 #include "RenderScene.h"
 
-#include <Render/Pipeline/IMGuiStage.h>
+#include "RenderStage.h"
+#include "Pipeline/IMGuiStep.h"
+
 
 namespace z {
 
@@ -23,8 +25,11 @@ Renderer::Renderer() :
 	MaterialManager::LoadShaders(GApp->GetRootPath() / "Shader");
 	mRenderScene = new RenderScene();
 
-	mGuiStage = new IMGuiStage();
-	mGuiStage->Init();
+	mRenderSteps[RENDER_STEP_IMGUI] = new IMGuiStep();
+
+	for (auto& iter : mRenderSteps) {
+		iter.second->Init();
+	}
 }
 
 Renderer::~Renderer() {
@@ -36,11 +41,15 @@ void Renderer::Resize(uint32_t width, uint32_t height) {
 	mViewportHeight = height;
 	if (!mRHIViewport) {
 		mRHIViewport = GDevice->CreateViewport(width, height, PF_R8G8B8A8);
+		mBackDS = new DepthStencil(width, height, PF_D24S8);
 	} else {
 		mRHIViewport->Resize(width, height);
+		mBackDS->Resize(width, height);
 	}
 
-	mDepthStencil = GDevice->CreateDepthStencil(width, height, PF_D24S8);
+	for (auto& iter : mRenderSteps) {
+		iter.second->Resize(width, height);
+	}
 
 }
 
@@ -53,7 +62,7 @@ void Renderer::Tick() {
 	mRenderScene->Reset();
 
 	Scene* scn = GDirector->GetCurScene();
-	if (scn) {
+	if (scn) {	
 		scn->ColloectEnv(mRenderScene);
 		scn->CollectItems(mRenderScene);
 	}
@@ -65,18 +74,20 @@ void Renderer::Render() {
 		return;
 	}
 
-	mRHIViewport->BeginDraw(RHIClearValue(1.0, 1.0, 1.0, 1.0));
 
+	mRHIViewport->BeginDraw();
+	mBackRT = new RenderTarget(mRHIViewport->GetBackBuffer());
 
+	RenderStage::BeginStage("Main Stage");
 
-	// === Render Scene ===
-	mDepthStencil->Clear(RHIClearValue(1.0, 0));
+	RenderStage::CurStage()->SetRenderTarget(mBackRT, mBackDS);
+	RenderStage::CurStage()->SetRenderRect({ 0.f, 0.f, (float)mViewportWidth, (float)mViewportHeight, 0.f, 1.f });
+	RenderStage::CurStage()->SetScissorRect({ 0, 0, (int)mViewportWidth, (int)mViewportHeight });
 
-	//GDevice->CreateRenderTarget()
+	mBackRT->Clear({ 1.0, 1.0, 1.0, 1.0 });
+	mBackDS->Clear(1.0, 0);
 
-
-	GDevice->SetOutputs({ mRHIViewport->GetBackBuffer() }, mDepthStencil);
-
+	
 	// render oqaque
 	// render sky
 
@@ -90,13 +101,22 @@ void Renderer::Render() {
 
 
 	// === UI ===
-	mGuiStage->Draw(this);
-	
+	mRenderSteps[RENDER_STEP_IMGUI]->Render(this);
 
+
+	RenderStage::EndStage();
+	CHECK(RenderStage::CurStage() == nullptr);
 	mRHIViewport->EndDraw();
+
+
 
 	// free resoruce and so on..
 	GDevice->EndDraw();
+}
+
+
+void RenderItems(ERenderSet set) {
+
 }
 
 
@@ -115,5 +135,6 @@ void Renderer::CollectMaterialParametes(RenderItem* item) {
 		item->Material->SetParameter(ShaderParamKey[i], gShaderParams[i].value, 4);
 	}
 }
+
 
 }

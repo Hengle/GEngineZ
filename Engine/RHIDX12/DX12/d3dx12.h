@@ -546,7 +546,8 @@ struct CD3DX12_CLEAR_VALUE : public D3D12_CLEAR_VALUE
         Format = format;
         memcpy( Color, color, sizeof( Color ) );
     }
-    CD3DX12_CLEAR_VALUE( 
+    
+	CD3DX12_CLEAR_VALUE( 
         DXGI_FORMAT format, 
         FLOAT depth,
         UINT8 stencil )

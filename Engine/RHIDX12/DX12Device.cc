@@ -127,6 +127,22 @@ void DX12Device::SetOutputs(const std::vector<RHITexture*>& rts, RHITexture* ds)
 
 }
 
+void DX12Device::SetRenderRect(const RHIRenderRect& rect) {
+	D3D12_VIEWPORT dxRect;
+	dxRect = { rect.TopLeftX, rect.TopLeftY, rect.Width, rect.Height, rect.MinDepth, rect.MaxDepth };
+
+	GDX12Device->GetExecutor()->GetCommandList()->RSSetViewports(1, &dxRect);
+}
+
+
+void DX12Device::SetScissorRect(const RHIScissorRect& rect) {
+	D3D12_RECT scissorRect;
+	scissorRect = { (long)rect.Left, (long)rect.Top, (long)rect.Right, (long)rect.Bottom };
+
+	GDX12Device->GetExecutor()->GetCommandList()->RSSetScissorRects(1, &scissorRect);
+}
+
+
 void DX12Device::DrawIndexed(RHIShaderInstance* shaderInst, RHIVertexBuffer* vb, RHIIndexBuffer* ib, RHIRenderState state, uint32_t numIndex, uint32_t baseIndex, uint32_t baseVertex) {
 	DX12ShaderInstance* inst = static_cast<DX12ShaderInstance*>(shaderInst);
 	DX12VertexBuffer* vbuffer = static_cast<DX12VertexBuffer*>(vb);

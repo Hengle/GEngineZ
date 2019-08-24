@@ -49,10 +49,14 @@ a = aspect, t = tan(fov/2)
 			   | 0       0    fn(n-f) 0|
 
 // Ortho
-
+l, r, b, t, f, n (left, right, bottom, top, far, near)
+(l, r) -> (-1, 1), (b, t) -> (-1, 1), (n, f) -> (-1, 1)
+                | 2/(r-l)       0        0  -(r+l)/(r-l) |
+[x, y, z, 1] *  | 0       2/(t-b)        0  -(t+b)/(t-b) |
+                | 0             0  2/(f-n)  -(f+n)/(f-n) |
+                | 0             0        0             1 |
 
 */
-
 
 // row major
 // Matrix3
