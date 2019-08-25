@@ -36,7 +36,9 @@ v2f VS(a2v IN) {
 float4 PS(v2f IN) : SV_Target{
 	float4 colorAlpha = tBaseMap.Sample(sBaseMap, IN.UV);
 	float3 color = colorAlpha.rgb;
-	color = ACES_Knarkowicz(color);
+	if (EnableHDR) {
+		color = ACES_Knarkowicz(color);
+	}
 	color = EncodeGamma(color);
 	return float4(color, colorAlpha.a);
 }

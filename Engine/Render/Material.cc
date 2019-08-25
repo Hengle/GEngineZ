@@ -38,7 +38,7 @@ MaterialInstance::MaterialInstance(Material* material) :
 }
 
 
-void MaterialInstance::SetParameter(const std::string& key, const float* value, int size) {
+void MaterialInstance::SetParameter(const std::string& key, const void* value, int size) {
 	GetShaderInstance()->SetParameter(key, value, size);
 }
 

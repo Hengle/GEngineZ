@@ -60,7 +60,7 @@ DX12ShaderInstance::DX12ShaderInstance(DX12Shader* shader) :
 DX12ShaderInstance::~DX12ShaderInstance() {
 }
 
-void DX12ShaderInstance::SetParameter(const std::string& key, const float* value, int size) {
+void DX12ShaderInstance::SetParameter(const std::string& key, const void* value, int size) {
 	auto iter = mShader->mVariableMap.find(key);
 	if (iter != mShader->mVariableMap.end()) {
 		CHECK(size * sizeof(float) == iter->second.size);

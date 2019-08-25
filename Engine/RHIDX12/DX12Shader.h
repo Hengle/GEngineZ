@@ -39,7 +39,7 @@ public:
 	DX12ShaderInstance(DX12Shader* shader);
 	virtual ~DX12ShaderInstance();
 
-	void SetParameter(const std::string& key, const float* value, int size) override;
+	void SetParameter(const std::string& key, const void* value, int size) override;
 	void SetParameter(const std::string& key, RHITexture*, uint32_t sampler = SAMPLER_FILTER_LINEAR | SAMPLER_ADDRESS_WRAP) override;
 	void CloneParametersTo(RHIShaderInstance*) override;
 

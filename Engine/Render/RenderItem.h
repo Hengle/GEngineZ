@@ -3,6 +3,7 @@
 #include <Render/RenderConst.h>
 #include <Render/Material.h>
 #include <Render/Mesh.h>
+#include <Render/RenderOption.h>
 #include <RHI/RHIDevice.h>
 
 #include "RenderStage.h"
@@ -33,8 +34,15 @@ public:
 	}
 
 	void RetriveItemParams() {
+		// parameter
 		Material->SetParameter("World", (const float*)&WorldMatrix, 16);
+
+		// render option
+		int option = GRenderOptions.HDR ? 1 : 0;
+		Material->SetParameter("EnableHDR", &option, 1);
+
 	}
+
 
 	void Draw() {
 		auto [vb, ib] = Mesh->GetRHIResource();
@@ -42,6 +50,7 @@ public:
 		int baseIndex = Mesh->GetIndexOffset(mMeshIndexGroup);
 		int baseVertex = Mesh->GetVertexOffset(mMeshVertexGroup);
 
+		RetriveItemParams();
 		RenderStage::Apply();
 		GDevice->DrawIndexed(Material->GetShaderInstance(), vb, ib, Material->mRState, num, baseIndex, baseVertex);
 	}
@@ -51,6 +60,7 @@ public:
 		int baseIndex = Mesh->GetIndexOffset(mMeshIndexGroup) + indexOffset;
 		int baseVertex = Mesh->GetVertexOffset(mMeshVertexGroup) + vertexOffset;
 
+		RetriveItemParams();
 		RenderStage::Apply();
 		GDevice->DrawIndexed(Material->GetShaderInstance(), vb, ib, Material->mRState, indexNum, baseIndex, baseVertex);
 	}

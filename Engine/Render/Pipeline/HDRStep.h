@@ -4,12 +4,14 @@
 #include "BaseScreenStep.h"
 
 
+
 namespace z {
 
 class HDRStep : public BaseScreenStep {
 	void Init() override {
 		// create material
 		mMaterial = MaterialManager::GetMaterialInstance("ToneMapping");
+
 	}
 	
 	void Resize(uint32_t width, uint32_t height) override {

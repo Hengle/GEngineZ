@@ -34,7 +34,6 @@ public:
 		// opaque
 		for (auto item : sceneCol->FilterItems(RENDER_SET_OPAQUE)) {
 			sceneCol->RetriveSceneParams(item->Material);
-			item->RetriveItemParams();
 			item->Draw();
 		}
 	

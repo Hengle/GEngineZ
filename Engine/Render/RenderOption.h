@@ -1,14 +1,23 @@
+#pragma once
+#include <Core/CoreHeader.h>
+
 namespace z {
 
-enum RenderOption {
+
+struct RenderOptions {
+	bool HDR{ true };
 
 };
 
+extern struct RenderOptions GRenderOptions;
 
-class RenderOptions {
-public:
-	bool HDR = true;
+enum ERenderOption {
 
 };
 
+union RenderOptionValue {
+	bool Enabled;
+};
+
+extern std::unordered_map<ERenderOption, RenderOptionValue> NewRenderOptions;
 }

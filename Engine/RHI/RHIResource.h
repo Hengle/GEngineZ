@@ -81,7 +81,7 @@ public:
 
 class RHIShaderInstance : public RHIResource {
 public:
-	virtual void SetParameter(const std::string& key, const float* value, int size) = 0;
+	virtual void SetParameter(const std::string& key, const void* value, int size) = 0;
 	virtual void SetParameter(const std::string& key, RHITexture*, uint32_t sampler=SAMPLER_FILTER_LINEAR|SAMPLER_ADDRESS_WRAP) = 0;
 
 	// clone current parameter to another shader inst

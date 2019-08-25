@@ -4,6 +4,7 @@
 #include <Client/Main/Director.h>
 #include <RHI/RHIDevice.h>
 
+#include "RenderOption.h"
 #include "RenderStage.h"
 #include "SceneCollection.h"
 
@@ -12,6 +13,8 @@
 #include "Pipeline/HDRStep.h"
 
 namespace z {
+
+RenderOptions GRenderOptions;
 
 Renderer::Renderer() :
 	mViewportWidth(0),

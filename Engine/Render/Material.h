@@ -41,7 +41,7 @@ class MaterialInstance : public RefCounter{
 public:
 	MaterialInstance(Material*);
 
-	void SetParameter(const std::string& key, const float* value, int size);
+	void SetParameter(const std::string& key, const void* value, int size);
 	void SetParameter(const std::string& key, RHITexture*, uint32_t sampler = SAMPLER_FILTER_LINEAR | SAMPLER_ADDRESS_WRAP);
 
 	Material* GetMaterial() {

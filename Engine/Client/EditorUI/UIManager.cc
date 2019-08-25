@@ -6,6 +6,7 @@
 #include <Client/Component/EnvComp.h>
 
 #include <Render/Material.h>
+#include <Render/RenderOption.h>
 
 namespace z {
 
@@ -122,7 +123,7 @@ void UIManager::LoadData() {
 	}
 
 	// Render Option
-	t.hdr = true;
+	ot.hdr = GRenderOptions.HDR;
 
 	// Option
 	
@@ -148,6 +149,7 @@ void UIManager::StoreData() {
 	// Render Option
 	if (t.hdr != ot.hdr) {
 		Log<LINFO>("hdr changed....");
+		GRenderOptions.HDR = t.hdr;
 	}
 
 
