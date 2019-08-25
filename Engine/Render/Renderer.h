@@ -4,10 +4,14 @@
 #include <RHI/RHIDevice.h>
 
 #include "RenderTarget.h"
+#include "SceneCollection.h"
+
 #include "Pipeline/RenderStep.h"
 
+
 namespace z {
-class RenderScene;
+
+class SceneCollection;
 class RenderItem;
 
 class Renderer : public RefCounter {
@@ -19,27 +23,19 @@ public:
 	void Tick();
 	void Render();
 	
-	//void RenderItems(ERenderSet set);
-
-
+	SceneCollection* GetSceneCollection();
 
 private:
-
-	void CollectMaterialParametes(RenderItem*);
 
 	RefCountPtr<RHIViewport> mRHIViewport;
 	uint32_t mViewportWidth;
 	uint32_t mViewportHeight;
 
 	RefCountPtr<RenderTarget> mBackRT;
-	RefCountPtr<DepthStencil> mBackDS;
-
-	RefCountPtr<RenderScene> mRenderScene;
 
 	std::unordered_map<ERenderStep, RefCountPtr<RenderStep>> mRenderSteps;
 
-
-
+	RefCountPtr<SceneCollection> mSceneCol;
 	
 
 };

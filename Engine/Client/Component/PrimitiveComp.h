@@ -21,7 +21,8 @@ public:
 
 	RHITexture* LoadTextureFile(std::string file);
 
-	void CollectRenderItems(RenderScene* scn);
+
+	void CollectRender(SceneCollection*) override;
 
 private:
 	std::vector<RefCountPtr<RenderItem>> mRenderItems;

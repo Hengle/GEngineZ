@@ -112,6 +112,13 @@ RHITexture* DX12Device::CreateDepthStencil(uint32_t width, uint32_t height, ERHI
 }
 
 
+void DX12Device::GetAndClearStats(RHIStats& stat) {
+	auto [dp, face] = mExecutor->GetStats();
+	stat.DrawCalls = dp;
+	stat.Faces = face;
+	mExecutor->ClearStats();
+}
+
 void DX12Device::ReloadShaders() {
 	DX12PipelineStateCache::ClearCache();
 }

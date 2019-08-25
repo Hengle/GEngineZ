@@ -18,8 +18,7 @@ public:
 
 	void SetSky(std::string shader, std::string texPath);
 
-
-	void CollectRenderItems(RenderScene* scn);
+	void CollectRender(SceneCollection*) override;
 
 
 	math::Vector3F& GetSunRotater() {

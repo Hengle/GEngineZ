@@ -44,6 +44,7 @@ endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
 add_compile_options(/wd4267)
 add_compile_options(/wd4267)
 add_compile_options(/wd26451)
+add_compile_options(/wd26444)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 

@@ -23,6 +23,7 @@ public:
 	virtual RHITexture* CreateTexture(const RHITextureDesc& desc, const uint8_t* data) = 0;
 
 	// command
+	virtual void GetAndClearStats(RHIStats& stat) = 0;
 	virtual void SetRenderRect(const RHIRenderRect& rect) = 0;
 	virtual void SetScissorRect(const RHIScissorRect& rect) = 0;
 	virtual void SetOutputs(const std::vector<RHITexture*>& rts, RHITexture* ds = nullptr) = 0;

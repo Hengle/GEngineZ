@@ -1,7 +1,7 @@
 #include "EnvComp.h"
 #include <Render/RenderItem.h>
 #include <RHI/RHIResource.h>
-#include <Render/RenderScene.h>
+#include <Render/SceneCollection.h>
 #include <Util/Mesh/MeshGenerator.h>
 #include <Util/Image/Image.h>
 #include <RHI/RHIDevice.h>
@@ -34,17 +34,17 @@ void EnvComp::SetSky(std::string shader, std::string texPath) {
 }
 
 
-void EnvComp::CollectRenderItems(RenderScene* scn) {
+void EnvComp::CollectRender(SceneCollection* collection) {
 	// just get forward
 	math::Matrix4F r = math::Matrix4F::Identity;
 	r = r * math::MatrixRotationY(mSunRotater.y) * math::MatrixRotationX(mSunRotater.x) * math::MatrixRotationZ(mSunRotater.z);
 
-	gShaderParams[SP_SUN_COLOR] = math::Vector4F(mSunColor, 1.0f);
-	gShaderParams[SP_SUN_DIRECTION] = { r[2], 1.0f };
-	gShaderParams[SP_AMBIENT_COLOR] = math::Vector4F(mAmbientColor, 1.0f);
+	collection->ShaderParams[SP_SUN_COLOR] = math::Vector4F(mSunColor, 1.0f);
+	collection->ShaderParams[SP_SUN_DIRECTION] = { r[2], 1.0f };
+	collection->ShaderParams[SP_AMBIENT_COLOR] = math::Vector4F(mAmbientColor, 1.0f);
 
 	if (mSkyItem) {
-		scn->RenderItems.push_back(mSkyItem);
+		collection->PushRenderItem(mSkyItem);
 	}
 }
 

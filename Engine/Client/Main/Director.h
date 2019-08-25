@@ -53,6 +53,14 @@ public:
 		return mCurFps;
 	}
 
+	uint32_t GetDrawCalls() {
+		return mRHIStats.DrawCalls;
+	}
+
+	uint32_t GetDrawFaces() {
+		return mRHIStats.Faces;
+	}
+
 	float GetFrameTime() {
 		return mFrameTime;
 	}
@@ -68,6 +76,8 @@ private:
 	RefCountPtr<Scene> mCurScene;
 	RefCountPtr<Renderer> mRenderer;
 	RefCountPtr<CameraController> mCameraController;
+
+	RHIStats mRHIStats;
 	
 };
 

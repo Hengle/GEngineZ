@@ -66,15 +66,15 @@ void Director::Update() {
 		last_update_ms = now;
 		FrameTick();
 
+		// render stats
+		GDevice->GetAndClearStats(mRHIStats);
+
 		mFramesForStatFps++;
 		if (now > mFpsStatTime + 1000) {
 			mCurFps = mFramesForStatFps * 1000.0f / (now - mFpsStatTime);
 			mFpsStatTime = now;
 			mFramesForStatFps = 0;
 		}
-	} else {
-		//std::this_thread::sleep_for(std::chrono::milliseconds(std::min(5ULL, last_update_ms + mFrameInterval - now)));
-		//std::this_thread::yield();
 	}
 
 }

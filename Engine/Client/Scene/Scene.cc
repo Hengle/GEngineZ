@@ -1,5 +1,5 @@
 #include "Scene.h"
-#include <Render/RenderScene.h>
+#include <Render/SceneCollection.h>
 #include <Render/RenderItem.h>
 #include <RHI/RHIDevice.h>
 #include <RHI/RHIResource.h>
@@ -29,6 +29,7 @@ bool Scene::Load(const std::string file) {
 		// grid, 10m*10m
 		RenderMesh *mesh = MeshGenerator::CreateGrid(1580, 1580, 79, 79);
 		RenderItem* item = new RenderItem();
+		item->RenderSet = RENDER_SET_EDITOR;
 		item->Material = MaterialManager::GetMaterialInstance(EMPTY_MATERIAL);
 		item->Material->SetFillMode(RS_FILL_WIREFRAME);
 		item->Mesh = mesh;
@@ -40,6 +41,7 @@ bool Scene::Load(const std::string file) {
 		for (int i = 0; i < 3; i++) {
 			RenderMesh*mesh = MeshGenerator::CreateCylinder(0.1f, 0, 20, 10, 10);
 			RenderItem *item = new RenderItem();
+			item->RenderSet = RENDER_SET_EDITOR;
 			item->Material = MaterialManager::GetMaterialInstance("EditorAxis");
 			item->Material->SetParameter("Color", math::Vector3F(i==0, i==1, i==2).value, 3);
 			//item->material->SetFillMode(RS_FILL_WIREFRAME);
@@ -116,32 +118,32 @@ bool Scene::LoadFromFile(const std::string file) {
 }
 
 
-void Scene::ColloectEnv(RenderScene* renderScn) {
+
+void Scene::CollectRender(SceneCollection* collection) {
 	// camera info
-	renderScn->ViewMatrix = mCamera->GetCam()->GetViewMatrix();
-	renderScn->ViewProjMatrix = mCamera->GetCam()->GetViewProjectMatrix();
-	renderScn->CameraPos = mCamera->GetCam()->GetPosition();
+	collection->SetCamera(
+		mCamera->GetCam()->GetPosition(),
+		mCamera->GetCam()->GetViewMatrix(),
+		mCamera->GetCam()->GetProjMatrix()
+	);
 
 	EnvComp *comp = GetComponent<EnvComp>();
-	comp->CollectRenderItems(renderScn);
+	comp->CollectRender(collection);
 
-
-}
-
-
-void Scene::CollectItems(RenderScene* renderScn) {
 	// editor items
 	for (RenderItem* item : mEditorItems) {
-		renderScn->RenderItems.push_back(item);
+		collection->PushRenderItem(item);
 	}
 
 	// primitives
-	for (IEntity *ent : mEntities) {
+	for (IEntity* ent : mEntities) {
 		std::vector<PrimitiveComp*> prims = ent->GetComponents<PrimitiveComp>();
 		for (auto prim : prims) {
-			prim->CollectRenderItems(renderScn);
+			prim->CollectRender(collection);
 		}
 	}
+
 }
+
 
 }

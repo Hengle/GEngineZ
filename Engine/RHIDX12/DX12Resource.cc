@@ -22,6 +22,16 @@ DX12Resource::DX12Resource(D3D12_HEAP_TYPE heapType, D3D12_RESOURCE_STATES state
 		clearValue.DepthStencil.Stencil = 0;
 		optClear = &clearValue;
 	}
+	if (desc.Flags == D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET) {
+		D3D12_CLEAR_VALUE clearValue;
+		clearValue.Format = desc.Format;
+		clearValue.Color[0] = 0.0f;
+		clearValue.Color[1] = 0.0f;
+		clearValue.Color[2] = 0.0f;
+		clearValue.Color[3] = 1.0f;
+		optClear = &clearValue;
+
+	}
 	DX12_CHECK(GDX12Device->GetIDevice()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(heapType),
 		D3D12_HEAP_FLAG_NONE,

@@ -4,6 +4,7 @@
 namespace z {
 
 class IEntity;
+class SceneCollection;
 
 
 
@@ -26,6 +27,10 @@ public:
 
 	void Attach(IEntity* owner);
 	void Detach();
+
+
+	// collect render items
+	virtual void CollectRender(SceneCollection*) {};
 
 protected:
 	IEntity* mOwner{ nullptr };

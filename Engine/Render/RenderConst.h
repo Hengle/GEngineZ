@@ -7,6 +7,7 @@ namespace z {
 enum ERenderSet {
 	RENDER_SET_EDITOR,
 	RENDER_SET_OPAQUE,
+	RENDER_SET_SKY,
 };
 
 enum ERenderTech {
@@ -22,8 +23,6 @@ enum EShaderParams {
 	SP_MAX
 };
 
-
-extern math::Vector4F gShaderParams[SP_MAX];
 
 // default material
 const std::string EMPTY_MATERIAL = "Empty";

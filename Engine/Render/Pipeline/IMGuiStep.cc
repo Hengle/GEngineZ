@@ -6,9 +6,11 @@
 #include <Render/Mesh.h>
 #include <Render/Renderer.h>
 #include <Render/RenderStage.h>
+#include <Render/RenderTarget.h>
 #include <imgui/imgui.h>
 
 #include "IMGuiStep.h"
+
 
 namespace z {
 
@@ -36,19 +38,19 @@ void IMGuiStep::Init() {
 	mItem->Material = MaterialManager::GetMaterialInstance("IMGui");
 	mItem->Material->SetCullMode(RS_CULL_NONE);
 	mItem->Material->SetEnableDepthTest(false);
-	mItem->Material->SetEnableDepthWrite(true);
+	mItem->Material->SetEnableDepthWrite(false);
 }
 
 void IMGuiStep::Resize(uint32_t width, uint32_t height) {
 
 }
 
-void IMGuiStep::Render(Renderer* ren) {
+RenderTarget* IMGuiStep::Render(Renderer* r, RenderTarget* src, RenderTarget* dst) {
 	ImGui::Render();
 	ImDrawData* drawData = ImGui::GetDrawData();
 
 	// begin ui rende stage
-	RenderStageScope("IMGui");
+	RenderStageScope stageScope("IMGui");
 
 	// merge vertex and index
 	uint32_t totalV = 0, totalI = 0;
@@ -62,7 +64,7 @@ void IMGuiStep::Render(Renderer* ren) {
 	}
 
 	if (totalV <= 0 || totalI <= 0) {
-		return;
+		return nullptr;
 	}
 	mItem->Mesh->Complete(drawData->CmdListsCount, drawData->CmdListsCount);
 
@@ -110,6 +112,7 @@ void IMGuiStep::Render(Renderer* ren) {
 			mItem->CustomDraw(pcmd->ElemCount, pcmd->IdxOffset, pcmd->VtxOffset);
 		}
 	}
+	return nullptr;
 }
 
 }

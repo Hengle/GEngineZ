@@ -34,6 +34,9 @@ void UIManager::NewFrame() {
 		ui::Text("FPS: %.2f", t.frameRate);
 		// Screen Size
 		ui::Text("Screen: (%d x %d)", t.winWidth, t.winHeight);
+
+		ui::Text("Draw Call: %d", t.drawcalls);
+		ui::Text("Faces: %d", t.drawfaces);
 	}
 	ui::End();
 
@@ -99,6 +102,8 @@ void UIManager::LoadData() {
 	ot.frameRate = GDirector->GetCurFps();
 	ot.winWidth = GApp->GetWinSize().x;
 	ot.winHeight = GApp->GetWinSize().y;
+	ot.drawcalls = GDirector->GetDrawCalls();
+	ot.drawfaces = GDirector->GetDrawFaces();
 
 	// Camera
 	ot.camMoveSensity = GDirector->GetCameraController()->GetSensityMove();

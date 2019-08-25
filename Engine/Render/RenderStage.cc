@@ -7,6 +7,9 @@ std::vector<RenderStage> RenderStage::gStageStack;
 void RenderStage::BeginStage(const std::string& name) {
 
 	RenderStage stage(name);
+	if (gStageStack.size() > 0) {
+		gStageStack.back().CopyToStage(stage);
+	}
 
 	gStageStack.push_back(stage);
 }
@@ -14,8 +17,8 @@ void RenderStage::BeginStage(const std::string& name) {
 void RenderStage::EndStage(bool recover) {
 	CHECK(gStageStack.size() > 0);
 	gStageStack.pop_back();
-	if (recover) {
-		RecoverStage();
+	if (gStageStack.size() > 0) {
+		gStageStack.back().mDirtyFlag = DIRTY_ALL;
 	}
 }
 
@@ -26,11 +29,11 @@ RenderStage* RenderStage::CurStage() {
 	return &gStageStack.back();
 }
 
-void RenderStage::RecoverStage() {
-	if (gStageStack.size() == 0) {
-		return;
+
+void RenderStage::Apply() {
+	if (gStageStack.size() > 0) {
+		gStageStack.back().RecoverDevice();
 	}
-	gStageStack.back().RecoverDevice();
 }
 
 

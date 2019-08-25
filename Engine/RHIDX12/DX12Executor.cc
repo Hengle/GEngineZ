@@ -131,6 +131,9 @@ void DX12Executor::DrawShaderInstance(DX12ShaderInstance *shaderInst, uint32_t i
 	}
 
 	GetCommandList()->DrawIndexedInstanced(indexNum, 1, baseIndex, baseVertex, 0);
+	// stats
+	mDrawCalls++;
+	mDrawFaces += indexNum / 3;
 }
 
 std::vector<DXGI_FORMAT> DX12Executor::GetCurRenderTargetsFormat() const {

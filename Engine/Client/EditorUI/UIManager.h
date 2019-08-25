@@ -10,6 +10,8 @@ struct UIData {
 	float frameRate;
 	int winWidth;
 	int winHeight;
+	int drawcalls;
+	int drawfaces;
 
 	// camera controller
 	float camMoveSensity;

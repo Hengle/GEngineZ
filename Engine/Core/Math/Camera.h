@@ -100,6 +100,10 @@ public:
 		return mViewMatrix;
 	}
 
+	Matrix4F GetProjMatrix() {
+		return mProjMatrix;
+	}
+
 	Matrix4F GetViewProjectMatrix() {
 		return mViewMatrix * mProjMatrix;
 	}

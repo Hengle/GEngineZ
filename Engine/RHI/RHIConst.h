@@ -219,6 +219,11 @@ struct RHITextureDesc {
 	ERHITexDimension Dimension;
 };
 
+struct RHIStats {
+	uint32_t DrawCalls;
+	uint32_t Faces;
+};
+
 
 
 

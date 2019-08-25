@@ -6,9 +6,19 @@
 namespace z {
 
 class RenderStage {
+	enum DirtyFlag {
+		DIRTY_RT = 0x01,
+		DIRTY_RRECT = 0x02,
+		DIRTY_SRECT = 0x04,
+		DIRTY_BLEND = 0x08,
+
+		DIRTY_ALL = 0x0F
+	};
+
 public:
 	RenderStage(const std::string& name) : 
-		mName(name) {
+		mName(name),
+		mDirtyFlag(DIRTY_ALL) {
 		mCurBlendState = {
 			false,
 			BLEND_FACTOR_ONE, BLEND_FACTOR_ZERO, BLEND_OP_ADD,
@@ -19,28 +29,25 @@ public:
 	void SetRenderTarget(RenderTarget* rt, DepthStencil* ds=nullptr) {
 		mCurRT = rt;
 		mCurDS = ds;
-		GDevice->SetOutputs({ rt->GetRHIRenderTarget() }, ds ? ds->GetRHIDepthStencil() : nullptr);
-		rt->GetRHIRenderTarget()->SetBlendState(mCurBlendState);
+		mDirtyFlag |= DIRTY_RT;
 	}
 
 	void SetRenderRect(const RHIRenderRect &rect) {
 		mCurRenderRect = rect;
-		GDevice->SetRenderRect(rect);
+		mDirtyFlag |= DIRTY_RRECT;
 	}
 
 	void SetScissorRect(const RHIScissorRect &rect) {
 		mCurScissorRect = rect;
-		GDevice->SetScissorRect(rect);
+		mDirtyFlag |= DIRTY_SRECT;
 	}
 
 	void SetBlendState(const RHIBlendState& state) {
 		mCurBlendState = state;
-		if (mCurRT) {
-			mCurRT->GetRHIRenderTarget()->SetBlendState(state);
-		}
+		mDirtyFlag |= DIRTY_BLEND;
 	}
 
-	void CopyStage(RenderStage& other) {
+	void CopyToStage(RenderStage& other) {
 		other.mCurRT = mCurRT;
 		other.mCurDS = mCurDS;
 		other.mCurRenderRect = mCurRenderRect;
@@ -49,22 +56,34 @@ public:
 	}
 
 	void RecoverDevice() {
-		GDevice->SetOutputs({ mCurRT->GetRHIRenderTarget() }, mCurDS ? mCurDS->GetRHIDepthStencil() : nullptr);
-		mCurRT->GetRHIRenderTarget()->SetBlendState(mCurBlendState);
-		GDevice->SetRenderRect(mCurRenderRect);
-		GDevice->SetScissorRect(mCurScissorRect);
+		if (mDirtyFlag & DIRTY_RT) {
+			GDevice->SetOutputs({ mCurRT->GetRHIRenderTarget() }, mCurDS ? mCurDS->GetRHIDepthStencil() : nullptr);
+		}
+		if (mDirtyFlag & DIRTY_BLEND) {
+			mCurRT->GetRHIRenderTarget()->SetBlendState(mCurBlendState);
+		}
+		if (mDirtyFlag & DIRTY_RRECT) {
+			GDevice->SetRenderRect(mCurRenderRect);
+		}
+		if (mDirtyFlag & DIRTY_SRECT) {
+			GDevice->SetScissorRect(mCurScissorRect);
+		}
+		mDirtyFlag = 0;
 	}
+
 
 	// static method
 	static void BeginStage(const std::string& name);
 	static void EndStage(bool recover = false);
 	static RenderStage* CurStage();
+	static void Apply();
 
 private:
-	static void RecoverStage();
 	static std::vector<RenderStage> gStageStack;
 
 	std::string mName;
+
+	uint32_t mDirtyFlag;
 	RefCountPtr<RenderTarget> mCurRT;
 	RefCountPtr<DepthStencil> mCurDS;
 	RHIBlendState mCurBlendState;
@@ -74,17 +93,13 @@ private:
 
 class RenderStageScope {
 public:
-	RenderStageScope(const std::string &name, bool recover=false):
-		mRecover(recover) {
+	RenderStageScope(const std::string &name) {
 		RenderStage::BeginStage(name);
 	}
 
 	~RenderStageScope() {
-		RenderStage::EndStage(mRecover);
+		RenderStage::EndStage();
 	}
-
-private:
-	bool mRecover;
 
 
 };

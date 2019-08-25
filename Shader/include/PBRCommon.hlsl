@@ -54,7 +54,7 @@ float4 GetPBRResult(in PbrPixelParamters PARAM, in v2f IN) {
 
 	color += diffColor;
 	color += specColor;
-	color = EncodeGamma(color);
+	//color = EncodeGamma(color);
 
 	return float4(color, PARAM.Alpha);
 

@@ -13,7 +13,8 @@ public:
 	
 	void Init() override;
 	void Resize(uint32_t width, uint32_t height) override;
-	void Render(Renderer* r) override;
+
+	RenderTarget* Render(Renderer* r, RenderTarget* src = nullptr, RenderTarget* dst=nullptr) override;
 
 private:
 	RefCountPtr<RenderItem> mItem;

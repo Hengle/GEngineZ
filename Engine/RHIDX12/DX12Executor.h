@@ -110,6 +110,15 @@ public:
 		Reset();
 	}
 
+	std::tuple<uint32_t, uint32_t> GetStats() {
+		return { mDrawCalls, mDrawFaces };
+	}
+
+	void ClearStats() {
+		mDrawCalls = 0;
+		mDrawFaces = 0;
+	}
+
 private:
 	std::vector<RefCountPtr<DX12RenderTarget>> mRenderTargets;
 	RefCountPtr<DX12DepthStencil> mDepthStencil;
@@ -124,6 +133,9 @@ private:
 
 	DX12Device* mDevice;
 	DX12CommandList mList;
+
+	uint32_t mDrawFaces;
+	uint32_t mDrawCalls;
 };
 
 

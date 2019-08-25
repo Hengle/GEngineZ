@@ -3,7 +3,8 @@
 #include <Client/Entity/IEntity.h>
 
 namespace z {
-class RenderScene;
+
+class SceneCollection;
 class RenderItem;
 class Camera;
 class PrimitiveComp;
@@ -15,8 +16,7 @@ public:
 
 	void Tick() {}
 
-	void ColloectEnv(RenderScene*);
-	void CollectItems(RenderScene*);
+	void CollectRender(SceneCollection*);
 
 	Camera* GetCamera() {
 		return mCamera;

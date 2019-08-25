@@ -5,6 +5,8 @@
 #include <Render/Mesh.h>
 #include <RHI/RHIDevice.h>
 
+#include "RenderStage.h"
+
 namespace z {
 
 class RenderItem : public RefCounter{
@@ -30,12 +32,17 @@ public:
 		mMeshVertexGroup = idx;
 	}
 
+	void RetriveItemParams() {
+		Material->SetParameter("World", (const float*)&WorldMatrix, 16);
+	}
+
 	void Draw() {
 		auto [vb, ib] = Mesh->GetRHIResource();
 		int num = Mesh->GetIndexCount(mMeshIndexGroup);
 		int baseIndex = Mesh->GetIndexOffset(mMeshIndexGroup);
 		int baseVertex = Mesh->GetVertexOffset(mMeshVertexGroup);
 
+		RenderStage::Apply();
 		GDevice->DrawIndexed(Material->GetShaderInstance(), vb, ib, Material->mRState, num, baseIndex, baseVertex);
 	}
 
@@ -44,6 +51,7 @@ public:
 		int baseIndex = Mesh->GetIndexOffset(mMeshIndexGroup) + indexOffset;
 		int baseVertex = Mesh->GetVertexOffset(mMeshVertexGroup) + vertexOffset;
 
+		RenderStage::Apply();
 		GDevice->DrawIndexed(Material->GetShaderInstance(), vb, ib, Material->mRState, indexNum, baseIndex, baseVertex);
 	}
 
