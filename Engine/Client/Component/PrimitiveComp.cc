@@ -83,13 +83,22 @@ MaterialInstance* PrimitiveComp::LoadMaterialFile(std::string file) {
 			RHITexture* tex = LoadTextureFile(GApp->GetRootPath() / "Content" / imgFile);
 			if (tex) {
 				materialInst->SetParameter(name, tex);
-			} else {
+			}
+			else {
 				CHECK(0);
+			}
+		} else if (type == "int") {
+			int val = param["value"].Get<lc::int_t>();
+			materialInst->SetParameter(name, &val, 1);
+		} else if (type == "float") {
+			float val;
+			if (param["value"].GetValSafety(val)) {
+				materialInst->SetParameter(name, &val, 1);
 			}
 		} else if (type == "float4") {
 			std::vector<float> vals;
 			if (param["value"].GetValSafety(vals)) {
-				materialInst->SetParameter(name, vals.data(), 16);
+				materialInst->SetParameter(name, vals.data(), 4);
 			} else {
 				CHECK(0);
 			}

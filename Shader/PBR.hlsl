@@ -34,6 +34,13 @@ struct v2f {
 
 #include "include/PBRCommon.hlsl"
 
+cbuffer Shading : register(b0) {
+	int HasMixMap;
+
+	float Metallic;
+	float Roughness;
+}
+
 v2f VS(a2v IN) {
 	v2f OUT;
 	float4 pos = mul(float4(IN.Position, 1.0f), World);
@@ -59,10 +66,16 @@ float4 PS(v2f IN) : SV_Target{
 	PPP.Color = DecodeGamma(baseColorAlpha.rgb);
 	PPP.Alpha = baseColorAlpha.a;
 
-	float3 mixColor = tMixMap.Sample(sMixMap, IN.UV).xyz;
-	PPP.Metallic = mixColor.r;
-	PPP.Roughness = mixColor.g;
-	PPP.AO = mixColor.b;
+	if (HasMixMap) {
+		float3 mixColor = tMixMap.Sample(sMixMap, IN.UV).xyz;
+		PPP.Metallic = mixColor.r;
+		PPP.Roughness = mixColor.g;
+		PPP.AO = mixColor.b;
+	} else {
+		PPP.Metallic = Metallic;
+		PPP.Roughness = Roughness;
+		PPP.AO = 0;
+	}
 
 	float3 tangentNormal = tNormalMap.Sample(sNormalMap, IN.UV).xyz;
 	tangentNormal = tangentNormal * 2 - 1;

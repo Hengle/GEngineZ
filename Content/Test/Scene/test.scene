@@ -2,7 +2,7 @@ return {
 	env = {
 		sky = {
 			texture = "Engine/Texture/Sky.jpg",
-			shader = "SphereSky",
+			shader = "HDRSky",
 		},
 		terrain = {
 		}

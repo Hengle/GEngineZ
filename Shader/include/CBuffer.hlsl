@@ -18,5 +18,6 @@ cbuffer GlobalPerObject : register(b2)
 cbuffer GlobalRenderOption : register(b3) 
 {
 	int EnableHDR;
+
 }
  
