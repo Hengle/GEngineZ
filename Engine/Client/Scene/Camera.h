@@ -12,12 +12,12 @@ public:
 
 	void SetAspect(float aspect) {
 		mAspect = aspect;
-		mMathCam.SetPerspective(mFov, mAspect, 1, 3000);
+		mMathCam.SetPerspective(mFov, mAspect, mNear, mFar);
 	}
 
 	void SetFov(float fov) {
 		mFov = fov;
-		mMathCam.SetPerspective(mFov, mAspect, 1, 3000);
+		mMathCam.SetPerspective(mFov, mAspect, mNear, mFar);
 	}
 
  
@@ -30,6 +30,8 @@ private:
 
 	float mFov;
 	float mAspect;
+	float mNear;
+	float mFar;
 };
 
 

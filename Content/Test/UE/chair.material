@@ -15,6 +15,11 @@ return {
 			name = "tMixMap",
 			type = "texture",
 			value = "Test/UE/T_Elegant_chair_m_r_ao.TGA"
+		},
+		{
+			name = "HasMixMap",
+			type = "int",
+			value = 1
 		}
 	}
 

@@ -93,8 +93,18 @@ void Renderer::Render() {
 
 	RenderTarget* curRT;
 
+	// Scene Items
 	curRT = mRenderSteps[RENDER_STEP_FORWARD_MAIN]->Render(this);
+	// Tonemapping
 	curRT = mRenderSteps[RENDER_STEP_HDR]->Render(this, curRT, mBackRT);
+
+	DepthStencil *ds = ((ForwardMainStep*)mRenderSteps[RENDER_STEP_FORWARD_MAIN].GetRef())->GetDepthStencil();
+	RenderStage::CurStage()->SetRenderTarget(mBackRT, ds);
+	// Editor Items
+	for (auto item : mSceneCol->FilterItems(RENDER_SET_EDITOR)) {
+		mSceneCol->RetriveSceneParams(item->Material);
+		item->Draw();
+	}
 
 	// === Post Process ===
 

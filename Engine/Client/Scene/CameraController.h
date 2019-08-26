@@ -11,7 +11,7 @@ public:
 		mCam{nullptr}, 
 		mSensityRotate(0.5), 
 		mSensityMove(1.0),
-		mCtrlMouseKey(EI_BTN_ML) {
+		mCtrlMouseKey(EI_BTN_MR) {
 
 		using namespace std::placeholders;
 		InputClickCallback btnActclickCb = std::bind(&CameraController::OnDirectionKey, this, _1, _2);

@@ -40,6 +40,10 @@ public:
 		return mRT;
 	}
 
+	DepthStencil* GetDepthStencil() {
+		return mDS;
+	}
+
 private:
 	RefCountPtr<RenderTarget> mRT;
 	RefCountPtr<DepthStencil> mDS;

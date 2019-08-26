@@ -9,11 +9,6 @@ return {
 	},
 	models = {
 		{
-			model = "Test/Nanosuit/nanosuit.model",
-			position = {-3, 1, 0},
-
-		},
-		{
 			model = "Test/UE/chair.model",
 			position = {-5, 1, 0},
 			scale = {1, 1, 1},

@@ -72,9 +72,9 @@ float4 PS(v2f IN) : SV_Target{
 		PPP.Roughness = mixColor.g;
 		PPP.AO = mixColor.b;
 	} else {
-		PPP.Metallic = Metallic;
-		PPP.Roughness = Roughness;
-		PPP.AO = 0;
+		PPP.Metallic = 0.0;//Metallic;
+		PPP.Roughness = 0.3;//Roughness;
+		PPP.AO = 1.0;
 	}
 
 	float3 tangentNormal = tNormalMap.Sample(sNormalMap, IN.UV).xyz;
