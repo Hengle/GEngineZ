@@ -3,7 +3,7 @@
 #include <Render/Material.h>
 #include "BaseScreenStep.h"
 
-
+#include <Util/Image/Image.h>
 
 namespace z {
 
@@ -19,8 +19,10 @@ class HDRStep : public BaseScreenStep {
 
 	RenderTarget* Render(Renderer* r, RenderTarget* src, RenderTarget* dst) override {
 		RenderStageScope stageScope("HDR");
-		
+
 		mMaterial->SetParameter("tBaseMap", src->GetRHIRenderTarget());
+
+		dst->Clear({ 0.f, 0.f, 0.f, 1.f });
 		DrawScreen(dst, mMaterial);
 
 		return dst;

@@ -25,6 +25,10 @@ public:
 	
 	SceneCollection* GetSceneCollection();
 
+	DepthStencil *GetDepthStencil() {
+		return mDepthStencil;
+	}
+
 private:
 
 	RefCountPtr<RHIViewport> mRHIViewport;
@@ -32,6 +36,7 @@ private:
 	uint32_t mViewportHeight;
 
 	RefCountPtr<RenderTarget> mBackRT;
+	RefCountPtr<DepthStencil> mDepthStencil;
 
 	std::unordered_map<ERenderStep, RefCountPtr<RenderStep>> mRenderSteps;
 

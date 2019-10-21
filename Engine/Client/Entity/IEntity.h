@@ -9,7 +9,9 @@ class IEntity : public RefCounter {
 public:
 	friend class IComponent;
 
-	IEntity() {
+	IEntity() : 
+		mPickable (true)
+	{
 	}
 
 	// transform opertion
@@ -49,6 +51,15 @@ public:
 		// use local transoform now
 		return mLocalTransform.GetTransform();
 
+	}
+
+	// property
+	void SetPickable(bool value) {
+		mPickable = value;
+	}
+
+	bool IsPickable() {
+		return mPickable;
 	}
 
 	template<typename T>
@@ -95,6 +106,8 @@ private:
 			container.pop_back();
 		}
 	}
+
+	bool mPickable;
 
 	Transform mLocalTransform;
 	Transform mWorldTransform;

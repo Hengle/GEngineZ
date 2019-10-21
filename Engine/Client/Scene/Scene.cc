@@ -27,10 +27,12 @@ bool Scene::Load(const std::string file) {
 
 	if (mIsEditor) {
 		// grid, 10m*10m
-		RenderMesh *mesh = MeshGenerator::CreateGrid(1580, 1580, 79, 79);
+		RenderMesh *mesh = MeshGenerator::CreateGrid(380, 380, 19, 19);
+///		RenderMesh *mesh = MeshGenerator::CreateGrid(1580, 1580, 79, 79);
 		RenderItem* item = new RenderItem();
 		item->RenderSet = RENDER_SET_EDITOR;
-		item->Material = MaterialManager::GetMaterialInstance(EMPTY_MATERIAL);
+		item->Material = MaterialManager::GetMaterialInstance("EditorAxis");
+        item->Material->SetParameter("Color", math::Vector3F(0.1f, 0.1f, 0.1f).value, 3);
 		item->Material->SetFillMode(RS_FILL_WIREFRAME);
 		item->Mesh = mesh;
 		item->SetMeshIndexGroup(0);
@@ -143,6 +145,22 @@ void Scene::CollectRender(SceneCollection* collection) {
 		}
 	}
 
+}
+
+IEntity* Scene::Pick(const math::Vector3F& rayStart, const math::Vector3F& rayDir) {
+    for (IEntity* ent : mEntities) {
+        if (!ent->IsPickable())
+            continue;
+
+        // convert to local ray
+
+
+        std::vector<PrimitiveComp*> prims = ent->GetComponents<PrimitiveComp>();
+        for (auto prim : prims) {
+            //if (prim->IsIntersectRay)
+
+        }
+    }
 }
 
 

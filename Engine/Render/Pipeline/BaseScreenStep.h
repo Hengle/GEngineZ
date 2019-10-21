@@ -43,19 +43,19 @@ private:
 
 		mesh = new RenderMesh();
 		mesh->SetVertexSemantics({ SEMANTIC_POSITION, SEMANTIC_UV0 });
-		mesh->SetIndexStride(4);
+		mesh->SetIndexStride(2);
 		float data[] = {
 			0.f, 0.f, 0.f, 0.f, 1.f,
 			0.f, 1.f, 0.f, 0.f, 0.f,
 			1.f, 1.f, 0.f, 1.f, 0.f,
 			1.f, 0.f, 0.f, 1.f, 1.f
 		};
-		uint32_t index[] = {
+		uint16_t index[] = {
 			0, 1, 2, 0, 2, 3
 		};
 
 		mesh->CopyVertex(0, 80, data, 0);
-		mesh->CopyIndex(0, 24, index, 0);
+		mesh->CopyIndex(0, 12, index, 0);
 		mesh->Complete(1, 1);
 
 		return mesh;

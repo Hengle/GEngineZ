@@ -120,12 +120,16 @@ void DX12Executor::DrawShaderInstance(DX12ShaderInstance *shaderInst, uint32_t i
 	std::vector<ID3D12DescriptorHeap*> &heap = shaderInst->GetUsedHeap();
 	GetCommandList()->SetDescriptorHeaps(heap.size(), heap.data());
 
+	// set Texture(RenderTarget) resource state to readable
+	shaderInst->SetTexturesReadable();
+
 	std::vector<D3D12_GPU_DESCRIPTOR_HANDLE> &descTable = shaderInst->GetDescriptorTable();
 	for (int i = 0; i < descTable.size(); i++) {
 		if (descTable[i].ptr != 0) {
 			GetCommandList()->SetGraphicsRootDescriptorTable(i, descTable[i]);
 		}
 	}
+
 	if (indexNum == 0) {
 		indexNum = mIndexBuffer->GetSize();
 	}

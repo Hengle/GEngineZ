@@ -22,13 +22,13 @@ DX12Viewport::DX12Viewport(uint32_t width, uint32_t height, DXGI_FORMAT format) 
 	DXGI_SWAP_CHAIN_DESC1 chainDesc{};
 	chainDesc.Width              = mWidth;
 	chainDesc.Height             = mHeight;
-	chainDesc.Stereo             = false;
+	chainDesc.Stereo             = 0;
 	chainDesc.Format             = mFormat;
 	chainDesc.SampleDesc.Count   = 1;
 	chainDesc.SampleDesc.Quality = 0;
-	chainDesc.BufferUsage        = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;
+	chainDesc.BufferUsage        = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	chainDesc.BufferCount        = BACK_BUFFER_COUNT;
-	chainDesc.SwapEffect         = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+	chainDesc.SwapEffect         = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
 	chainDesc.Scaling            = DXGI_SCALING_NONE;
 	chainDesc.Flags              = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 	DX12_CHECK(dxgiFactory->CreateSwapChainForHwnd(commandQueue, hwnd, &chainDesc, nullptr, nullptr, mSwapChain.GetComRef()));
@@ -83,7 +83,7 @@ void DX12Viewport::Present() {
 	GDX12Device->GetExecutor()->Flush();
 
 	// present and swap buffer
-	DX12_CHECK(mSwapChain->Present(1, 0));
+	DX12_CHECK(mSwapChain->Present(0, 0));
 	mCurBackBufferIndex = (mCurBackBufferIndex + 1) % BACK_BUFFER_COUNT;
 }
 
@@ -95,9 +95,6 @@ void DX12Viewport::BeginDraw() {
 
 	// transition state to render target
 	DX12RenderTarget* backBuffer = GetCurBackBuffer();
-	//backBuffer->ResetBlendState();
-
-	backBuffer->SetWritable();
 
 	GDX12Device->GetExecutor()->SetRenderTargets({ backBuffer });
 	GDX12Device->GetExecutor()->ApplyState();

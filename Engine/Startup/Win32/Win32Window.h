@@ -1,8 +1,6 @@
 #pragma once
 
-#include <tchar.h>
-#include <windows.h>
-#include <windowsx.h>
+#include <Core/CoreHeader.h>
 #include <string>
 
 namespace z {

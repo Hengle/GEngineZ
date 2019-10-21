@@ -47,9 +47,11 @@ void Renderer::Resize(uint32_t width, uint32_t height) {
 	mViewportHeight = height;
 	if (!mRHIViewport) {
 		mRHIViewport = GDevice->CreateViewport(width, height, PF_R8G8B8A8);
+		mDepthStencil = new DepthStencil(width, height, PF_D24S8);
 	} else {
 		if (mBackRT)
 			mBackRT->Release();
+		mDepthStencil->Resize(width, height);
 		mRHIViewport->Resize(width, height);
 	}
 
@@ -78,29 +80,25 @@ void Renderer::Render() {
 		return;
 	}
 
-
 	mRHIViewport->BeginDraw();
 	mBackRT = new RenderTarget(mRHIViewport->GetBackBuffer());
 
-
 	RenderStage::BeginStage("Main Stage");
 
-	RenderStage::CurStage()->SetRenderTarget(mBackRT);
 	RenderStage::CurStage()->SetRenderRect({ 0.f, 0.f, (float)mViewportWidth, (float)mViewportHeight, 0.f, 1.f });
 	RenderStage::CurStage()->SetScissorRect({ 0, 0, (int)mViewportWidth, (int)mViewportHeight });
 
-	mBackRT->Clear({ 0.0, 0.0, 0.0, 1.0 });
-
-	RenderTarget* curRT;
+	mBackRT->Clear({ 0.f, 0.f, 0.f, 1.f });
+	mDepthStencil->Clear(1.0, 0);
 
 	// Scene Items
-	curRT = mRenderSteps[RENDER_STEP_FORWARD_MAIN]->Render(this);
+	RenderTarget* curRT = mRenderSteps[RENDER_STEP_FORWARD_MAIN]->Render(this);
+	
 	// Tonemapping
 	curRT = mRenderSteps[RENDER_STEP_HDR]->Render(this, curRT, mBackRT);
 
-	DepthStencil *ds = ((ForwardMainStep*)mRenderSteps[RENDER_STEP_FORWARD_MAIN].GetRef())->GetDepthStencil();
-	RenderStage::CurStage()->SetRenderTarget(mBackRT, ds);
 	// Editor Items
+	RenderStage::CurStage()->SetRenderTarget(mBackRT, GetDepthStencil());
 	for (auto item : mSceneCol->FilterItems(RENDER_SET_EDITOR)) {
 		mSceneCol->RetriveSceneParams(item->Material);
 		item->Draw();

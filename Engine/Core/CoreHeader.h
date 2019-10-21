@@ -28,6 +28,7 @@
 
 // math
 #include <Core/Math/Vector.h>
+#include <Core/Math/Geometry.h>
 #include <Core/Math/Matrix.h>
 #include <Core/Math/LinearAlg.h>
 #include <Core/Math/Camera.h>

@@ -22,6 +22,8 @@ public:
 		return mCamera;
 	}
 
+    IEntity* Pick(const math::Vector3F& rayStart, const math::Vector3F& rayDir);
+
 private:
 	bool LoadFromFile(const std::string file);
 

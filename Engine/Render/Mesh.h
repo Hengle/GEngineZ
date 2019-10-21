@@ -64,6 +64,10 @@ public:
 		return { mVBuffer , mIBuffer };
 	}
 
+    bool HasSemantic(ERHIInputSemantic sem);
+    void GetVertex(ERHIInputSemantic sem, int count, math::Vector2F &v);
+    void GetVertex(ERHIInputSemantic sem, int count, math::Vector3F &v);
+
 private:
 	bool mIsDynamic;
 	bool mIsCompleted;

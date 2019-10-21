@@ -30,9 +30,9 @@ struct UIData {
 	bool reloadAllShader;
 };
 
-class UIManager {
+class EditorUI {
 public:
-	UIManager();
+    EditorUI();
 	void NewFrame();
 
 private:

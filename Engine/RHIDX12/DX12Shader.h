@@ -50,6 +50,7 @@ public:
 
 	std::vector<ID3D12DescriptorHeap*> GetUsedHeap() const;
 	std::vector<D3D12_GPU_DESCRIPTOR_HANDLE> GetDescriptorTable() const;
+	void SetTexturesReadable();
 	
 
 private:

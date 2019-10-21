@@ -3,7 +3,7 @@
 #include <Core/CoreHeader.h>
 #include <Client/Main/App.h>
 #include <Client/Scene/Camera.h>
-#include <Client/Scene/CameraController.h>
+#include <Client/Editor/CameraController.h>
 #include <thread>
 #include <chrono> 
 

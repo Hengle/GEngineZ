@@ -34,7 +34,7 @@ DX12PipelineState* DX12PipelineStateCache::Get(DX12Shader* shader, const uint8_t
 		//log << "\n";
 		//log << "hash === " << hashFN(hash) << "===";
 	}
-	for (int i = 0; i < SEMANTIC_MAX; i++) std:
+	//for (int i = 0; i < SEMANTIC_MAX; i++) std:
 	gPipelineStates[hash] = ppState;
 	return ppState;
 

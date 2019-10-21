@@ -158,6 +158,15 @@ std::vector<D3D12_GPU_DESCRIPTOR_HANDLE> DX12ShaderInstance::GetDescriptorTable(
 	return result;
 }
 
+void DX12ShaderInstance::SetTexturesReadable() {
+	for (auto& iter : mShader->mTextureMap) {
+		DX12Texture* tex = mTextures[iter.second.index];
+		if (tex) {
+			tex->SetReadable();
+		}
+	}
+}
+
 
 // ==== DX12Shader ====
 DX12Shader::DX12Shader() {

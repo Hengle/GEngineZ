@@ -25,6 +25,24 @@ void RenderMesh::SetIndexStride(uint8_t stride) {
 	mIndexStride = stride;
 }
 
+bool RenderMesh::HasSemantic(ERHIInputSemantic sem) {
+    return std::find(mSemantics.begin(), mSemantics.end(), sem) != mSemantics.end();
+}
+
+void RenderMesh::GetVertex(ERHIInputSemantic sem, int count, math::Vector2F &v) {
+    CHECK(HasSemantic(sem) && GetSemanticSize(sem) == 8);
+    CHECK((count + 1) * mVertexStride <= mVertexData.size());
+    uint32_t offset = count * mVertexStride + mSemanticsOffset[sem];
+    memcpy(v.value, mVertexData.data() + offset, 8);
+}
+
+void RenderMesh::GetVertex(ERHIInputSemantic sem, int count, math::Vector3F &v) {
+    CHECK(HasSemantic(sem) && GetSemanticSize(sem) == 12);
+    CHECK((count + 1) * mVertexStride <= mVertexData.size());
+    uint32_t offset = count * mVertexStride + mSemanticsOffset[sem];
+    memcpy(v.value, mVertexData.data() + offset, 12);
+}
+
 void RenderMesh::CopyVertex(uint32_t begin, uint32_t size, const void* data, int8_t idx) {
 	CHECK(begin % mVertexStride == 0 && size % mVertexStride == 0);
 

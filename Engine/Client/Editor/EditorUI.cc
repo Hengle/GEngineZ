@@ -1,7 +1,7 @@
-#include "UIManager.h"
+#include "EditorUI.h"
+#include "CameraController.h"
 #include <Client/Main/Director.h>
 #include <Client/Main/App.h>
-#include <Client/Scene/CameraController.h>
 #include <Client/Scene/Scene.h>
 #include <Client/Component/EnvComp.h>
 
@@ -12,11 +12,11 @@ namespace z {
 
 namespace ui = ImGui;
 
-UIManager::UIManager() {
+EditorUI::EditorUI() {
 	InitData();
 }
 
-void UIManager::NewFrame() {
+void EditorUI::NewFrame() {
 	LoadData();
 	SetUIStyle();
 
@@ -88,17 +88,17 @@ void UIManager::NewFrame() {
 }
 
 
-void UIManager::SetUIStyle() {
+void EditorUI::SetUIStyle() {
 	// set ui style
 	ImGuiStyle& style = ui::GetStyle();
 	// style.WindowPadding = ImVec2(0.f, 0.0f);
 }
 
-void UIManager::InitData() {
+void EditorUI::InitData() {
 	t.showInfoWin = true;
 }
 
-void UIManager::LoadData() {
+void EditorUI::LoadData() {
 	// Info
 	ot.frameRate = GDirector->GetCurFps();
 	ot.winWidth = GApp->GetWinSize().x;
@@ -132,7 +132,7 @@ void UIManager::LoadData() {
 
 }
 
-void UIManager::StoreData() {
+void EditorUI::StoreData() {
 	// Camera
 	GDirector->GetCameraController()->SetSensityMove(t.camMoveSensity);
 	GDirector->GetCameraController()->SetSensityRotate(t.camRotateSensity);

@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Camera.h"
+#include <Client/Scene/Camera.h>
 #include <Client/Main/Input.h>
+#include <Client/Main/Director.h>
 
 namespace z {
 
@@ -9,7 +10,7 @@ class CameraController : public RefCounter {
 public:
 	CameraController() : 
 		mCam{nullptr}, 
-		mSensityRotate(0.5), 
+		mSensityRotate(1.5), 
 		mSensityMove(1.0),
 		mCtrlMouseKey(EI_BTN_MR) {
 
@@ -57,8 +58,8 @@ public:
 			return;
 		}
 		if (key == mCtrlMouseKey) {
-			float deltaX = (x - GInput->GetLastX()) * mSensityRotate * GDirector->GetFrameTime() * 6;
-			float deltaY = (y - GInput->GetLastY()) * mSensityRotate * GDirector->GetFrameTime() * 9;
+			float deltaX = (x - GInput->GetLastX()) * mSensityRotate * 0.02;
+			float deltaY = (y - GInput->GetLastY()) * mSensityRotate * 0.03;
 
 			math::Camera* cam = mCam->GetCam();
 			math::Matrix4F m1 = math::MatrixRotationAxis(cam->GetRight(), deltaY * math::ToRadian(1.0f));
@@ -67,8 +68,8 @@ public:
 			cam->UpdateForward(newF);
 
 		} else if (key == EI_BTN_MM) {
-			float deltaX = (x - GInput->GetLastX()) *  GDirector->GetFrameTime() * mSensityMove * 0.5;
-			float deltaY = (GInput->GetLastY() - y) * GDirector->GetFrameTime() * mSensityMove * 0.5;
+			float deltaX = (x - GInput->GetLastX()) * mSensityMove * 0.01;
+			float deltaY = (GInput->GetLastY() - y) * mSensityMove * 0.01;
 
 			math::Camera* cam = mCam->GetCam();
 			math::Vector3F newP = cam->GetPosition() + cam->GetWorldUp() * deltaY + cam->GetRight() * deltaX;

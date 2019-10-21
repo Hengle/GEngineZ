@@ -3,6 +3,7 @@
 #include <Client/Main/App.h>
 #include <Util/Luaconf/Luaconf.h>
 #include <Util/Mesh/ZMeshLoader.h>
+#include <Util/Mesh/MeshGenerator.h>
 #include <Util/Image/Image.h>
 #include <Render/RenderItem.h>
 #include <Render/SceneCollection.h>
@@ -12,7 +13,10 @@ namespace z {
 
 namespace lc = luaconf;
 
-PrimitiveComp::PrimitiveComp() {}
+PrimitiveComp::PrimitiveComp() :
+	mIsDrawBoundBox(true)
+{
+}
 
 bool PrimitiveComp::LoadFromFile(std::string file) {
 	lc::Value model;
@@ -33,15 +37,15 @@ bool PrimitiveComp::LoadFromFile(std::string file) {
 
 	// load mesh
 	std::string meshname = model["mesh"].Get<lc::string_t>();
-	RefCountPtr<RenderMesh> mesh = ZMeshLoader::Load(GApp->GetContentPath() / meshname);
-	if (mesh == nullptr) {
+	mRenderMesh = ZMeshLoader::Load(GApp->GetContentPath() / meshname);
+	if (mRenderMesh == nullptr) {
 		return false;
 	}
 
 	// create render items
-	for (size_t meshIdx = 0; meshIdx < mesh->GetIndexGroupNum(); meshIdx++) {
+	for (size_t meshIdx = 0; meshIdx < mRenderMesh->GetIndexGroupNum(); meshIdx++) {
 		RefCountPtr<RenderItem> item = new RenderItem();
-		item->Mesh = mesh;
+		item->Mesh = mRenderMesh;
 		item->SetMeshIndexGroup(meshIdx);
 
 		// Get Material
@@ -57,6 +61,9 @@ bool PrimitiveComp::LoadFromFile(std::string file) {
 		// save render item
 		mRenderItems.push_back(item);
 	}
+
+
+	UpdateBoundBox();
 	return true;
 }
 
@@ -67,7 +74,6 @@ MaterialInstance* PrimitiveComp::LoadMaterialFile(std::string file) {
 	}
 
 	std::string shader = material["shader"].Get<lc::string_t>();
-
 	MaterialInstance* materialInst = MaterialManager::GetMaterialInstance(shader);
 	if (materialInst == nullptr) {
 		return nullptr;
@@ -83,8 +89,7 @@ MaterialInstance* PrimitiveComp::LoadMaterialFile(std::string file) {
 			RHITexture* tex = LoadTextureFile(GApp->GetRootPath() / "Content" / imgFile);
 			if (tex) {
 				materialInst->SetParameter(name, tex);
-			}
-			else {
+			} else {
 				CHECK(0);
 			}
 		} else if (type == "int") {
@@ -121,6 +126,44 @@ void PrimitiveComp::CollectRender(SceneCollection* collection) {
 		collection->PushRenderItem(item);
 	}
 
+	// draw bound box
+	if (mIsDrawBoundBox) {
+		if (mBoundBoxRenderItem == nullptr) {
+			mBoundBoxRenderItem = new RenderItem();
+			mBoundBoxRenderItem->RenderSet = RENDER_SET_EDITOR;
+			mBoundBoxRenderItem->Material = MaterialManager::GetMaterialInstance("EditorAxis");
+			mBoundBoxRenderItem->Material->SetFillMode(RS_FILL_WIREFRAME);
+			mBoundBoxRenderItem->Material->SetCullMode(RS_CULL_NONE);
+			mBoundBoxRenderItem->Material->SetParameter("Color", math::Vector3F(1.0f, 1.0f, 0.0f).value, 3);
+			math::Vector3F range = mBoundBox.MaxP - mBoundBox.MinP;
+			mBoundBoxRenderItem->Mesh = MeshGenerator::CreateBox(range.x, range.y, range.z, 0);
+			mBoundBoxRenderItem->SetMeshIndexGroup(0);
+			mBoundBoxRenderItem->WorldMatrix = math::Matrix4F::Identity;
+		}
+		// offset
+		math::Vector3F range = mBoundBox.MaxP - mBoundBox.MinP;
+		range = range / 2.f + mBoundBox.MinP;
+		mBoundBoxRenderItem->WorldMatrix = math::MatrixTransform(range) * mOwner->GetWorldTransform();
+		collection->PushRenderItem(mBoundBoxRenderItem);
+
+	}
+
 }
+
+void PrimitiveComp::UpdateBoundBox() {
+	uint32_t count = mRenderMesh->GetVertexCount();
+	math::Vector3F pos;
+	for (uint32_t i = 0; i < count; i++) {
+		mRenderMesh->GetVertex(SEMANTIC_POSITION, i, pos);
+		mBoundBox.Union(pos);
+
+	}
+	Log<LWARN>() << mBoundBox;
+}
+
+bool PrimitiveComp::IsIntersectRay(const math::Vector3F& rayStart, const math::Vector3F& rayDir) {
+	return true;
+}
+
 
 }

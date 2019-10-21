@@ -104,6 +104,13 @@ inline Matrix4F MatrixRotationZ(float radian) {
 	return r;
 }
 
+inline Matrix4F MatrixTransform(Vector3F trans) {
+    Matrix4F r = Matrix4F::Identity;
+    r[0][3] = trans.x;
+    r[1][3] = trans.y;
+    r[2][3] = trans.z;
+    return r;
+}
 
 }
 }

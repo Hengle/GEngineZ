@@ -10,6 +10,8 @@ const float K_1DIV2PI = 0.159154943f;
 const float K_PIDIV2  = 1.570796327f;
 const float K_PIDIV4  = 0.785398163f;
 
+const float K_MAXFLOAT = 1e10;
+
 // degree
 inline float ToRadian(float degree) {
 	return degree / 180.0f * K_PI;

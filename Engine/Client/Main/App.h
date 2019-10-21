@@ -1,6 +1,6 @@
 #pragma once
 #include <Core/CoreHeader.h>
-#include <Client/EditorUI/UIManager.h>
+#include <Client/Editor/EditorUI.h>
 #include "Input.h"
 
 namespace z {
@@ -34,7 +34,7 @@ public:
 		mEnableEditorUI = enable;
 	}
 
-	UIManager* GetUIManager() {
+    EditorUI* GetUIManager() {
 		return &mUI;
 	}
 
@@ -53,7 +53,7 @@ protected:
 	FilePath mRootPath;
 	bool mEnableEditorUI;
 
-	UIManager mUI;
+    EditorUI mUI;
 };
 
 
