@@ -155,6 +155,7 @@ IEntity* Scene::Pick(const math::Vector3F& rayStart, const math::Vector3F& rayDi
         // convert to local ray
 
 
+
         std::vector<PrimitiveComp*> prims = ent->GetComponents<PrimitiveComp>();
         for (auto prim : prims) {
             //if (prim->IsIntersectRay)
