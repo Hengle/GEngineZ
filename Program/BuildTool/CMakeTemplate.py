@@ -85,9 +85,11 @@ include_directories(ThirdParty/include)
 link_directories(ThirdParty/lib)
 
 %DEFINES%
+
+%CUSTOM_TXT%
 '''
 
-# CUSTOM TARGET
+# TARGETS
 CUSTOM_TEMPLATE = '''
 # ========== Custom Target %CUSTOM_NAME% ==========
 set(%CUSTOM_NAME%_SRC %CUSTOM_SRCS%)
@@ -117,4 +119,15 @@ set(%LIB_NAME%_SRC %LIB_SRCS%)
 %LIB_GROUPS%
 
 add_library(%LIB_NAME% STATIC ${%LIB_NAME%_SRC})
+'''
+
+# External
+QT5_TEMPLATE = '''\
+set(Qt5_DIR %QTDIR%)
+set(QTCOMPS %QTLIB%)
+find_package(Qt5 COMPONENTS ${QTCOMPS} REQUIRED)
+
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
 '''

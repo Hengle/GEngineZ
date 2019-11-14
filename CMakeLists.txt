@@ -72,6 +72,15 @@ add_definitions(-DHLSLCC_DYNLIB)
 add_definitions(-DCOMPRESS_MESH_FILE)
 
 
+set(Qt5_DIR D:/Qt/5.12.6/msvc2017_64/lib/cmake/Qt5)
+set(QTCOMPS Widgets)
+find_package(Qt5 COMPONENTS ${QTCOMPS} REQUIRED)
+
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+
+
 
 # ========== Library Engine ==========
 include_directories(Engine)
@@ -224,6 +233,24 @@ add_executable(SLConverter ${SLConverter_SRC})
 target_link_libraries(SLConverter Engine hlslcc)
 
 set_property(TARGET SLConverter PROPERTY FOLDER Program)
+
+
+# ========== Executable Editor ==========
+include_directories(Program/Editor)
+
+set(Editor_SRC Program/Editor/QtUI/mainwindow.ui Program/Editor/main.cc Program/Editor/Widget/MainWindow.cc Program/Editor/Widget/MainWindow.h)
+
+set(Program_Editor_QtUI_GROUP_FILES Program/Editor/QtUI/mainwindow.ui)
+source_group(QtUI FILES ${Program_Editor_QtUI_GROUP_FILES})
+
+set(Program_Editor_Widget_GROUP_FILES Program/Editor/Widget/MainWindow.cc Program/Editor/Widget/MainWindow.h)
+source_group(Widget FILES ${Program_Editor_Widget_GROUP_FILES})
+
+
+add_executable(Editor ${Editor_SRC})
+target_link_libraries(Editor Engine Qt5::Widgets)
+
+set_property(TARGET Editor PROPERTY FOLDER Program)
 
 
 # ========== Custom Target BuildTool ==========

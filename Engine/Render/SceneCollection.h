@@ -16,7 +16,8 @@ public:
 	void SetCamera(math::Vector3F pos, math::Matrix4F view, math::Matrix4F proj) {
 		mCameraPos = pos;
 		mViewMatrix = view;
-		mViewProjMatrix = view * proj;	}
+		mViewProjMatrix = view * proj;	
+	}
 
 	void PushRenderItem(RenderItem* item) {
 		mRenderItems.push_back(item);

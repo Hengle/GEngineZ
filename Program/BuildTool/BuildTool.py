@@ -22,13 +22,16 @@ class CMake(object):
         self.define = {}
         self.project_name = project_name
 
+    def custom_text(self):
+        return ''
+
+
 class Module(object):
     def __init__(self, name, tp):
         self.NAME = name
         self.TYPE = tp
         self.excludes = None
         self.vsfolder = None
-
 
 class CMakeBuilder(object):
     def __init__(self):
@@ -120,9 +123,10 @@ class CMakeBuilder(object):
                 def_strs.append(define)
             else:
                 def_strs.append("%s=%s"%(define, str(value)))
-
+        
         output = output.replace("%DEFINES%", '\n'.join([T.DEFINE_TEMPLATE.replace("%DEF%", s) for s in def_strs]))
         output = output.replace("%PROJECT_NAME%", config.project_name)
+        output = output.replace("%CUSTOM_TXT%", config.custom_text())
         self.AppendOutput(output)
 
     def AppendOutput(self, output):

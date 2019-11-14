@@ -25,6 +25,10 @@ public:
 		GInput->RegisterEvent(EI_BTN_W, EI_ACT_DOWN, EI_KEY_NONE, btnActclickCb);
 		GInput->RegisterEvent(EI_BTN_W, EI_ACT_UP, EI_KEY_NONE, btnActclickCb);
 
+	
+		InputClickCallback wantSelectCb = std::bind(&CameraController::OnWantSelect, this, _1, _2);
+		GInput->RegisterEvent(EI_BTN_ML, EI_ACT_DOWN, EI_BTN_CTRL, wantSelectCb);
+
 		InputMoveCallback mouseMoveCb = std::bind(&CameraController::OnMouseMove, this, _1, _2, _3);
 		GInput->RegisterEvent(mCtrlMouseKey, EI_ACT_MOVE, EI_KEY_NONE, mouseMoveCb);
 		GInput->RegisterEvent(EI_BTN_MM, EI_ACT_MOVE, EI_KEY_NONE, mouseMoveCb);
@@ -35,6 +39,11 @@ public:
 
 	void SetCamera(Camera* cam) {
 		mCam = cam;
+	}
+
+	void OnWantSelect(EInput key, uint8_t act) {
+		z::Log<LINFO>() << GInput->GetLastX() << GInput->GetLastY();;
+		
 	}
 
 	void OnDirectionKey(EInput key, uint8_t act) {

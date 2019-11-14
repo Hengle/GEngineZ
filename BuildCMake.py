@@ -6,6 +6,7 @@ import sys
 import os
 sys.path.append(BT_PATH)
 import BuildTool as BT
+import CMakeTemplate as T
 
 
 # ================= CMake Config =================
@@ -14,7 +15,20 @@ class CMakeConfig(BT.CMake):
         super(CMakeConfig, self).__init__("GameZ")
         self.define["HLSLCC_DYNLIB"] = True
         self.define["COMPRESS_MESH_FILE"] = True
+        # custom
+        self.qt5_option = {
+            "enable": True,
+            "dir": "D:/Qt/5.12.6/msvc2017_64/lib/cmake/Qt5",
+            "libs" : "Widgets"
+        }
 
+    def custom_text(self):
+        q_op = self.qt5_option
+        output = ''
+        if q_op["enable"]:
+            output = T.QT5_TEMPLATE.replace("%QTDIR%", q_op["dir"]).replace("%QTLIB%", q_op["libs"])
+        
+        return output
 
 
 build_cfg = CMakeConfig()
@@ -53,6 +67,15 @@ class Game(BT.Module):
         self.SOURCE = ["Program/Game"]
         self.DEPS = ["imgui", "Engine", "zlib", "lua"]
         self.vsfolder = "Program"
+
+class Editor(BT.Module):
+    def __init__(self):
+        super(Editor, self).__init__("Editor", BT.EXECUTABLE)
+        self.SOURCE = ["Program/Editor"]
+        self.DEPS = ["Engine", "Qt5::Widgets"]
+        self.vsfolder = "Program"
+
+    
 
 class SLConverter(BT.Module):
     def __init__(self):
@@ -105,9 +128,10 @@ build_targets = [
     Engine(),
     # Progam
     Game(),
+    Editor(),
     SLConverter(),
     MeshConverter(),
-	HLSLLint(),
+    HLSLLint(),
     BuildTool(),
     # Tests
     TestSched(),
