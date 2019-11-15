@@ -238,12 +238,12 @@ set_property(TARGET SLConverter PROPERTY FOLDER Program)
 # ========== Executable Editor ==========
 include_directories(Program/Editor)
 
-set(Editor_SRC Program/Editor/QtUI/mainwindow.ui Program/Editor/main.cc Program/Editor/Widget/MainWindow.cc Program/Editor/Widget/MainWindow.h)
+set(Editor_SRC Program/Editor/QtUI/mainwindow.ui Program/Editor/main.cc Program/Editor/Widget/D3DWidget.cc Program/Editor/Widget/D3DWidget.h Program/Editor/Widget/MainWindow.cc Program/Editor/Widget/MainWindow.h)
 
 set(Program_Editor_QtUI_GROUP_FILES Program/Editor/QtUI/mainwindow.ui)
 source_group(QtUI FILES ${Program_Editor_QtUI_GROUP_FILES})
 
-set(Program_Editor_Widget_GROUP_FILES Program/Editor/Widget/MainWindow.cc Program/Editor/Widget/MainWindow.h)
+set(Program_Editor_Widget_GROUP_FILES Program/Editor/Widget/D3DWidget.cc Program/Editor/Widget/D3DWidget.h Program/Editor/Widget/MainWindow.cc Program/Editor/Widget/MainWindow.h)
 source_group(Widget FILES ${Program_Editor_Widget_GROUP_FILES})
 
 

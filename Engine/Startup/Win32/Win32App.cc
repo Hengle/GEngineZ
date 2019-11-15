@@ -11,7 +11,7 @@ bool Win32App::Init() {
 	InitWindow();
 
 	// device
-	new DX12Device(mMainWnd);
+	new DX12Device();
 
 
 	// Get Root Path

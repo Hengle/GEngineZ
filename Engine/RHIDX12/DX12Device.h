@@ -10,20 +10,16 @@ class DX12Executor;
 
 class DX12Device: public RHIDevice {
 public:
-	DX12Device(HWND hwnd);
+	DX12Device();
 	~DX12Device();
 
-
 	// DX12 Method
-	void InitDevice(HWND hwnd);
+	void InitDevice();
 
 	IDXGIFactory5* GetIDXGIFactory() {
 		return mDxgiFactory.GetRef();
 	}
 
-	HWND GetHWND() {
-		return mHWND;
-	}
 
 	ID3D12Device3* GetIDevice() {
 		return mDevice.GetRef();
@@ -34,7 +30,7 @@ public:
 	}
 
 	// ====  begin device method ====
-	RHIViewport* CreateViewport(uint32_t width, uint32_t height, ERHIPixelFormat format) override;
+	RHIViewport* CreateViewport(uint32_t width, uint32_t height, ERHIPixelFormat format, void *window) override;
 	RHIShader* CreateShader() override;
 	RHIShaderStage* CreateShaderStage(const char* data, size_t dataLen, ERHIShaderStage stype) override;
 	RHIShaderInstance* CreateShaderInstance(RHIShader*) override;
@@ -57,7 +53,6 @@ public:
 
 	
 private:
-	HWND mHWND;
 	RefCountPtr<IDXGIFactory5> mDxgiFactory{ nullptr };
 	RefCountPtr<ID3D12Device3> mDevice{ nullptr };
 

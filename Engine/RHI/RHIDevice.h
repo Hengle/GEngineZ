@@ -11,7 +11,7 @@ public:
 	virtual ~RHIDevice();
 
 	// create
-	virtual RHIViewport* CreateViewport(uint32_t width, uint32_t height, ERHIPixelFormat format) = 0;
+	virtual RHIViewport* CreateViewport(uint32_t width, uint32_t height, ERHIPixelFormat format, void* window) = 0;
 
 	virtual RHIShader* CreateShader() = 0;
 	virtual RHIShaderStage* CreateShaderStage(const char* data, size_t dataLen, ERHIShaderStage stype) = 0;

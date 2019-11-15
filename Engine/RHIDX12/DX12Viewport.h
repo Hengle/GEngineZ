@@ -12,7 +12,7 @@ namespace z {
 
 class DX12Viewport : public RHIViewport {
 public:
-	DX12Viewport(uint32_t with, uint32_t height, DXGI_FORMAT format);
+	DX12Viewport(uint32_t with, uint32_t height, DXGI_FORMAT format, void *window);
 	
 	// begin RHI Viewport
 	void Resize(uint32_t width, uint32_t height) override;

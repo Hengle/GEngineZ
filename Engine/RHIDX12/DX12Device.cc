@@ -9,13 +9,12 @@ namespace z {
 
 DX12Device* GDX12Device = nullptr;
 
-DX12Device::DX12Device(HWND hwnd) :
+DX12Device::DX12Device() :
 	RHIDevice(),
-	mHWND(hwnd),
 	mExecutor(nullptr) {
 	InitializeSingleton<DX12Device>(GDX12Device, this);
 
-	InitDevice(hwnd);
+	InitDevice();
 }
 
 DX12Device::~DX12Device() {
@@ -26,7 +25,7 @@ DX12Device::~DX12Device() {
 }
 
 
-void DX12Device::InitDevice(HWND hwnd) {
+void DX12Device::InitDevice() {
 	UINT createFactoryFlag = 0;
 	{
 		Microsoft::WRL::ComPtr<ID3D12Debug> debugController;
@@ -74,8 +73,8 @@ void DX12Device::InitDevice(HWND hwnd) {
 
 
 
-RHIViewport* DX12Device::CreateViewport(uint32_t width, uint32_t height, ERHIPixelFormat format) {
-	return new DX12Viewport(width, height, FromRHIFormat(format));
+RHIViewport* DX12Device::CreateViewport(uint32_t width, uint32_t height, ERHIPixelFormat format, void *window) {
+	return new DX12Viewport(width, height, FromRHIFormat(format), window);
 }
 
 RHIShader* DX12Device::CreateShader() {

@@ -7,14 +7,14 @@
 namespace z {
 
 
-DX12Viewport::DX12Viewport(uint32_t width, uint32_t height, DXGI_FORMAT format) :
+DX12Viewport::DX12Viewport(uint32_t width, uint32_t height, DXGI_FORMAT format, void* window) :
 	RHIViewport(),
 	mWidth(width),
 	mHeight(height),
 	mFormat(format),
 	mCurBackBufferIndex(0) {
 
-	auto hwnd = GDX12Device->GetHWND();
+	HWND hwnd = (HWND)window;
 	auto dxgiFactory = GDX12Device->GetIDXGIFactory();
 	auto commandQueue = GDX12Device->GetExecutor()->GetCommandQueue();
 

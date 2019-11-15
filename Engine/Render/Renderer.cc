@@ -46,7 +46,7 @@ void Renderer::Resize(uint32_t width, uint32_t height) {
 	mViewportWidth = width;
 	mViewportHeight = height;
 	if (!mRHIViewport) {
-		mRHIViewport = GDevice->CreateViewport(width, height, PF_R8G8B8A8);
+		mRHIViewport = GDevice->CreateViewport(width, height, PF_R8G8B8A8, nullptr);
 		mDepthStencil = new DepthStencil(width, height, PF_D24S8);
 	} else {
 		if (mBackRT)
